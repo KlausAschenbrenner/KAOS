@@ -1,6 +1,11 @@
 #include "../drivers/common.h"
 #include "../drivers/screen.h"
 
+// Function definitions
+void TestTabs();
+void TestScrolling();
+void Sleep();
+
 // Main function of the Kernel
 void k_main()
 {
