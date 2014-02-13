@@ -34,8 +34,7 @@ boot/bootsector.bin : boot/bootsector.asm
 	
 # Clean up
 clean:
-	rm boot/*.bin
-	rm kernel/*.bin kernel/*.o
-	rm drivers/*.o
-	rm kaos.img
-	# rm kaos.iso
+	rm -f boot/*.bin
+	rm -f kernel/*.bin kernel/*.o
+	rm -f drivers/*.o
+	rm -f kaos.img
