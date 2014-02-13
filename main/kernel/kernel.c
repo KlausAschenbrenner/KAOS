@@ -28,7 +28,7 @@ void k_main()
 
 	// TestScrolling();
 
-	TestTabs();
+	// TestTabs();
     
     printf("\n");
     printf("\n");
