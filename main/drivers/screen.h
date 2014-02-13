@@ -1,8 +1,13 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
+// Video output memory address
 #define VIDEO_MEMORY 0xB8000
+
+// The number of rows of the video memory
 #define ROWS 25
+
+// The number of columns of the video memory
 #define COLS 80
 
 // Text mode color constants
