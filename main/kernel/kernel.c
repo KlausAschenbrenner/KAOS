@@ -1,10 +1,6 @@
 #include "../drivers/common.h"
 #include "../drivers/screen.h"
-
-// Function definitions
-void TestTabs();
-void TestScrolling();
-void Sleep();
+#include "kernel.h"
 
 // Main function of the Kernel
 void k_main()
@@ -38,7 +34,8 @@ void k_main()
     printf("\n");
     printf("\n");
     printf("Klaus Aschenbrenner\n");
-    printf("OS System programming directly on the Mac :-)");
+    printf("OS System programming directly on the Mac\n");
+    printf("The source code is stored in a GitHub repository");
 }
 
 void TestTabs()
