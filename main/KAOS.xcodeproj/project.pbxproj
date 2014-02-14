@@ -16,6 +16,7 @@
 		400D26E518AD78210012FE3B /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
 		400D26E618AD78210012FE3B /* kernelentry.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; path = kernelentry.asm; sourceTree = "<group>"; };
 		400D26E718AD78210012FE3B /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		4084BEC018AE794F003CF9B6 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -52,6 +53,7 @@
 		400D26E418AD78210012FE3B /* kernel */ = {
 			isa = PBXGroup;
 			children = (
+				4084BEC018AE794F003CF9B6 /* kernel.h */,
 				400D26E518AD78210012FE3B /* kernel.c */,
 				400D26E618AD78210012FE3B /* kernelentry.asm */,
 			);
