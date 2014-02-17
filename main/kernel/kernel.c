@@ -1,13 +1,28 @@
 #include "../drivers/common.h"
 #include "../drivers/screen.h"
 #include "kernel.h"
+#include "IDT/idt.h"
+
+extern void RaiseInterrupt();
 
 // Main function of the Kernel
 void k_main()
 {
+    // Initializes the screen
 	InitializeScreen();
     
+    // Initializes the ISR routines
+    InitIdt();
+    
     printf("Build on Mac OSX\n");
+    
+    int i = 1;
+    int j = 0;
+    
+    // int k = i / j;
+    
+    // Raise some example interrupts
+    RaiseInterrupt();
 
 	/*unsigned char c = inb(0x64);
 	printf(c);

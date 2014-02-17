@@ -53,4 +53,9 @@ void print_char(char character);
 // Prints a null-terminated string
 void printf(char *string);
 
+static void itoa_s(unsigned i, unsigned base, char *buf);
+
+// Converts an integer value to a string value for a specific base (base 10 => decimal, base 16 => hex)
+void itoa(int i, unsigned base, char *buf);
+
 #endif

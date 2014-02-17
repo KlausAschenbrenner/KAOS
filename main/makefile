@@ -15,18 +15,22 @@ kaos.img : boot/bootsector.bin kernel/kernel.bin
 	# cp ../kaos.iso /cygdrive/z/Klaus/Documents/kaos.iso
 
 # Links the C kernel
-kernel/kernel.bin: kernel/kernelentry.o kernel/kernel.o drivers/common.o drivers/screen.o
-	~/Documents/dev/opt/cross/bin/i586-elf-ld -o kernel/kernel.bin -Ttext 0x1200 kernel/kernelentry.o kernel/kernel.o drivers/common.o drivers/screen.o --oformat binary
+kernel/kernel.bin: kernel/kernelentry.o kernel/kernel.o kernel/IDT/idt_asm.o drivers/common.o drivers/screen.o
+	~/Documents/dev/opt/cross/bin/i586-elf-ld -o kernel/kernel.bin -Ttext 0x1200 kernel/kernelentry.o kernel/kernel.o kernel/IDT/idt_asm.o kernel/IDT/idt.o drivers/common.o drivers/screen.o --oformat binary
 
 # Compiles the C kernel entry file
-kernel/kernel.o : kernel/kernel.c drivers/screen.c drivers/common.c
+kernel/kernel.o : kernel/kernel.c kernel/IDT/idt.c drivers/screen.c drivers/common.c
 	~/Documents/dev/opt/cross/bin/i586-elf-gcc -ffreestanding -c kernel/kernel.c -o kernel/kernel.o
+	~/Documents/dev/opt/cross/bin/i586-elf-gcc -ffreestanding -c kernel/IDT/idt.c -o kernel/IDT/idt.o
 	~/Documents/dev/opt/cross/bin/i586-elf-gcc -ffreestanding -c drivers/common.c -o drivers/common.o
 	~/Documents/dev/opt/cross/bin/i586-elf-gcc -ffreestanding -c drivers/screen.c -o drivers/screen.o
 
 # Build the kernel entry file
 kernel/kernelentry.o : kernel/kernelentry.asm
 	nasm kernel/kernelentry.asm -f elf -o kernel/kernelentry.o
+    
+kernel/IDT/idt_asm.o : kernel/IDT/idt.asm
+	nasm kernel/IDT/idt.asm -f elf -o kernel/IDT/idt_asm.o
 
 # Build the boot sector
 boot/bootsector.bin : boot/bootsector.asm
@@ -35,6 +39,6 @@ boot/bootsector.bin : boot/bootsector.asm
 # Clean up
 clean:
 	rm -f boot/*.bin
-	rm -f kernel/*.bin kernel/*.o
+	rm -f kernel/*.bin kernel/*.o kernel/IDT/*.o
 	rm -f drivers/*.o
 	rm -f kaos.img
