@@ -38,7 +38,8 @@ static void TimerCallback(InterruptRegisters Register)
     
     char str[32] = {0};
     itoa(counter, 10, str);
-    printf("Timer counter: ");
+    
+    /* printf("Timer counter: ");
     printf(str);
-    printf("\n");
+    printf("\n"); */
 }

@@ -1,6 +1,7 @@
 #include "../drivers/common.h"
 #include "../drivers/screen.h"
 #include "../drivers/timer.h"
+#include "../drivers/keyboard.h"
 #include "kernel.h"
 
 extern void RaiseInterrupt();
@@ -17,7 +18,7 @@ void k_main()
     // Disable the hardware interrupts
     DisableInterrupts();
     
-    // Initializes the PIC
+    // Initializes the PIC, and remap the IRQ handler
     // 0x20: 32 decimal
     // 0x28: 40 decimal
     PICInitialize(0x20, 0x28);
@@ -25,15 +26,11 @@ void k_main()
     // Initialize the system timer to 20 Hertz
     InitTimer(20);
     
+    // Initialize the keyboard
+    InitKeyboard();
+    
     // Enable the hardware interrupts again
     EnableInterrupts();
-    
-    printf("Build on Mac OSX\n");
-    
-    // int i = 1;
-    // int j = 0;
-    
-    // int k = i / j;
     
     // Raise some example interrupts
     // RaiseInterrupt();
@@ -42,11 +39,31 @@ void k_main()
 
 	// TestTabs();
     
-    printf("\n");
-    printf("\n");
-    printf("Klaus Aschenbrenner\n");
-    printf("OS System programming directly on the Mac\n");
-    printf("The source code is stored in a GitHub repository\n");
+    TestKeyboardInput();
+}
+
+void TestKeyboardInput()
+{
+    char first_name[80];
+    printf("Enter your first name: ");
+    scanf(first_name, 78);
+    
+    char last_name[80];
+    printf("Enter your last name: ");
+    scanf(last_name, 78);
+    
+    printf("Your name is ");
+    printf(first_name);
+    printf(" ");
+    printf(last_name);
+}
+
+void TestDivideByZeroException()
+{
+    int i = 1;
+    int j = 0;
+    
+    int k = i / j;
 }
 
 void TestTabs()

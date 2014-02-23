@@ -16,6 +16,8 @@
 		400D26E518AD78210012FE3B /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
 		400D26E618AD78210012FE3B /* kernelentry.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; path = kernelentry.asm; sourceTree = "<group>"; };
 		400D26E718AD78210012FE3B /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		407C72E518BA77A200B51B99 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = keyboard.h; sourceTree = "<group>"; };
+		407C72E618BA77BF00B51B99 /* keyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = keyboard.c; sourceTree = "<group>"; };
 		4084BEC018AE794F003CF9B6 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
 		40965CEC18BA01EF00B4440D /* pic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pic.h; path = pic/pic.h; sourceTree = "<group>"; };
 		40965CEE18BA074900B4440D /* pic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pic.c; path = pic/pic.c; sourceTree = "<group>"; };
@@ -58,6 +60,8 @@
 				400D26E118AD78210012FE3B /* common.h */,
 				400D26E218AD78210012FE3B /* screen.c */,
 				400D26E318AD78210012FE3B /* screen.h */,
+				407C72E518BA77A200B51B99 /* keyboard.h */,
+				407C72E618BA77BF00B51B99 /* keyboard.c */,
 			);
 			path = drivers;
 			sourceTree = "<group>";

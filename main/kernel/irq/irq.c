@@ -26,14 +26,6 @@ void IrqHandler(InterruptRegisters registers)
     // Send reset signal to master
     outb(I86_PIC1_REG_COMMAND, I86_PIC_OCW2_MASK_EOI);
     
-    // Print out a message that we have received an IRQ
-    /* char str[32] = {0};
-    itoa(registers.InterruptNumber, 16, str);
-    printf("Received IRQ: ");
-    printf("0x");
-    printf(str);
-    printf("\n"); */
-    
     // Call the IRQ callback function, if one is registered
     if (InterruptHandlers[registers.InterruptNumber] != 0)
     {
