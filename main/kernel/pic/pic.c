@@ -18,7 +18,6 @@ static void PICSendCommand(unsigned char cmd, unsigned char picNum)
 	outb(reg, cmd);
 }
 
-
 // Sends data to PICs
 static void PICSendData(unsigned char data, unsigned char picNum)
 {
@@ -28,7 +27,6 @@ static void PICSendData(unsigned char data, unsigned char picNum)
 	unsigned char reg = (picNum == 1) ? I86_PIC2_REG_DATA : I86_PIC1_REG_DATA;
 	outb(reg, data);
 }
-
 
 // Reads data from PICs
 static unsigned char PICReadData(unsigned char picNum)
