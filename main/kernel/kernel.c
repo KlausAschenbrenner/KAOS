@@ -1,7 +1,7 @@
 #include "../drivers/common.h"
 #include "../drivers/screen.h"
+#include "../drivers/timer.h"
 #include "kernel.h"
-#include "IDT/idt.h"
 
 extern void RaiseInterrupt();
 
@@ -11,36 +11,32 @@ void k_main()
     // Initializes the screen
 	InitializeScreen();
     
-    // Initializes the ISR routines
+    // Initializes the ISR & IRQ routines
     InitIdt();
+    
+    // Disable the hardware interrupts
+    DisableInterrupts();
+    
+    // Initializes the PIC
+    // 0x20: 32 decimal
+    // 0x28: 40 decimal
+    PICInitialize(0x20, 0x28);
+    
+    // Initialize the system timer to 20 Hertz
+    InitTimer(20);
+    
+    // Enable the hardware interrupts again
+    EnableInterrupts();
     
     printf("Build on Mac OSX\n");
     
-    int i = 1;
-    int j = 0;
+    // int i = 1;
+    // int j = 0;
     
     // int k = i / j;
     
     // Raise some example interrupts
-    RaiseInterrupt();
-
-	/*unsigned char c = inb(0x64);
-	printf(c);
-
-	while (1 == 1)
-	{
-		c = inb(0x60);
-		printf(c);
-	}*/
-
-	// outb(inb(0x21)&0xfd, 0x21);
-	
-	// int com = 0;
-
-	/* char scan_code = inb(0x60);
-	outb((com=inb(0x61))|0x80, 0x61);
-	outb(com&0x7f, 0x61);
-	outb(0x20, 0x20);*/
+    // RaiseInterrupt();
 
 	// TestScrolling();
 
@@ -50,7 +46,7 @@ void k_main()
     printf("\n");
     printf("Klaus Aschenbrenner\n");
     printf("OS System programming directly on the Mac\n");
-    printf("The source code is stored in a GitHub repository");
+    printf("The source code is stored in a GitHub repository\n");
 }
 
 void TestTabs()

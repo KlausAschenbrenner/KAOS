@@ -7,6 +7,7 @@
 //
 
 #include "idt.h"
+#include "../irq/irq.h"
 
 // The 256 possible interrupt gates
 IdtEntry _idtEntries[256];
@@ -24,6 +25,13 @@ void IsrHandler(InterruptRegisters registers)
     printf("0x");
     printf(str);
     printf("\n");
+    printf("Error code: ");
+    itoa(registers.ErrorCode, 10, str);
+    printf(str);
+    printf("\n");
+    
+    // Halt the system
+    for (;;);
 }
 
 // Initializes the IDT table
@@ -34,6 +42,7 @@ void InitIdt()
     
     memset(&_idtEntries, 0, sizeof(IdtEntry) * 256);
     
+    // Setup the 32 Exception handler
     IdtSetGate(0, (unsigned int)Isr0, 0x8, 0x8E);
 	IdtSetGate(1, (unsigned int)Isr1, 0x8, 0x8E);
 	IdtSetGate(2, (unsigned int)Isr2, 0x8, 0x8E);
@@ -67,6 +76,24 @@ void InitIdt()
 	IdtSetGate(30, (unsigned int)Isr30, 0x8, 0x8E);
 	IdtSetGate(31, (unsigned int)Isr31, 0x8, 0x8E);
     
+    // Setup the 15 IRQ handler
+    IdtSetGate(32, (unsigned int)Irq0, 0x08, 0x8E);
+    IdtSetGate(33, (unsigned int)Irq1, 0x08, 0x8E);
+    IdtSetGate(34, (unsigned int)Irq2, 0x08, 0x8E);
+    IdtSetGate(35, (unsigned int)Irq3, 0x08, 0x8E);
+    IdtSetGate(36, (unsigned int)Irq4, 0x08, 0x8E);
+    IdtSetGate(37, (unsigned int)Irq5, 0x08, 0x8E);
+    IdtSetGate(38, (unsigned int)Irq6, 0x08, 0x8E);
+    IdtSetGate(39, (unsigned int)Irq7, 0x08, 0x8E);
+    IdtSetGate(40, (unsigned int)Irq8, 0x08, 0x8E);
+    IdtSetGate(41, (unsigned int)Irq9, 0x08, 0x8E);
+    IdtSetGate(42, (unsigned int)Irq10, 0x08, 0x8E);
+    IdtSetGate(43, (unsigned int)Irq11, 0x08, 0x8E);
+    IdtSetGate(44, (unsigned int)Irq12, 0x08, 0x8E);
+    IdtSetGate(45, (unsigned int)Irq13, 0x08, 0x8E);
+    IdtSetGate(46, (unsigned int)Irq14, 0x08, 0x8E);
+    IdtSetGate(47, (unsigned int)Irq15, 0x08, 0x8E);
+    
     // Loads the IDT table into the processor register (Assembler function)
     IdtFlush((unsigned int)&_idtPointer);
 }
@@ -79,15 +106,4 @@ static void IdtSetGate(unsigned char num, unsigned int base, unsigned short sel,
     _idtEntries[num].sel = sel;
     _idtEntries[num].always0 = 0;
     _idtEntries[num].flags = flags;
-}
-
-// A simple memset implementation
-static void *memset(void *s, int c, long n)
-{
-    unsigned char *p = s;
-    
-    while (n--)
-        *p++ = (unsigned char)c;
-    
-    return s;
 }

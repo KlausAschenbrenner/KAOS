@@ -24,3 +24,14 @@ unsigned short inw(unsigned short Port)
    
    return ret;
 }
+
+// A simple memset implementation
+void *memset(void *s, int c, long n)
+{
+    unsigned char *p = s;
+    
+    while (n--)
+        *p++ = (unsigned char)c;
+    
+    return s;
+}

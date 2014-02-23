@@ -28,30 +28,6 @@ struct IdtPointer
 } __attribute((packed));
 typedef struct IdtPointer IdtPointer;
 
-// Represents the registers that are passed as a parameter to our ISR function
-typedef struct InterruptRegisters
-{
-    unsigned int ds;
-    unsigned int edi;
-    unsigned int esi;
-    unsigned int ebp;
-    unsigned int esp;
-    unsigned int ebx;
-    unsigned int edx;
-    unsigned int ecx;
-    unsigned int eax;
-    unsigned int InterruptNumber;
-    unsigned int ErrorCode;
-    unsigned int eip;
-    unsigned int cs;
-    unsigned int eflags;
-    unsigned int useresp;
-    unsigned int ss;
-} InterruptRegisters;
-
-// A simple memset function
-static void *memset(void *s, int c, long n);
-
 // Installs the corresponding ISR routine in the IDT table
 static void IdtSetGate(unsigned char num, unsigned int base, unsigned short sel, unsigned char flags);
 

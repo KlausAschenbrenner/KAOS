@@ -17,6 +17,13 @@
 		400D26E618AD78210012FE3B /* kernelentry.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; path = kernelentry.asm; sourceTree = "<group>"; };
 		400D26E718AD78210012FE3B /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
 		4084BEC018AE794F003CF9B6 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
+		40965CEC18BA01EF00B4440D /* pic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pic.h; path = pic/pic.h; sourceTree = "<group>"; };
+		40965CEE18BA074900B4440D /* pic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pic.c; path = pic/pic.c; sourceTree = "<group>"; };
+		40965CF318BA361600B4440D /* irq.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = irq.asm; path = irq/irq.asm; sourceTree = "<group>"; };
+		40965CF418BA361600B4440D /* irq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = irq.h; path = irq/irq.h; sourceTree = "<group>"; };
+		40965CF518BA36B900B4440D /* irq.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = irq.c; path = irq/irq.c; sourceTree = "<group>"; };
+		40965CF818BA4FE200B4440D /* timer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timer.c; sourceTree = "<group>"; };
+		40965CF918BA4FE200B4440D /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
 		40C55C7018B2A4790076BC91 /* idt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = idt.c; sourceTree = "<group>"; };
 		40C55C7118B2A4790076BC91 /* idt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idt.h; sourceTree = "<group>"; };
 		40C55C7218B2A4EC0076BC91 /* idt.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; path = idt.asm; sourceTree = "<group>"; };
@@ -45,6 +52,8 @@
 		400D26DF18AD78210012FE3B /* drivers */ = {
 			isa = PBXGroup;
 			children = (
+				40965CF818BA4FE200B4440D /* timer.c */,
+				40965CF918BA4FE200B4440D /* timer.h */,
 				400D26E018AD78210012FE3B /* common.c */,
 				400D26E118AD78210012FE3B /* common.h */,
 				400D26E218AD78210012FE3B /* screen.c */,
@@ -56,7 +65,9 @@
 		400D26E418AD78210012FE3B /* kernel */ = {
 			isa = PBXGroup;
 			children = (
-				40C55C6F18B2A4790076BC91 /* IDT */,
+				40965CF218BA35EC00B4440D /* irq */,
+				40965CEB18BA015100B4440D /* pic */,
+				40C55C6F18B2A4790076BC91 /* idt */,
 				4084BEC018AE794F003CF9B6 /* kernel.h */,
 				400D26E518AD78210012FE3B /* kernel.c */,
 				400D26E618AD78210012FE3B /* kernelentry.asm */,
@@ -64,13 +75,33 @@
 			path = kernel;
 			sourceTree = "<group>";
 		};
-		40C55C6F18B2A4790076BC91 /* IDT */ = {
+		40965CEB18BA015100B4440D /* pic */ = {
+			isa = PBXGroup;
+			children = (
+				40965CEE18BA074900B4440D /* pic.c */,
+				40965CEC18BA01EF00B4440D /* pic.h */,
+			);
+			name = pic;
+			sourceTree = "<group>";
+		};
+		40965CF218BA35EC00B4440D /* irq */ = {
+			isa = PBXGroup;
+			children = (
+				40965CF318BA361600B4440D /* irq.asm */,
+				40965CF418BA361600B4440D /* irq.h */,
+				40965CF518BA36B900B4440D /* irq.c */,
+			);
+			name = irq;
+			sourceTree = "<group>";
+		};
+		40C55C6F18B2A4790076BC91 /* idt */ = {
 			isa = PBXGroup;
 			children = (
 				40C55C7018B2A4790076BC91 /* idt.c */,
 				40C55C7118B2A4790076BC91 /* idt.h */,
 				40C55C7218B2A4EC0076BC91 /* idt.asm */,
 			);
+			name = idt;
 			path = IDT;
 			sourceTree = "<group>";
 		};
