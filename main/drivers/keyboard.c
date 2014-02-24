@@ -13,8 +13,11 @@
 // The value "0" means, we have entered a non-printable character (like "shift")
 static char _lastReceivedScanCode;
 
-// Stores if the shift key is pressed
+// Stores if the shift key is pressed, or not
 int _shiftKey;
+
+// Stores if the caps lock key is pressed, or not
+int _capsLock;
 
 //! invalid scan code. Used to indicate the last scan code is not to be reused
 const int INVALID_SCANCODE = 0;
@@ -27,16 +30,20 @@ void InitKeyboard()
     
     // Set the internal key buffer to KEY_UNKNOWN
     DiscardLastKey();
+    
+    _capsLock = 0;
 }
 
 // Reads data from the keyboard
 void scanf(char *buffer, int buffer_size)
 {
+    int processKey = 1;
     int i = 0;
     
     while (i < buffer_size)
     {
         char key = getchar();
+        processKey = 1;
         
         // When we have hit the ENTER key, we have finished entering our input data
         if (key == KEY_RETURN)
@@ -45,16 +52,49 @@ void scanf(char *buffer, int buffer_size)
             break;
         }
         
-        // Convert the entered key to the correct ASCII code
-        key = KeyboardKeyToASCII(key);
+        if (key == KEY_BACKSPACE)
+        {
+            processKey = 0;
         
-        // Print out the current entered key stroke
-        // If we have pressed a non-printable key, the character is not printed out
-        if (key != 0)
-            print_char(key);
+            // We only process the backspace key, if we have data already in the input buffer
+            if (i > 0)
+            {
+                int col;
+                int row;
+            
+                // Move the cursor position one character back
+                GetCursorPosition(&row, &col);
+                col -= 1;
+                SetCursorPosition(row, col);
+            
+                // Clear out the last printed key
+                // This also moves the cursor one character forward, so we have to go back
+                // again with the cursor in the next step
+                print_char(' ');
+                
+                // Move the cursor position one character back again
+                GetCursorPosition(&row, &col);
+                col -= 1;
+                SetCursorPosition(row, col);
+            
+                // Delete the last entered character from the input buffer
+                i--;
+            }
+        }
         
-        // Write the entered character into the provided buffer
-        buffer[i++] = key;
+        if (processKey == 1)
+        {
+            // Convert the entered key to the correct ASCII code
+            key = KeyboardKeyToASCII(key);
+        
+            // Print out the current entered key stroke
+            // If we have pressed a non-printable key, the character is not printed out
+            if (key != 0)
+                print_char(key);
+        
+            // Write the entered character into the provided buffer
+            buffer[i++] = key;
+        }
     }
     
     // Null-terminate the input string
@@ -93,9 +133,9 @@ static char GetLastKey()
 // (e.g. performing an upper case conversion)
 static char KeyboardKeyToASCII(char key)
 {
-    if (_shiftKey)
+    if (_shiftKey || _capsLock)
     {
-        // If we have currently pressed one of the shift keys, we convert the current entered key to upper case
+        // If we have currently pressed one of the shift keys or the caps lock key, we convert the current entered key to upper case
         key -= 32;
     }
     
@@ -144,6 +184,15 @@ static void KeyboardCallback(InterruptRegisters Register)
             
             switch (key)
             {
+                case KEY_CAPSLOCK:
+                    // The caps lock key is pressed
+                    // We just toggle the flag
+                    if (_capsLock == 1)
+                        _capsLock = 0;
+                    else
+                        _capsLock = 1;
+                    
+                    break;
                 case KEY_LSHIFT:
                     // The left shift key is pressed
                     _shiftKey = 1;

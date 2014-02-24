@@ -58,4 +58,13 @@ static void itoa_s(unsigned i, unsigned base, char *buf);
 // Converts an integer value to a string value for a specific base (base 10 => decimal, base 16 => hex)
 void itoa(int i, unsigned base, char *buf);
 
+// Returns the current cursor position
+void GetCursorPosition(int *Row, int *Col);
+
+// Sets the current cursor position
+void SetCursorPosition(int Row, int Col);
+
+// Moves the screen cursor to the current location on the screen.
+void MoveCursor();
+
 #endif

@@ -9,6 +9,21 @@ void InitializeScreen()
 	screenLocation.Attributes = COLOR_LIGHT_MAGENTA;
 }
 
+// Returns the current cursor position
+void GetCursorPosition(int *Row, int *Col)
+{
+    *Row = screenLocation.Row;
+    *Col = screenLocation.Col;
+}
+
+// Sets the current cursor position
+void SetCursorPosition(int Row, int Col)
+{
+    screenLocation.Row = Row;
+    screenLocation.Col = Col;
+    MoveCursor();
+}
+
 // Moves the screen cursor to the current location on the screen.
 void MoveCursor()
 {

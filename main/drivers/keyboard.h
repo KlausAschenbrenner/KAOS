@@ -208,7 +208,7 @@ static int ScanCodes [] =
 	KEY_E,			//0x12
 	KEY_R,			//0x13
 	KEY_T,			//0x14
-	KEY_Y,			//0x15
+	KEY_Z,			//0x15
 	KEY_U,			//0x16
 	KEY_I,			//0x17
 	KEY_O,			//0x18
@@ -231,7 +231,7 @@ static int ScanCodes [] =
 	KEY_GRAVE,		//0x29
 	KEY_LSHIFT,		//0x2a
 	KEY_BACKSLASH,	//0x2b
-	KEY_Z,			//0x2c
+	KEY_Y,			//0x2c
 	KEY_X,			//0x2d
 	KEY_C,			//0x2e
 	KEY_V,			//0x2f
