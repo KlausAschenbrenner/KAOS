@@ -1,8 +1,3 @@
-# Old Version!
-# kaos.bin : boot/bootsector.bin kernel/kernel.bin
-#	cat boot/bootsector.bin kernel/kernel.bin > kaos.bin
-#	cp kaos.bin ../kaos.bin
-
 # Automatically generate lists of sources using wildcards.
 C_SOURCES = $(wildcard drivers/*.c kernel/*.c kernel/pic/*.c kernel/idt/*.c kernel/irq/*.c)
 HEADERS = $(wildcard drivers/*.h kernel/*.h kernel/pic/*.h kernel/idt/*.h kernel/irq/*.h)
@@ -15,10 +10,6 @@ OBJ = ${C_SOURCES:.c=.o}
 kaos.img : boot/bootsector.bin kernel/kernel.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -c -s boot/bootsector.bin -f kaos.img
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f kaos.img -i kernel/kernel.bin
-	# miso kaos.iso -ab kaos.img
-	# cp kaos.img ../kaos.img
-	# cp kaos.iso ../kaos.iso
-	# cp ../kaos.iso /cygdrive/z/Klaus/Documents/kaos.iso
 
 # Links the C kernel
 kernel/kernel.bin: kernel/kernelentry.o kernel/idt/idt_asm.o kernel/irq/irq_asm.o ${OBJ}
@@ -30,19 +21,19 @@ kernel/kernel.bin: kernel/kernelentry.o kernel/idt/idt_asm.o kernel/irq/irq_asm.
 
 # Build the kernel entry file
 kernel/kernelentry.o : kernel/kernelentry.asm
-	nasm kernel/kernelentry.asm -f elf -o kernel/kernelentry.o
+	~/Documents/dev/nasm-2.13/nasm kernel/kernelentry.asm -f elf -o kernel/kernelentry.o
 
 # Builds the ISR handlers written in Assembler
 kernel/idt/idt_asm.o : kernel/idt/idt.asm
-	nasm kernel/idt/idt.asm -f elf -o kernel/idt/idt_asm.o
+	~/Documents/dev/nasm-2.13/nasm kernel/idt/idt.asm -f elf -o kernel/idt/idt_asm.o
 
 # Builds the IRQ handlers written in Assembler
 kernel/irq/irq_asm.o : kernel/irq/irq.asm
-	nasm kernel/irq/irq.asm -f elf -o kernel/irq/irq_asm.o
+	~/Documents/dev/nasm-2.13/nasm kernel/irq/irq.asm -f elf -o kernel/irq/irq_asm.o
 
 # Builds the boot sector
 boot/bootsector.bin : boot/bootsector.asm
-	nasm boot/bootsector.asm -f bin -o boot/bootsector.bin
+	~/Documents/dev/nasm-2.13/nasm boot/bootsector.asm -f bin -o boot/bootsector.bin
 	
 # Clean up
 clean:
