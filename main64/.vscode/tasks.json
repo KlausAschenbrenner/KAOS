@@ -4,13 +4,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "make KAOS",
+            "label": "make KAOS64",
             "type": "shell",
             "command": "make clean; make",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "problemMatcher": []
         }
     ]
 }
