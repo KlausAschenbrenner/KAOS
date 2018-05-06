@@ -7,5 +7,10 @@
 			"path": "main64"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"kernel.h": "c",
+			"common.h": "c"
+		}
+	}
 }
