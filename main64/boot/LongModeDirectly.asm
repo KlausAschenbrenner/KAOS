@@ -82,7 +82,7 @@ SwitchToLongMode:
     wrmsr
  
     mov ebx, cr0                      ; Activate long mode -
-    or ebx,0x80000001                 ; - by enabling paging and protection simultaneously.
+    or ebx, 0x80000001                 ; - by enabling paging and protection simultaneously.
     mov cr0, ebx                    
  
     lgdt [GDT.Pointer]                ; Load GDT.Pointer defined below.

@@ -37,9 +37,9 @@ void k_main()
 
 	// TestScrolling();
 
-	TestTabs();
+	// TestTabs();
     
-    // TestKeyboardInput();
+    TestKeyboardInput();
 }
 
 void TestKeyboardInput()

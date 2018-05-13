@@ -20,7 +20,7 @@ int _shiftKey;
 int _capsLock;
 
 //! invalid scan code. Used to indicate the last scan code is not to be reused
-const int INVALID_SCANCODE = 0;
+const char INVALID_SCANCODE = (char)0;
 
 // Initializes the keyboard
 void InitKeyboard()
@@ -90,7 +90,9 @@ void scanf(char *buffer, int buffer_size)
             // Print out the current entered key stroke
             // If we have pressed a non-printable key, the character is not printed out
             if (key != 0)
+            {
                 print_char(key);
+            }
         
             // Write the entered character into the provided buffer
             buffer[i++] = key;
@@ -104,15 +106,23 @@ void scanf(char *buffer, int buffer_size)
 // Waits for a key press, and returns it
 static char getchar()
 {
-    char key = (char)KEY_UNKNOWN;
+    char key = INVALID_SCANCODE;
     
     // Wait until we get a key stroke
-    while (key == (char)KEY_UNKNOWN)
-        key = GetLastKey();
-    
-    // Discard the last key press, because we have handled it
+    while (key == INVALID_SCANCODE)
+    {
+        if (_lastReceivedScanCode > INVALID_SCANCODE)
+        {
+            key = ScanCodes[_lastReceivedScanCode];
+        }
+        else
+        {
+            key = INVALID_SCANCODE;
+        }
+    }
+
     DiscardLastKey();
-    
+
     // Return the received character from the keyboard
     return key;
 }
@@ -120,13 +130,7 @@ static char getchar()
 // Discards the last key press
 static void DiscardLastKey()
 {
-    _lastReceivedScanCode = (char)KEY_UNKNOWN;
-}
-
-// Get the last pressed key
-static char GetLastKey()
-{
-	return (_lastReceivedScanCode != (char)INVALID_SCANCODE) ? (ScanCodes[_lastReceivedScanCode]) : ((char)KEY_UNKNOWN);
+    _lastReceivedScanCode = INVALID_SCANCODE;
 }
 
 // Converts the pressed keyboard key to the correct ASCII key
@@ -143,7 +147,7 @@ static char KeyboardKeyToASCII(char key)
 }
 
 // Keyboard callback function
-static void KeyboardCallback(InterruptRegisters Register)
+static void KeyboardCallback(int Number)
 {
     // Check if the keyboard controller output buffer is full
 	if (ReadStatus() & KYBRD_CTRL_STATS_MASK_OUT_BUF)
@@ -166,15 +170,19 @@ static void KeyboardCallback(InterruptRegisters Register)
             switch (key)
             {
                 case KEY_LSHIFT:
+                {
                     // The left shift key is released
                     _shiftKey = 0;
                     _lastReceivedScanCode = 0;
                     break;
+                }
                 case KEY_RSHIFT:
+                {
                     // The right shift key is released
                     _lastReceivedScanCode = 0;
                     _shiftKey = 0;
                     break;
+                }
             }
         }
         else
@@ -185,6 +193,7 @@ static void KeyboardCallback(InterruptRegisters Register)
             switch (key)
             {
                 case KEY_CAPSLOCK:
+                {
                     // The caps lock key is pressed
                     // We just toggle the flag
                     if (_capsLock == 1)
@@ -193,20 +202,27 @@ static void KeyboardCallback(InterruptRegisters Register)
                         _capsLock = 1;
                     
                     break;
+                }
                 case KEY_LSHIFT:
+                {
                     // The left shift key is pressed
                     _shiftKey = 1;
                     _lastReceivedScanCode = 0;
                     break;
+                }
                 case KEY_RSHIFT:
+                {
                     // The right shift key is pressed
                     _lastReceivedScanCode = 0;
                     _shiftKey = 1;
                     break;
+                }
                 default:
+                {
                     // We only buffer the Scan Code from the keyboard, if it is a printable character
                     _lastReceivedScanCode = code;
                     break;
+                }
             }
         }
     }

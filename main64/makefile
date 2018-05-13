@@ -1,15 +1,15 @@
 # Automatically generate lists of sources using wildcards.
 C_SOURCES = $(wildcard drivers/*.c kernel/*.c kernel/pic/*.c kernel/idt/*.c kernel/irq/*.c)
 HEADERS = $(wildcard drivers/*.h kernel/*.h kernel/pic/*.h kernel/idt/*.h kernel/irq/*.h)
-# C_SOURCES = $(wildcard drivers/*.c kernel/*.c kernel/pic/*.c)
-# HEADERS = $(wildcard drivers/*.h kernel/*.h kernel/pic/*.h)
 
 # Convert the *.c filenames to *.o to give a list of object files to build
 OBJ = ${C_SOURCES:.c=.o}
 
 # Builds the final Floppy Image
-kaos64.img : bootsector.bin bootsector2.bin kernel/kernel.bin
-	cat boot/bootsector.bin boot/bootsector2.bin kernel/kernel.bin > kaos64.img
+kaos64.img : bootsector.bin boot.bin kernel/kernel.bin
+	~/Documents/dev/opt/cross/bin/fat_imgen -c -s boot/bootsector.bin -f kaos64.img
+	~/Documents/dev/opt/cross/bin/fat_imgen -m -f kaos64.img -i boot/boot.bin
+	~/Documents/dev/opt/cross/bin/fat_imgen -m -f kaos64.img -i kernel/kernel.bin
 
 # Links the C kernel
 kernel/kernel.bin: kernel/kernel.o kernel/idt/idt_asm.o kernel/irq/irq_asm.o ${OBJ}
@@ -32,8 +32,8 @@ bootsector.bin: boot/bootsector.asm
 	~/Documents/dev/nasm-2.13/nasm -fbin boot/bootsector.asm -o boot/bootsector.bin
 
 # Builds the Second Stage Boot Sector
-bootsector2.bin: boot/bootsector2.asm
-	~/Documents/dev/nasm-2.13/nasm -fbin boot/bootsector2.asm -o boot/bootsector2.bin
+boot.bin: boot/bootsector2.asm
+	~/Documents/dev/nasm-2.13/nasm -fbin boot/bootsector2.asm -o boot/boot.bin
 
 # kernel.asm : kernel.o
 #	~/Documents/dev_x64/opt/cross/bin/x86_64-elf-objdump -S --disassemble -Mintel idt_asm.o > idt.asm

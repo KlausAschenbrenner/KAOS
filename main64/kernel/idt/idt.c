@@ -9,27 +9,23 @@
 #include "idt.h"
 #include "../irq/irq.h"
 
-// The 256 possible interrupt gates
+// The 256 possible Interrupt Gates
 IdtEntry _idtEntries[256];
 
-// The pointer that points to the interrupt gates
+// The pointer that points to the Interrupt Gates
 IdtPointer _idtPointer;
 
 // Our generic ISR handler
-void IsrHandler(InterruptRegisters registers)
+// void IsrHandler(InterruptRegisters registers)
+void IsrHandler(int Number)
 {
     char str[32] = {0};
-    itoa(registers.InterruptNumber, 16, str);
+    itoa(Number, 16, str);
     
-    printf("Interrupt: ");
+    printf("ISR: ");
     printf("0x");
     printf(str);
-    printf("\n");
-    printf("Error code: ");
-    itoa(registers.ErrorCode, 10, str);
-    printf(str);
-    printf("\n");
-    
+
     // Halt the system
     for (;;);
 }
@@ -37,73 +33,76 @@ void IsrHandler(InterruptRegisters registers)
 // Initializes the IDT table
 void InitIdt()
 {
-    _idtPointer.limit = sizeof(IdtEntry) * 256 - 1;
-    _idtPointer.base = (unsigned long)&_idtEntries;
-    
+    _idtPointer.Limit = sizeof(IdtEntry) * 256 - 1;
+    _idtPointer.Base = (unsigned long)&_idtEntries;
     memset(&_idtEntries, 0, sizeof(IdtEntry) * 256);
-    
+
     // Setup the 32 Exception handler
-    IdtSetGate(0, (unsigned long)Isr0, 0x8, 0x8E);
-	IdtSetGate(1, (unsigned long)Isr1, 0x8, 0x8E);
-	IdtSetGate(2, (unsigned long)Isr2, 0x8, 0x8E);
-	IdtSetGate(3, (unsigned long)Isr3, 0x8, 0x8E);
-	IdtSetGate(4, (unsigned long)Isr4, 0x8, 0x8E);
-	IdtSetGate(5, (unsigned long)Isr5, 0x8, 0x8E);
-	IdtSetGate(6, (unsigned long)Isr6, 0x8, 0x8E);
-	IdtSetGate(7, (unsigned long)Isr7, 0x8, 0x8E);
-	IdtSetGate(8, (unsigned long)Isr8, 0x8, 0x8E);
-	IdtSetGate(9, (unsigned long)Isr9, 0x8, 0x8E);
-	IdtSetGate(10, (unsigned long)Isr10, 0x8, 0x8E);
-	IdtSetGate(11, (unsigned long)Isr11, 0x8, 0x8E);
-	IdtSetGate(12, (unsigned long)Isr12, 0x8, 0x8E);
-	IdtSetGate(13, (unsigned long)Isr13, 0x8, 0x8E);
-	IdtSetGate(14, (unsigned long)Isr14, 0x8, 0x8E);
-	IdtSetGate(15, (unsigned long)Isr15, 0x8, 0x8E);
-	IdtSetGate(16, (unsigned long)Isr16, 0x8, 0x8E);
-	IdtSetGate(17, (unsigned long)Isr17, 0x8, 0x8E);
-	IdtSetGate(18, (unsigned long)Isr18, 0x8, 0x8E);
-	IdtSetGate(19, (unsigned long)Isr19, 0x8, 0x8E);
-	IdtSetGate(20, (unsigned long)Isr20, 0x8, 0x8E);
-	IdtSetGate(21, (unsigned long)Isr21, 0x8, 0x8E);
-	IdtSetGate(22, (unsigned long)Isr22, 0x8, 0x8E);
-	IdtSetGate(23, (unsigned long)Isr23, 0x8, 0x8E);
-	IdtSetGate(24, (unsigned long)Isr24, 0x8, 0x8E);
-	IdtSetGate(25, (unsigned long)Isr25, 0x8, 0x8E);
-	IdtSetGate(26, (unsigned long)Isr26, 0x8, 0x8E);
-	IdtSetGate(27, (unsigned long)Isr27, 0x8, 0x8E);
-	IdtSetGate(28, (unsigned long)Isr28, 0x8, 0x8E);
-	IdtSetGate(29, (unsigned long)Isr29, 0x8, 0x8E);
-	IdtSetGate(30, (unsigned long)Isr30, 0x8, 0x8E);
-	IdtSetGate(31, (unsigned long)Isr31, 0x8, 0x8E);
-    
+    IdtSetGate(0, (unsigned long)Isr0);
+    IdtSetGate(1, (unsigned long)Isr1);
+	IdtSetGate(2, (unsigned long)Isr2);
+	IdtSetGate(3, (unsigned long)Isr3);
+	IdtSetGate(4, (unsigned long)Isr4);
+	IdtSetGate(5, (unsigned long)Isr5);
+	IdtSetGate(6, (unsigned long)Isr6);
+	IdtSetGate(7, (unsigned long)Isr7);
+	IdtSetGate(8, (unsigned long)Isr8);
+	IdtSetGate(9, (unsigned long)Isr9);
+	IdtSetGate(10, (unsigned long)Isr10);
+	IdtSetGate(11, (unsigned long)Isr11);
+	IdtSetGate(12, (unsigned long)Isr12);
+	IdtSetGate(13, (unsigned long)Isr13);
+	IdtSetGate(14, (unsigned long)Isr14);
+	IdtSetGate(15, (unsigned long)Isr15);
+	IdtSetGate(16, (unsigned long)Isr16);
+	IdtSetGate(17, (unsigned long)Isr17);
+	IdtSetGate(18, (unsigned long)Isr18);
+	IdtSetGate(19, (unsigned long)Isr19);
+	IdtSetGate(20, (unsigned long)Isr20);
+	IdtSetGate(21, (unsigned long)Isr21);
+	IdtSetGate(22, (unsigned long)Isr22);
+	IdtSetGate(23, (unsigned long)Isr23);
+	IdtSetGate(24, (unsigned long)Isr24);
+	IdtSetGate(25, (unsigned long)Isr25);
+	IdtSetGate(26, (unsigned long)Isr26);
+	IdtSetGate(27, (unsigned long)Isr27);
+	IdtSetGate(28, (unsigned long)Isr28);
+	IdtSetGate(29, (unsigned long)Isr29);
+	IdtSetGate(30, (unsigned long)Isr30);
+	IdtSetGate(31, (unsigned long)Isr31);
+
     // Setup the 15 IRQ handler
-    IdtSetGate(32, (unsigned long)Irq0, 0x08, 0x8E);
-    IdtSetGate(33, (unsigned long)Irq1, 0x08, 0x8E);
-    IdtSetGate(34, (unsigned long)Irq2, 0x08, 0x8E);
-    IdtSetGate(35, (unsigned long)Irq3, 0x08, 0x8E);
-    IdtSetGate(36, (unsigned long)Irq4, 0x08, 0x8E);
-    IdtSetGate(37, (unsigned long)Irq5, 0x08, 0x8E);
-    IdtSetGate(38, (unsigned long)Irq6, 0x08, 0x8E);
-    IdtSetGate(39, (unsigned long)Irq7, 0x08, 0x8E);
-    IdtSetGate(40, (unsigned long)Irq8, 0x08, 0x8E);
-    IdtSetGate(41, (unsigned long)Irq9, 0x08, 0x8E);
-    IdtSetGate(42, (unsigned long)Irq10, 0x08, 0x8E);
-    IdtSetGate(43, (unsigned long)Irq11, 0x08, 0x8E);
-    IdtSetGate(44, (unsigned long)Irq12, 0x08, 0x8E);
-    IdtSetGate(45, (unsigned long)Irq13, 0x08, 0x8E);
-    IdtSetGate(46, (unsigned long)Irq14, 0x08, 0x8E);
-    IdtSetGate(47, (unsigned long)Irq15, 0x08, 0x8E);
-    
+    IdtSetGate(32, (unsigned long)Irq0);
+    IdtSetGate(33, (unsigned long)Irq1);
+    IdtSetGate(34, (unsigned long)Irq2);
+    IdtSetGate(35, (unsigned long)Irq3);
+    IdtSetGate(36, (unsigned long)Irq4);
+    IdtSetGate(37, (unsigned long)Irq5);
+    IdtSetGate(38, (unsigned long)Irq6);
+    IdtSetGate(39, (unsigned long)Irq7);
+    IdtSetGate(40, (unsigned long)Irq8);
+    IdtSetGate(41, (unsigned long)Irq9);
+    IdtSetGate(42, (unsigned long)Irq10);
+    IdtSetGate(43, (unsigned long)Irq11);
+    IdtSetGate(44, (unsigned long)Irq12);
+    IdtSetGate(45, (unsigned long)Irq13);
+    IdtSetGate(46, (unsigned long)Irq14);
+    IdtSetGate(47, (unsigned long)Irq15);
+
     // Loads the IDT table into the processor register (Assembler function)
     IdtFlush((unsigned long)&_idtPointer);
 }
 
 // Installs the corresponding ISR routine in the IDT table
-static void IdtSetGate(unsigned char num, unsigned int base, unsigned short sel, unsigned char flags)
+static void IdtSetGate(unsigned char num, unsigned int base)
 {
-    _idtEntries[num].base_lo = base & 0xFFFF;
-    _idtEntries[num].base_hi = (base >> 16) & 0xFFFF;
-    _idtEntries[num].sel = sel;
-    _idtEntries[num].always0 = 0;
-    _idtEntries[num].flags = flags;
+    _idtEntries[num].OffsetLow = (unsigned short)base & 0xFFFF;
+    _idtEntries[num].Selector = 0x8;
+    _idtEntries[num].Ist = 0;
+    _idtEntries[num].Type = 0xF;
+    _idtEntries[num].P = 1;
+    _idtEntries[num].OffsetMiddle = (unsigned short)((base >> 16) & 0xFFFF);
+    // _idtEntries[num].OffsetHigh = (unsigned int)((base >> 32) & 0xFFFFFFFF);
+    _idtEntries[num].OffsetHigh = 0;
+    _idtEntries[num].Reserved = 0;
 }

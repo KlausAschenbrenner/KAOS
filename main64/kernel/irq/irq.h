@@ -30,10 +30,10 @@ extern void Irq14();
 extern void Irq15();
 
 // IRQ handler that is called as soon as an IRQ is raised
-void IrqHandler(InterruptRegisters registers);
+void IrqHandler(int Number);
 
 // Callback function pointer for handling the various IRQs
-typedef void (*IRQ_HANDLER)(InterruptRegisters);
+typedef void (*IRQ_HANDLER)(int Number);
 
 // Registers a IRQ callback function
 void RegisterIRQHandler(int n, IRQ_HANDLER Handler);

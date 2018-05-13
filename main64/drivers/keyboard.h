@@ -178,7 +178,7 @@ enum KEYCODE
 	KEY_SCROLLLOCK        = 0x4010,
 	KEY_PAUSE             = 0x4011,
     
-	KEY_UNKNOWN           = 0x5000,
+	KEY_UNKNOWN          = 0x5000,
 	KEY_NUMKEYCODES
 };
 
@@ -291,7 +291,7 @@ static char GetLastKey();
 static char KeyboardKeyToASCII(char key);
 
 // Keyboard callback function
-static void KeyboardCallback(InterruptRegisters Register);
+static void KeyboardCallback(int Number);
 
 // Reads the keyboard status
 static unsigned char ReadStatus();

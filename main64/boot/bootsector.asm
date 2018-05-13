@@ -2,6 +2,34 @@
 [ORG 0x7c00]
 [BITS 16]
 
+jmp Main					; Jump over the BPB directly to start of the boot loader
+nop                         ; This padding of 1 additional byte is needed, because the
+							; BPB starts at offset 0x03 in the boot sector
+
+;*********************************************
+;	BIOS Parameter Block (BPB) for FAT12
+;*********************************************
+
+bpbOEM					db "KAOS    "
+bpbBytesPerSector:  	DW 512
+bpbSectorsPerCluster: 	DB 1
+bpbReservedSectors: 	DW 1
+bpbNumberOfFATs: 		DB 2
+bpbRootEntries: 		DW 224
+bpbTotalSectors: 		DW 2880
+bpbMedia: 				DB 0xF0
+bpbSectorsPerFAT: 		DW 9
+bpbSectorsPerTrack: 	DW 18
+bpbHeadsPerCylinder: 	DW 2
+bpbHiddenSectors: 		DD 0
+bpbTotalSectorsBig:     DD 0
+bsDriveNumber: 	        DB 0
+bsUnused: 				DB 0
+bsExtBootSignature: 	DB 0x29
+bsSerialNumber:	        DD 0xa0a1a2a3
+bsVolumeLabel: 	        DB "KAOS DRIVE "
+bsFileSystem: 	        DB "FAT12   "
+
 Main:
     ; Setup the ds register
 	mov ax, 0
@@ -11,79 +39,23 @@ Main:
 	mov bp, 0x8000
 	mov sp, bp
 
-    ; Enable the A20 Gate
-    ; call EnableA20
+	call EnableA20
+    call LoadRootDirectory
 
-    ; Loads the 2nd Stage Boot Loader from the 2nd Disk Sector
-    mov WORD [MemoryDestination], SECONDSTAGE_BOOTLOADER_OFFSET
-    mov BYTE [Sector], 2
-    mov BYTE [Track], 0
-    mov BYTE [Head], 0
-    call LoadDiskSector
-
-    ; 3 -> 18
-    mov WORD [MemoryDestination], KERNEL_OFFSET
-    mov BYTE [TargetSector], 18
-    mov BYTE [Sector], 3
-    mov BYTE [Track], 0
-    mov BYTE [Head], 0
-
-; Loads in a While-Loop the Kernel from Disk into Memory (while CurrentLoopCounter < LoopTarget)
-LoadKernel:
-    ; Read the Sector into the current Memory Destination Address
-    call LoadDiskSector
-
-    add BYTE [Sector], 1
-    add WORD [MemoryDestination], 0x0200
-
-    ; Print out a character when we have read a Disk Sector
-	xor	bx, bx
-	mov	ah, 0x0e
-	mov	al, '.'
-    int	0x10
-
-    mov dl, [Sector]
-    mov cl, [TargetSector]
-    cmp dl, cl                  ; Check if we have reached the end of the loop
-    jnz LoadKernel              ; Load the next Sector from Disk - if needed
-
-    ; Jump to the loaded 2nd Stage Boot Loader
-    jmp SECONDSTAGE_BOOTLOADER_OFFSET
-
-; Loads a Disk Sector of 512 bytes into Memory
-LoadDiskSector:
-    mov	ah, 0					; Reset floppy disk function
-	mov	dl, 0					; Drive 0 is floppy drive
-	int	0x13					; Call BIOS
-
-    ; Read the 2nd sector, where the Second Stage Boot Loader is stored to memory location 0x500
-	mov ah, 0x02                ; BIOS read selector function
-    mov al, 0x01                ; Number of sectors to be read
-    mov ch, BYTE [Track]		; Track
-	mov	cl, BYTE [Sector]		; Sector
-	mov	dh, BYTE [Head]			; Head
-
-    mov bx, WORD [MemoryDestination]
-    mov dl, 0x00                ; Drive Number
-    int 0x13					; BIOS interrupt that triggers the I/O
-
-    ; Error handling
-    jc DiskError
-
-    ; Check if we have read 1 sector
-    mov dh, 1
-	cmp	dh, al
-	jne	DiskError
-ret
-
-DiskError:
-	; Print out a character
-	xor	bx, bx
-	mov	ah, 0x0e
-	mov	al, 'F'
-	int	0x10
+%include "boot/disk.asm"
+          
+DONE:
+    ; Execute the 2nd Stage Boot Loader
+    jmp IMAGE_OFFSET
 	
-    jmp $
+	ret
+
+FAILURE:
+	mov		ah, 0x0e
+	mov		si, SecondStageError
+	call	printline
+
+	ret
 
 ;=============================================
 ; Enables the A20 gate
@@ -97,16 +69,20 @@ EnableA20:
 	sti					; Enable the interrupts again
 	ret 
 
-SECONDSTAGE_BOOTLOADER_OFFSET       equ 0x500
-KERNEL_OFFSET                       equ 0x1200
+ROOTDIRECTORY_AND_FAT_OFFSET	    equ 0x500
+IMAGE_OFFSET                        equ 0x6000
 
 Sector			                    db 0x00
 Head			                    db 0x00
 Track			                    db 0x00
+SecondStageName		                db "BOOT    BIN"
+SecondStageError		            db "z", 0
+Cluster			                    dw 0x0000
 
-MemoryDestination                   dw 0x0000
-TargetSector                        db 0x00
- 
+welcome_message:                    db 'x', 0
+disk_read_error_message:            db 'y', 0
+DataSectorBeginning:                dw 0x0000
+
 ; Pad out the remaining disk sector with zeros
 times 510 - ($-$$) db 0
 dw 0xAA55

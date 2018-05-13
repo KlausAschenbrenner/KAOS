@@ -10,7 +10,9 @@
 	"settings": {
 		"files.associations": {
 			"kernel.h": "c",
-			"common.h": "c"
+			"common.h": "c",
+			"screen.h": "c",
+			"keyboard.h": "c"
 		}
 	}
 }
