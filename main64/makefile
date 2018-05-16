@@ -41,6 +41,6 @@ boot.bin: boot/bootsector2.asm
 # Clean up
 clean:
 	rm -f boot/*.bin
-	rm -f kernel/*.bin kernel/*.o kernel/idt/*.o kernel/pic/*.o kernel/irq/*.o
+	rm -f kernel/*.bin kernel/*.o kernel/idt/*.o kernel/pic/*.o kernel/irq/*.o kernel/paging/*.o
 	rm -f drivers/*.o
 	rm -f *.img
