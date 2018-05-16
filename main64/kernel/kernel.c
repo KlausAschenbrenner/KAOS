@@ -5,6 +5,25 @@
 
 void Sleep();
 void TestKeyboardInput();
+void DumpMemoryMap();
+void CreatePagingTables();
+
+typedef struct MemoryRegion
+{
+
+	long Start;
+	long Size;
+	int	Type;
+	int	Reserved;
+} MemoryRegion;
+
+char *MemoryRegionType[] =
+{
+	"Available",
+	"Reserved",
+	"ACPI Reclaim",
+	"ACPI NVS Memory"
+};
 
 void k_main()
 {
@@ -31,6 +50,9 @@ void k_main()
 	// Enable the hardware interrupts again
     EnableInterrupts();
 
+	// Print out the detected Memory Map
+	DumpMemoryMap();
+
 	// RaiseInterrupt();
 
 	// Triggers a Divide by Zero Exception...
@@ -40,9 +62,73 @@ void k_main()
 
 	// ScrollScreen();
 
-    // printf("Hello World1...");
+	// Identity Mapping of the 1st 4 MB of Virtual Address Space
+	CreatePagingTables();
 
-	TestKeyboardInput();
+	// Up to this address both characters are shown correctly
+	// char *ptr = 0x000000000019FFFE;
+
+	// At the adrdess 0x0000000000200000 we get a Page Fault (0xE), because we have only Identity-Mapped the first 2 MB of Virtual Address Space
+	// char *ptr = 0x00000000001FFFFE;
+	char *ptr = (char *)0x0000000000200000;
+	// char *ptr = (char *)0xFFFF8000FFFF0000;
+	ptr[0] = 'a';
+	ptr[1] = 'b';
+	print_char(*ptr++);
+	print_char(*ptr);
+
+	// Halt the system
+    for (;;);
+}
+
+void DumpMemoryMap()
+{
+	MemoryRegion *region = (MemoryRegion *)0x1000;
+	char str[32] = "";
+	int i;
+
+	printf("Detected Memory Map:");
+	printf("\n");
+	printf("=============================================================================");
+	printf("\n");
+
+	for (i = 0; i < 7; i++)
+	{
+		itoa(region[i].Start, 16, str);
+		printf("Start: 0x");
+		printf(str);
+
+		if (strlen(str) < 6)
+		{
+			printf("\t");
+		}
+
+		printf("\t");
+		itoa(region[i].Start + region[i].Size - 1, 16, str);
+		printf("End: 0x");
+		printf(str);
+		printf("\t\t");
+		itoa(region[i].Type, 16, str);
+		printf("Type: ");
+		printf(str);
+
+		printf(" (");
+		printf(MemoryRegionType[region[i].Type - 1]);
+		printf(")");
+
+		printf("\n");
+	}
+}
+
+void TestTabs()
+{
+	printf("FirstName\t\t\tLastName\t\t\tCity\n");
+	printf("=========================================================================\n");
+
+	printf("Klaus\t\t\t\tAschenbrenner\t\t\tVienna\n");
+	printf("John\t\t\t\tDoe\t\t\t\tLondon\n");
+	
+	printf("\n2 row(s) affected");
 }
 
 void TestKeyboardInput()

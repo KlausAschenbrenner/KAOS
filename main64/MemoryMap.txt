@@ -1,0 +1,11 @@
+0x00500: FAT RootDirectory & FAT Offset Tables 
+0x01000: Memory Map
+0x01200: x64 Kernel
+0x07c00: Boot Sector
+0x06000: 2nd Stage Boot Loader
+0x08000: x16 Real Mode Stack
+0x09000: Page Map Level 4
+0x10000: Page Directory Pointer Table
+0x11000: Page Directory Table
+0x12000: Page Table
+0x70000: x64 Long Mode Stack

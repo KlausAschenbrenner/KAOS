@@ -6,8 +6,12 @@
         {
             "label": "make KAOS64",
             "type": "shell",
-            "command": "make clean; make",
-            "problemMatcher": []
+            "command": "clear; make clean; make",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

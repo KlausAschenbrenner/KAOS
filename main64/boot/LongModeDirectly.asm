@@ -16,9 +16,33 @@ IDT:
 ; es:edi    Should point to a valid page-aligned 16KiB buffer, for the PML4, PDPT, PD and a PT.
 ; ss:esp    Should point to memory that can be used as a small (1 uint32_t) stack
  
+
+; =========================================
+; Memory Layout of the various Page Tables
+; =========================================
+; [Page Map Level 4 at 0x9000]
+; Entry 001: 0x10000 (es:di + 0x1000)
+; Entry ...
+; Entry 512
+
+; [Page Directory Pointer Table at 0x10000]
+; Entry 001: 0x11000 (es:di + 0x2000)
+; Entry ...
+; Entry 512
+
+; [Page Directory Table at 0x11000]
+; Entry 001: 0x12000 (es:di + 0x3000)
+; Entry ...
+; Entry 512
+
+; [Page Table at 0x12000]
+; Entry 001: 0x000000
+; Entry ...
+; Entry 512: 0x1FF000
+
 SwitchToLongMode:
     mov edi, 0x9000
-
+    
     ; Zero out the 16KiB buffer.
     ; Since we are doing a rep stosd, count should be bytes/4.   
     push di                           ; REP STOSD alters DI.
@@ -28,27 +52,27 @@ SwitchToLongMode:
     rep stosd
     pop di                            ; Get DI back.
  
-    ; Build the Page Map Level 4.
+    ; Build the Page Map Level 4 (PML4)
     ; es:di points to the Page Map Level 4 table.
-    lea eax, [es:di + 0x1000]         ; Put the address of the Page Directory Pointer Table in to EAX.
-    or eax, PAGE_PRESENT | PAGE_WRITE ; Or EAX with the flags - present flag, writable flag.
-    mov [es:di], eax                  ; Store the value of EAX as the first PML4E.
+    lea eax, [es:di + 0x1000]               ; Put the address of the Page Directory Pointer Table in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
+    mov [es:di], eax                        ; Store the value of EAX as the first PML4E.
  
-    ; Build the Page Directory Pointer Table.
-    lea eax, [es:di + 0x2000]         ; Put the address of the Page Directory in to EAX.
-    or eax, PAGE_PRESENT | PAGE_WRITE ; Or EAX with the flags - present flag, writable flag.
-    mov [es:di + 0x1000], eax         ; Store the value of EAX as the first PDPTE.
+    ; Build the Page Directory Pointer Table (PDP)
+    lea eax, [es:di + 0x2000]               ; Put the address of the Page Directory in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
+    mov [es:di + 0x1000], eax               ; Store the value of EAX as the first PDPTE.
  
-    ; Build the Page Directory.
-    lea eax, [es:di + 0x3000]         ; Put the address of the Page Table in to EAX.
-    or eax, PAGE_PRESENT | PAGE_WRITE ; Or EAX with the flags - present flag, writeable flag.
-    mov [es:di + 0x2000], eax         ; Store to value of EAX as the first PDE.
+    ; Build the Page Directory (PD)
+    lea eax, [es:di + 0x3000]               ; Put the address of the Page Table in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
+    mov [es:di + 0x2000], eax               ; Store to value of EAX as the first PDE.
  
-    push di                           ; Save DI for the time being.
-    lea di, [di + 0x3000]             ; Point DI to the page table.
-    mov eax, PAGE_PRESENT | PAGE_WRITE    ; Move the flags into EAX - and point it to 0x0000.
- 
-    ; Build the Page Table.
+    push di                                 ; Save DI for the time being.
+    lea di, [di + 0x3000]                   ; Point DI to the page table.
+    mov eax, PAGE_PRESENT | PAGE_WRITE      ; Move the flags into EAX - and point it to 0x0000.
+    
+    ; Build the Page Table (PT)
 .LoopPageTable:
     mov [es:di], eax
     add eax, 0x1000
@@ -57,7 +81,7 @@ SwitchToLongMode:
     jb .LoopPageTable
  
     pop di                            ; Restore DI.
- 
+
     ; Disable IRQs
     mov al, 0xFF                      ; Out 0xFF to 0xA1 and 0x21 to disable all IRQs.
     out 0xA1, al

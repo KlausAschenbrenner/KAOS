@@ -12,6 +12,12 @@ Main:
 
 ; The call to "LoadRootDirectory" continues here...       
 DONE:
+    ; The Memory Map will be stored at the Memory Offset 0x1000
+    mov eax, 0x0
+	mov	ds, ax
+	mov	di, 0x1000
+    call BiosGetMemoryMap
+
     ; Switch the CPU to x64 Long Mode
     jmp SwitchToLongMode
 
@@ -22,7 +28,9 @@ FAILURE:
 
 	ret
 
+%include "boot/MemoryMap.asm"
 %include "boot/LongModeDirectly.asm"
+
 
 [BITS 64]
 .LongMode:

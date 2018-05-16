@@ -130,6 +130,19 @@ void itoa(int i, unsigned base, char *buf)
     itoa_s(i, base, buf);
 }
 
+int strlen(char *string)
+{
+    int len = 0;
+
+    while (*string != '\0')
+	{
+		len++;
+        string++;
+	}
+
+    return len;
+}
+
 static void itoa_s(unsigned i, unsigned base, char *buf)
 {
     int pos = 0;

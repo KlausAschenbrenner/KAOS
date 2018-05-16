@@ -16,15 +16,26 @@ IdtEntry _idtEntries[256];
 IdtPointer _idtPointer;
 
 // Our generic ISR handler
-// void IsrHandler(InterruptRegisters registers)
-void IsrHandler(int Number)
+void IsrHandler(int Number, int cr2)
 {
-    char str[32] = {0};
-    itoa(Number, 16, str);
-    
-    printf("ISR: ");
-    printf("0x");
-    printf(str);
+    if (Number == 14)
+    {
+        char str[32] = {0};
+        itoa(cr2, 16, str);
+        
+        // We have triggered a Page Fault!
+        printf("Page Fault occurred while accessing virtual address 0x");
+        printf(str);
+    }
+    else
+    {
+        char str[32] = {0};
+        itoa(Number, 16, str);
+
+        printf("ISR: ");
+        printf("0x");
+        printf(str);
+    }
 
     // Halt the system
     for (;;);

@@ -13,6 +13,7 @@
 
         ; Call the ISR handler that is implemented in C
         mov rdi, %1
+        mov rsi, cr2
         call IsrHandler
 
         sti
