@@ -53,6 +53,9 @@ void k_main()
 	// Print out the detected Memory Map
 	DumpMemoryMap();
 
+	// Initializes the Physical Frame Allocator and the Paging Tables in the CR3 Register
+	InitializePaging(1024 * 1024 * 1024, 0x0000000000110000, 0x000000003FEEFFFF);
+
 	// RaiseInterrupt();
 
 	// Triggers a Divide by Zero Exception...
@@ -62,16 +65,13 @@ void k_main()
 
 	// ScrollScreen();
 
-	// Identity Mapping of the 1st 4 MB of Virtual Address Space
-	CreatePagingTables();
-
 	// Up to this address both characters are shown correctly
 	// char *ptr = 0x000000000019FFFE;
 
 	// At the adrdess 0x0000000000200000 we get a Page Fault (0xE), because we have only Identity-Mapped the first 2 MB of Virtual Address Space
 	// char *ptr = 0x00000000001FFFFE;
-	char *ptr = (char *)0x0000000000200000;
-	// char *ptr = (char *)0xFFFF8000FFFF0000;
+	// char *ptr = (char *)0x000000000030FF00;
+	char *ptr = (char *)0xFFFF8000FFFF0000;
 	ptr[0] = 'a';
 	ptr[1] = 'b';
 	print_char(*ptr++);

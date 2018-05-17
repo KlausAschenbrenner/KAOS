@@ -9,8 +9,8 @@
 #include "idt.h"
 #include "../irq/irq.h"
 
-// The 256 possible Interrupt Gates
-IdtEntry _idtEntries[256];
+// The 256 possible Interrupt Gates are stored from 0x8000 to 0x8FFF (4096 Bytes long - each Entry is 16 Bytes)
+IdtEntry *_idtEntries = 0x8000;
 
 // The pointer that points to the Interrupt Gates
 IdtPointer _idtPointer;
@@ -20,7 +20,7 @@ void IsrHandler(int Number, int cr2)
 {
     if (Number == 14)
     {
-        char str[32] = {0};
+        char str[32] = "";
         itoa(cr2, 16, str);
         
         // We have triggered a Page Fault!
@@ -29,7 +29,7 @@ void IsrHandler(int Number, int cr2)
     }
     else
     {
-        char str[32] = {0};
+        char str[32] = "";
         itoa(Number, 16, str);
 
         printf("ISR: ");
@@ -45,8 +45,8 @@ void IsrHandler(int Number, int cr2)
 void InitIdt()
 {
     _idtPointer.Limit = sizeof(IdtEntry) * 256 - 1;
-    _idtPointer.Base = (unsigned long)&_idtEntries;
-    memset(&_idtEntries, 0, sizeof(IdtEntry) * 256);
+    _idtPointer.Base = (unsigned long)_idtEntries;
+    memset(_idtEntries, 0, sizeof(IdtEntry) * 256);
 
     // Setup the 32 Exception handler
     IdtSetGate(0, (unsigned long)Isr0);

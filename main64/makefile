@@ -13,7 +13,7 @@ kaos64.img : bootsector.bin boot.bin kernel/kernel.bin
 
 # Links the C kernel
 kernel/kernel.bin: kernel/kernel.o kernel/idt/idt_asm.o kernel/irq/irq_asm.o ${OBJ}
-	~/Documents/dev_x64/opt/cross/bin/x86_64-elf-ld -o $@ -Ttext 0x1200 $^ --oformat binary -z max-page-size=0x1000
+	~/Documents/dev_x64/opt/cross/bin/x86_64-elf-ld -o $@ -Ttext 0x1100 $^ --oformat binary -z max-page-size=0x1000
 
 # Compiles the C kernel
 %.o : %.c ${HEADERS}

@@ -41,7 +41,7 @@ FAILURE:
     jmp .LongMode
 
 ROOTDIRECTORY_AND_FAT_OFFSET	    equ 0x500
-IMAGE_OFFSET                        equ 0x1200
+IMAGE_OFFSET                        equ 0x1100
 
 Sector			                    db 0x00
 Head			                    db 0x00

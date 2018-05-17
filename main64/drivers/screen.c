@@ -113,7 +113,21 @@ void printf(char *string)
 	}
 }
 
+int strlen(char *string)
+{
+    int len = 0;
+
+    while (*string != '\0')
+	{
+		len++;
+        string++;
+	}
+
+    return len;
+}
+
 char tbuf[32];
+char tbuf_long[64];
 char bchars[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 // Converts an integer value to a string value for a specific base (base 10 => decimal, base 16 => hex)
@@ -128,19 +142,6 @@ void itoa(int i, unsigned base, char *buf)
     }
     
     itoa_s(i, base, buf);
-}
-
-int strlen(char *string)
-{
-    int len = 0;
-
-    while (*string != '\0')
-	{
-		len++;
-        string++;
-	}
-
-    return len;
 }
 
 static void itoa_s(unsigned i, unsigned base, char *buf)
