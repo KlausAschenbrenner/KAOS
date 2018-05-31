@@ -1,7 +1,7 @@
-#include "../drivers/common.h"
-#include "../drivers/screen.h"
-#include "../drivers/timer.h"
-#include "../drivers/keyboard.h"
+#include "drivers/common.h"
+#include "drivers/screen.h"
+#include "drivers/timer.h"
+#include "drivers/keyboard.h"
 
 void Sleep();
 void TestKeyboardInput();
@@ -10,7 +10,6 @@ void CreatePagingTables();
 
 typedef struct MemoryRegion
 {
-
 	long Start;
 	long Size;
 	int	Type;
@@ -50,12 +49,11 @@ void k_main()
 	// Enable the hardware interrupts again
     EnableInterrupts();
 
-	// Print out the detected Memory Map
-	DumpMemoryMap();
-
 	// Initializes the Physical Frame Allocator and the Paging Tables in the CR3 Register
 	InitializePaging(1024 * 1024 * 1024, 0x0000000000110000, 0x000000003FEEFFFF);
 
+	flpydsk_install();
+	
 	// RaiseInterrupt();
 
 	// Triggers a Divide by Zero Exception...
@@ -65,20 +63,53 @@ void k_main()
 
 	// ScrollScreen();
 
+	TestKeyboardInput();
+
+	// ReadSectorFromFloppy();
+
 	// Up to this address both characters are shown correctly
 	// char *ptr = 0x000000000019FFFE;
 
 	// At the adrdess 0x0000000000200000 we get a Page Fault (0xE), because we have only Identity-Mapped the first 2 MB of Virtual Address Space
+	// char *ptr = 0x0000000000200010;
 	// char *ptr = 0x00000000001FFFFE;
 	// char *ptr = (char *)0x000000000030FF00;
-	char *ptr = (char *)0xFFFF8000FFFF0000;
-	ptr[0] = 'a';
+	// char *ptr = (char *)0xFFFF8000FFFF0000;
+	/* ptr[0] = 'a';
 	ptr[1] = 'b';
 	print_char(*ptr++);
-	print_char(*ptr);
+	print_char(*ptr); */
+
+	// LoadRootDirectory();
 
 	// Halt the system
     for (;;);
+}
+
+void ReadSectorFromFloppy()
+{
+	unsigned char *sector;
+	sector = flpydsk_read_sector(0);
+	flpydsk_reset();
+	sector = flpydsk_read_sector(0);
+	flpydsk_reset();
+	/* sector = flpydsk_read_sector(0);
+	flpydsk_reset();
+	sector = flpydsk_read_sector(0);
+	flpydsk_reset();
+	sector = flpydsk_read_sector(0);
+	flpydsk_reset(); */
+	
+	int i = 0;
+	char str[32] = "";
+
+	// Print out the read disk sector
+	for (i = 0; i < 512; i++)
+	{
+		itoa(sector[i], 16, str);
+		printf("0x");
+		printf(str);
+	}
 }
 
 void DumpMemoryMap()
@@ -172,18 +203,4 @@ void ScrollScreen()
 		printf("Line 10\n");
 		Sleep();
 	}
-}
-
-void Sleep()
-{
-	int i;
-	for (i = 0;i<20971520;i++)
-	{
-        /*int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;*/
-    }
 }

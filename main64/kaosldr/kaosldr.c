@@ -1,9 +1,8 @@
-#include "../drivers/common.h"
-#include "../drivers/screen.h"
-#include "../drivers/timer.h"
-#include "../drivers/keyboard.h"
-#include "../drivers/floppy.h"
-#include "kernel.h"
+#include "drivers/common.h"
+#include "drivers/screen.h"
+#include "drivers/keyboard.h"
+#include "drivers/floppy.h"
+#include "kaosldr.h"
 
 extern void RaiseInterrupt();
 extern void SwitchToLongMode();
@@ -24,9 +23,6 @@ void k_main()
     // 0x20: 32 decimal
     // 0x28: 40 decimal
     PICInitialize(0x20, 0x28);
-    
-    // Initialize the system timer to 20 Hertz
-    InitTimer(20);
     
     // Initialize the keyboard
     InitKeyboard();

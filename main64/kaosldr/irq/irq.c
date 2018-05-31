@@ -14,10 +14,10 @@
 IRQ_HANDLER InterruptHandlers[256];
 
 // Common IRQ handler that is called as soon as an IRQ is raised
-void IrqHandler(int Number)
+void IrqHandler(InterruptRegisters registers)
 {
     // Signal that we have handled the received interrupt
-    if (Number >= 40)
+    if (registers.InterruptNumber >= 40)
     {
         // Send reset signal to slave
         outb(I86_PIC2_REG_COMMAND, I86_PIC_OCW2_MASK_EOI);
@@ -25,12 +25,12 @@ void IrqHandler(int Number)
     
     // Send reset signal to master
     outb(I86_PIC1_REG_COMMAND, I86_PIC_OCW2_MASK_EOI);
-
+    
     // Call the IRQ callback function, if one is registered
-    if (InterruptHandlers[Number] != 0)
+    if (InterruptHandlers[registers.InterruptNumber] != 0)
     {
-        IRQ_HANDLER handler = InterruptHandlers[Number];
-        handler(Number);
+        IRQ_HANDLER handler = InterruptHandlers[registers.InterruptNumber];
+        handler(registers);
     }
 }
 

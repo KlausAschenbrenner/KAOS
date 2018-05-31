@@ -43,3 +43,18 @@ static void TimerCallback(int Number)
     printf(str);
     printf("\n"); */
 }
+
+void Sleep(int Iterations)
+{
+    int i;
+
+	for (i = 0;i<Iterations;i++)
+	{
+        int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+    }
+}

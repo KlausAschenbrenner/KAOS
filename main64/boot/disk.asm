@@ -163,9 +163,12 @@ LOAD_IMAGE:
 
 	xor		dx, dx
 	mov     dh, BYTE [bpbSectorsPerCluster]			; Number of the sectors we want to read
+	mov		bx, 0x2000
+	mov		es, bx									; Set the Segment to 0x2000
 	pop		bx										; Get the current kernel address from the stack (for every sector we read, we advance the address by 512 bytes)
 	call    disk_load								; Read the cluster into memory
 	add		bx, 0x200								; Advance the kernel address by 512 bytes (1 sector that was read from disk)
+
 	push	bx
 
 	; Compute the next cluster that we have to load from disk

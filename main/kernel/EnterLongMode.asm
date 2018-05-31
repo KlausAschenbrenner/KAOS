@@ -3,6 +3,8 @@
  
 %define CODE_SEG     0x0008
 %define DATA_SEG     0x0010
+
+[GLOBAL SwitchToLongMode]
  
 ALIGN 4
 IDT:
@@ -184,5 +186,6 @@ LongMode:
     ; Setup the stack
 	mov ebp, 0x70000
 	mov esp, ebp
- 
-    jmp .LongMode                     ; You should replace this jump to wherever you want to jump to.
+
+    ; Execute the 64-bit Kernel, which is stored at 0x100000
+    call 0x100000

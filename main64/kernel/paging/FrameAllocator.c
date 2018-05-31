@@ -21,7 +21,9 @@ void InitializeFrameAllocator(unsigned long PhysicalFreeMemoryStartOffset, unsig
     // 131072 Bytes * 8 Bits = 1048576 Bits
     // Each of these 1048576 Bits represents a 4K large page = 4194304 Bytes = 4 GB Physical RAM
     BitsetFrames = 0x80000;
-    memset(BitsetFrames, 0, 0x20000);
+
+    // !!!!CHANGED FROM 0x20000!!!!
+    memset(BitsetFrames, 0, 0x1000);
 }
 
 // Allocates the specific physical Frame in the Bitset

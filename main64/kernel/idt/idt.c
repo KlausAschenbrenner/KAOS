@@ -105,7 +105,7 @@ void InitIdt()
 }
 
 // Installs the corresponding ISR routine in the IDT table
-static void IdtSetGate(unsigned char num, unsigned int base)
+void IdtSetGate(unsigned char num, unsigned int base)
 {
     _idtEntries[num].OffsetLow = (unsigned short)base & 0xFFFF;
     _idtEntries[num].Selector = 0x8;

@@ -32,21 +32,24 @@ bsFileSystem: 	        DB "FAT12   "
 
 Main:
     ; Setup the ds register
-	mov ax, 0
+	xor ax, ax
 	mov ds, ax
+	mov es, ax
 
 	; Prepare the stack
+	mov ax, 0x7000
+	mov ss, ax
 	mov bp, 0x8000
 	mov sp, bp
 
 	call EnableA20
     call LoadRootDirectory
 
-%include "boot/disk.asm"
+%include "../boot/disk.asm"
           
 DONE:
-    ; Execute the 2nd Stage Boot Loader
-    jmp IMAGE_OFFSET
+	; Switch to protected mode
+	call switch_to_protected_mode
 	
 	ret
 
@@ -58,6 +61,17 @@ FAILURE:
 	ret
 
 ;=============================================
+; Switches the CPU into the x32 Protected Mode
+;=============================================
+switch_to_protected_mode:
+	cli
+	lgdt [gdt_descriptor]
+	mov eax, cr0
+	or eax, 0x1
+	mov cr0, eax
+	jmp CODE_SEGMENT:start_protected_mode
+
+;=============================================
 ; Enables the A20 gate
 ;=============================================
 EnableA20:
@@ -65,23 +79,88 @@ EnableA20:
 	push	ax			; Save AX on the stack
 	mov	al, 0xdd		; Enable the A20 address line on the keyboard controller
 	out	0x64, al		; Send the command to the keyboard controller 
+	; mov al, 2
+	; out 0x92, al
 	pop	ax				; Restore the value of AX from the stack
 	sti					; Enable the interrupts again
 	ret 
 
+;====================================================
+; Here begins the 32 bit code for the Protected Mode
+;====================================================
+[bits 32]
+start_protected_mode:
+	; Setup the Data Segment registers
+	mov ax, DATA_SEGMENT
+	mov ds, ax
+	mov ss, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	; Setup the stack
+	mov ebp, 0x90000
+	mov esp, ebp
+
+	; Executes KAOSLDR.BIN loaded from the FAT12 file system at 0x20000
+	call LOADER_OFFSET
+
+    jmp $
+
 ROOTDIRECTORY_AND_FAT_OFFSET	    equ 0x500
-IMAGE_OFFSET                        equ 0x6000
+IMAGE_OFFSET                        equ 0x0
+LOADER_OFFSET						equ 0x20000
 
 Sector			                    db 0x00
 Head			                    db 0x00
 Track			                    db 0x00
-SecondStageName		                db "BOOT    BIN"
-SecondStageError		            db "z", 0
+SecondStageName		                db "KAOSLDR BIN"
+SecondStageError		            db '', 0
 Cluster			                    dw 0x0000
 
-welcome_message:                    db 'x', 0
-disk_read_error_message:            db 'y', 0
+welcome_message:                    db '', 0
+disk_read_error_message:            db 'e', 0
 DataSectorBeginning:                dw 0x0000
+
+;=============================================
+; Definition of the GDT, needed for the PM
+;=============================================
+gdt_start:
+
+; Null Descriptor
+gdt_null:
+dd 0x0
+dd 0x0
+
+; Code Segment Descriptor
+gdt_code:
+dw 0xffff
+dw 0x0
+db 0x0
+db 10011010b
+db 11001111b
+db 0x0
+
+; Data Segment Descriptor
+gdt_data:
+dw 0xffff
+dw 0x0
+db 0x0
+db 10010010b
+db 11001111b
+db 0x0
+
+gdt_end:
+
+;=============================================
+; Definition of the GDT Descriptor
+;=============================================
+gdt_descriptor:
+dw gdt_end - gdt_start - 1	; Size of the GDT
+dd gdt_start				; Start address of the GDT
+
+CODE_SEGMENT equ gdt_code - gdt_start
+DATA_SEGMENT equ gdt_data - gdt_start
 
 ; Pad out the remaining disk sector with zeros
 times 510 - ($-$$) db 0
