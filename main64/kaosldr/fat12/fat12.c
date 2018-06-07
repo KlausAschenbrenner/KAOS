@@ -8,8 +8,8 @@
 
 #include "fat12.h"
 
-// Loads the FAT12 Root Directory
-void LoadRootDirectory()
+// Loads the x64 Kernel into Memory
+void LoadKernelIntoMemory()
 {
     // Calculate the Root Directory Size: 14 sectors: => 32 * 224 / 512
     short rootDirectorySectors = 32 * RootEntries / BytesPerSector;
@@ -43,19 +43,6 @@ void LoadRootDirectory()
             // Read the next Cluster from the FAT table
             nextCluster = FATRead(nextCluster);
         }
-
-        // printf("KERNEL.BIN was successfully loaded into memory.\n");
-
-        /* int i;
-        char str[32] = "";
-        unsigned char *kernel = 0x105400;
-
-        for (i = 0; i < 512; i++)
-        {
-            itoa(kernel[i], 16, str);
-            printf("0x");
-            printf(str);
-        } */
     }
     else
     {
@@ -63,11 +50,12 @@ void LoadRootDirectory()
     }
 }
 
+// Reads the next FAT Entry from the FAT Tables
 unsigned short FATRead(unsigned short Cluster)
 {
     // Calculate the offset into the FAT table
     unsigned int fatOffset = (Cluster / 2) + Cluster;
-    unsigned short *offset = FAT_BUFFER + fatOffset;
+    unsigned int *offset = FAT_BUFFER + fatOffset;
 
     // Read the entry from the FAT
     unsigned short val = *offset;

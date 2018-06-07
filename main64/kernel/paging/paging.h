@@ -14,9 +14,10 @@ long PDE_WRITABLE =	2; // 0000000000000000000000000000010
 
 int SMALL_PAGE_SIZE = 4096;
 int PT_ENTRIES = 512;
+long KERNEL_PML4_OFFSET;
 
 // Represents a 64 Bit long Page Table Entry
-struct Page
+struct _Page
 {
     unsigned Present : 1;       // P
     unsigned ReadWrite: 1;      // R/W
@@ -31,39 +32,42 @@ struct Page
     unsigned long Frame : 36;
     unsigned short Reserved;    // 16 Bits
 } __attribute__ ((packed));
-typedef struct Page Page_PT;
+typedef struct _Page Page;
 
-// Defines the Page Map Level 4 Table<
-typedef struct PageMapLevel4Table
+// Defines the Page Map Level 4 Table
+typedef struct _PageMapLevel4Table
 {
     long Entries[512];
-} Paging_PML4;
+} PageMapLevel4Table;
 
 // Defines the Page Directory Pointer Table
-typedef struct PageDirectoryPointerTable
+typedef struct _PageDirectoryPointerTable
 {
     long Entries[512];
-} Paging_PDP;
+} PageDirectoryPointerTable;
 
 // Defines the Page Directory Table
-typedef struct PageDirectoryTable
+typedef struct _PageDirectoryTable
 {
     long Entries[512];
-} Paging_PD;
+} PageDirectoryTable;
 
 // Defines the Page Table
-typedef struct PageTable
+typedef struct _PageTable
 {
-    Page_PT Entries[512];
-} Paging_PT;
+    Page Entries[512];
+} PageTable;
 
 // Initializes the Paging Data Structures
-void InitializePaging(long PhysicalMemoryAvailableInKB, unsigned long PhysicalFreeMemoryStartOffset, unsigned long PhysicalFreeMemoryEndOffset);
+void InitializePaging();
 
-// Switches the PML4 Page Table Offset in the CR3 Register 
-void SwitchPageDirectory(Paging_PML4 *PML4);
+// Switches the PML4 Page Table Offset in the CR3 Register
+void SwitchPageDirectory(PageMapLevel4Table *PML4);
+
+// Handles a Page Fault
+void HandlePageFault(unsigned long VirtualAddress);
 
 // Maps another Virtual Address to a Physical Address - just for testing purposes...
-void MapAnotherVirtualAddress(Paging_PML4 *PML4);
+void MapAnotherVirtualAddress();
 
 #endif

@@ -1,22 +1,35 @@
-0x000500 to 0x000700: FAT RootDirectory & FAT Offset Tables 
-0x001000 to 0x001FFF: Memory Map
-0x000900 to 0x005FFF: x64 Kernel
-0x006000 to 0x006FFF: 2nd Stage Boot Loader
-0x007c00 to 0x007E00: Boot Sector
-0x008000 to 0x008FFF: x64 IDT Vector (0x8000 was used in x16 Real Mode for the Stack Pointer)
-
-=====================
-0x009000 to 0x09FFFF: Page Map Level 4 (built in Assembler before entering x64 Long Mode)
-0x010000 to 0x01FFFF: Page Directory Pointer Table (built in Assembler before entering x64 Long Mode)
-0x011000 to 0x011FFF: Page Directory Table (built in Assembler before entering x64 Long Mode)
-0x012000 to 0x012FFF: Page Table (built in Assembler before entering x64 Long Mode)
-=====================
-
+Real Mode
+=========
+0x000500 to 0x004500: FAT Root Directory and FAT Tables (32 Sectors)
+0x007c00 to 0x007e00: Boot Sector
+0x007e00 to 0x008000: Real Mode Stack (512 Bytes)
 0x009000 to 0x019000: Floppy Disk DMA Area
-0x...... to 0x070000: x64 Long Mode Stack (Top)
-0x080000 to 0x09FFFF: Bitmask for Physical Frame Allocator
-0x100000 to 0x10FFFF: FREE Space
-0x110000 to 0x......: First allocatable 4K page for the Physical Frame Allocator (4K Pages needed for the Page Mapping Structure are also allocated in that area)
+0x020000 to 0x024400: KAOSLDR.BIN (34 Sectors)
+
+Protected Mode
+==============
+0x009000 to 0x019000: Floppy Disk DMA Area
+0x009000 to 0x09FFFF: Page Map Level 4
+0x010000 to 0x01FFFF: Page Directory Pointer Table
+0x011000 to 0x011FFF: Page Directory Table
+0x012000 to 0x012FFF: Page Table 1 (Identity Mapping of 0 - 2 MB: 0x000000 to 0x1FFFFF)
+0x013000 to 0x013FFF: Page Table 2 (Identity Mapping of 2 - 4 MB: 0x200000 to 0x3FFFFF)
+0x014000 to 0x014FFF: Page Table 3 (Identity Mapping of 4 - 6 MB: 0x400000 to 0x5FFFFF)
+0x020000 to 0x024400: KAOSLDR.BIN (34 Sectors)
+0x030000 to 0x031C00: FAT Root Directory (14 Sectors)
+0x032000 to 0x034400: FAT Tables (18 Sectors)
+0x034400 to 0x070000: Protected Mode Stack
+0x070000 to 0x090000: Long Mode Stack
+0x100000 to 0x200000: KERNEL.BIN (Memory Region is Identity Mapped in Assembler before entering x64 Long Mode)
+
+Long Mode
+=========
+0x008000 to 0x008FFF: x64 IDT Vector
+0x009000 to 0x019000: Floppy Disk DMA Area
+0x019000 to 0x090000: Long Mode Stack
+0x090000 to 0x09FFFF: Bitmask for Physical Frame Allocator (Allocated Bitmap can represent currently a Memory Region of 2 GB)
+0x100000 to 0x200000: KERNEL.BIN (Memory Region is Identity Mapped in Assembler before entering x64 Long Mode)
+0x200000 to 0x600000: Range for the Physical Frame Allocator
 
 
-Range 0x000000 to 0x400000 is Identity Mapped! (Virtual Address == Physical Address)
+x64 Long Mode Page Tables are allocated at the start of 0x200000 through the Physical Frame Allocator

@@ -13,46 +13,44 @@ void InitializeFrameAllocator(unsigned long PhysicalFreeMemoryStartOffset, unsig
     // Somehow the input parameters are passed in incorrectly... but why...????
     // int frames = PhysicalFreeMemoryEndOffset - PhysicalFreeMemoryStartOffset;
 
-    NumberPhysicalFrames = 0x000000003FEEFFFF - 0x0000000000110000;
+    NumberPhysicalFrames = 0x0000000080000000 - 0x0000000000200000;
     NumberPhysicalFrames = NumberPhysicalFrames / 4096;
 
-    // With the range from 0x80000 to 0x9FFFF we can manage a physical 4 GB large RAM:
-    // 0x20000 = 131072d
-    // 131072 Bytes * 8 Bits = 1048576 Bits
-    // Each of these 1048576 Bits represents a 4K large page = 4194304 Bytes = 4 GB Physical RAM
-    BitsetFrames = 0x80000;
-
-    // !!!!CHANGED FROM 0x20000!!!!
-    memset(BitsetFrames, 0, 0x1000);
+    // With the range from 0x90000 to 0x9FFFF we can manage a physical 2 GB large RAM:
+    // 0x10000 = 65536d
+    // 65536 Bytes * 8 Bits = 524288 Bits
+    // Each of these 524288 Bits represents a 4K large page of 4096 bytes = 2 GB Physical RAM
+    BitsetFrames = (long *)0x90000;
+    memset(BitsetFrames, 0, 0x10000);
 }
 
 // Allocates the specific physical Frame in the Bitset
-void SetFrame(int Frame)
+void SetFrame(long Frame)
 {
-    int idx = INDEX_FROM_BIT(Frame);
-    int off = OFFSET_FROM_BIT(Frame);
+    long idx = INDEX_FROM_BIT(Frame);
+    long off = OFFSET_FROM_BIT(Frame);
 
     BitsetFrames[idx] |= (0x1 << off);
 }
 
 // Function to clear a bit in the frames bitset
-void ClearFrame(int Frame)
+void ClearFrame(long Frame)
 {
-    int idx = INDEX_FROM_BIT(Frame);
-    int off = OFFSET_FROM_BIT(Frame);
+    long idx = INDEX_FROM_BIT(Frame);
+    long off = OFFSET_FROM_BIT(Frame);
 
     BitsetFrames[idx] &= ~(0x1 << off);
 }
 
 // Allocates the first free physical Frame and returns the Frame number
-int AllocateFrame()
+long AllocateFrame()
 {
-    int i, j;
+    long i, j;
 
     for (i = 0; i < INDEX_FROM_BIT(NumberPhysicalFrames); i++)
     {
         // Check if the whole bits in the int Variable are allocated
-        if (BitsetFrames[i] != 0xFFFFFFFF)
+        if (BitsetFrames[i] != 0xFFFFFFFFFFFFFFFF)
         {
             // At least one bit is free here.
             for (j = 0; j < 32; j++)
@@ -62,7 +60,7 @@ int AllocateFrame()
                 if (!(BitsetFrames[i] & test))
                 {
                     // Allocate the found physical Frame in the Bitset
-                    int frame = i * 4 * 8 + j;
+                    long frame = i * 4 * 8 + j;
                     SetFrame(frame);
 
                     return frame;
@@ -73,15 +71,15 @@ int AllocateFrame()
 }
 
 // Returns the physical Memory Address for a given Frame Number
-long GetPhysicalFrameAddress(int Frame)
+long GetPhysicalFrameAddress(long Frame)
 {
     return (Frame * FRAME_SIZE) + FRAMES_START_OFFSET;
 }
 
-void Test()
+void TestFrameAllocator()
 {
     char str[32] = "";
-    int i;
+    long i;
 
     // Frame 0
     int frame = AllocateFrame();

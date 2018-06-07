@@ -1,6 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define CRLF "\n"
+#define TAB "\t"
+
 // Represents the registers that are passed as a parameter to our ISR/IRQ function
 typedef struct InterruptRegisters
 {

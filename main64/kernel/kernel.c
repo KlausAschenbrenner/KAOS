@@ -2,27 +2,7 @@
 #include "drivers/screen.h"
 #include "drivers/timer.h"
 #include "drivers/keyboard.h"
-
-void Sleep();
-void TestKeyboardInput();
-void DumpMemoryMap();
-void CreatePagingTables();
-
-typedef struct MemoryRegion
-{
-	long Start;
-	long Size;
-	int	Type;
-	int	Reserved;
-} MemoryRegion;
-
-char *MemoryRegionType[] =
-{
-	"Available",
-	"Reserved",
-	"ACPI Reclaim",
-	"ACPI NVS Memory"
-};
+#include "kernel.h"
 
 void k_main()
 {
@@ -49,9 +29,11 @@ void k_main()
 	// Enable the hardware interrupts again
     EnableInterrupts();
 
-	// Initializes the Physical Frame Allocator and the Paging Tables in the CR3 Register
-	InitializePaging(1024 * 1024 * 1024, 0x0000000000110000, 0x000000003FEEFFFF);
+	// Initializes the physical Frame Allocator
+	InitializeFrameAllocator(1024 * 1024 * 1024, 0x0000000000200000, 0x0000000080000000);
+	InitializePaging();
 
+	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 	
 	// RaiseInterrupt();
@@ -63,55 +45,74 @@ void k_main()
 
 	// ScrollScreen();
 
-	TestKeyboardInput();
+	// TestKeyboardInput();
 
 	// ReadSectorFromFloppy();
 
-	// Up to this address both characters are shown correctly
-	// char *ptr = 0x000000000019FFFE;
+	// char *ptr = (char *)GetPhysicalFrameAddress(AllocateFrame());
 
-	// At the adrdess 0x0000000000200000 we get a Page Fault (0xE), because we have only Identity-Mapped the first 2 MB of Virtual Address Space
-	// char *ptr = 0x0000000000200010;
-	// char *ptr = 0x00000000001FFFFE;
-	// char *ptr = (char *)0x000000000030FF00;
-	// char *ptr = (char *)0xFFFF8000FFFF0000;
-	/* ptr[0] = 'a';
-	ptr[1] = 'b';
+	// char *ptr = 0x000000000039FFFE;
+	// char *ptr = 0x0000000000200000;
+	// char *ptr = 0x00000000003FFFFE;
+	// char *ptr = 0x0000000000600000;
+	// char *ptr = (char *)0x000000000025FF00;
+
+	// MapAnotherVirtualAddress();
+	
+	char *ptr = (char *)0xFFFF8000FFFF0AF4;
+	ptr[0] = 'K';
+	ptr[1] = 'l';
+	ptr[2] = 'a';
+	ptr[3] = 'u';
+	ptr[4] = 's';
 	print_char(*ptr++);
-	print_char(*ptr); */
+	print_char(*ptr++);
+	print_char(*ptr++);
+	print_char(*ptr++);
+	print_char(*ptr);
 
-	// LoadRootDirectory();
+	// CommandLoop();
 
 	// Halt the system
     for (;;);
 }
 
-void ReadSectorFromFloppy()
+void CommandLoop()
 {
-	unsigned char *sector;
-	sector = flpydsk_read_sector(0);
-	flpydsk_reset();
-	sector = flpydsk_read_sector(0);
-	flpydsk_reset();
-	/* sector = flpydsk_read_sector(0);
-	flpydsk_reset();
-	sector = flpydsk_read_sector(0);
-	flpydsk_reset();
-	sector = flpydsk_read_sector(0);
-	flpydsk_reset(); */
-	
+	char input[10] = "";
+	int sector;
+
+	while (1 == 1)
+	{
+		ClearScreen();
+		printf("Enter Disk Sector to read: ");
+		scanf(input, 8);
+
+		int sector = atoi(input);
+		ReadDiskSector(sector);
+
+		scanf(input, 8);
+	}
+}
+
+void ReadDiskSector(int Sector)
+{
 	int i = 0;
 	char str[32] = "";
+
+	unsigned char *dmaBuffer = (unsigned char *)flpydsk_read_sector(Sector);
+	flpydsk_reset();
 
 	// Print out the read disk sector
 	for (i = 0; i < 512; i++)
 	{
-		itoa(sector[i], 16, str);
+		itoa(dmaBuffer[i], 16, str);
 		printf("0x");
 		printf(str);
 	}
 }
 
+// Dumps out the Memory Map
 void DumpMemoryMap()
 {
 	MemoryRegion *region = (MemoryRegion *)0x1000;
@@ -151,6 +152,7 @@ void DumpMemoryMap()
 	}
 }
 
+// Tests some Tabular Output
 void TestTabs()
 {
 	printf("FirstName\t\t\tLastName\t\t\tCity\n");
@@ -162,6 +164,7 @@ void TestTabs()
 	printf("\n2 row(s) affected");
 }
 
+// Tests the Keyboard Input
 void TestKeyboardInput()
 {
     char first_name[80];
@@ -178,6 +181,7 @@ void TestKeyboardInput()
     printf(last_name);
 }
 
+// Tests the scrolling of the Screen
 void ScrollScreen()
 {
 	while (1 == 1)

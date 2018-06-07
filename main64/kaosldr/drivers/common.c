@@ -64,10 +64,92 @@ int strcmp(char *s1, char *s2, int len)
     return *(unsigned char *)s1 - *(unsigned char *)s2;
 }
 
+// A simple strcpy implementation
 void strcpy(char *dest, char *src, int len)
 {
     int i = 0;
 
     while (*dest++ = *src++ && i < len)
         i++;
+}
+
+// A "simple" Sleep implementation
+void Sleep(int Count)
+{
+	int i;
+	for (i = 0; i < Count; i++) {}
+}
+
+char tbuf[32];
+char bchars[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+// Converts an ASCII string to its integer value
+int atoi(char *str)
+{
+    int res = 0;
+    int i;
+
+    for (i = 0; str[i] != '\0'; ++i)
+    {
+        res = res * 10 + str[i] - '0';
+    }
+
+    return res;
+}
+
+int atoi_len(char *str, int len)
+{
+    int res = 0;
+    int i;
+
+    for (i = 0; i < len; ++i)
+    {
+        res = res * 10 + str[i] - '0';
+    }
+
+    return res;
+}
+
+// Converts an integer value to a string value for a specific base (base 10 => decimal, base 16 => hex)
+void itoa(int i, unsigned base, char *buf)
+{
+    if (base > 16) return;
+    
+    if (i < 0)
+    {
+        *buf++ = '-';
+        i *= -1;
+    }
+    
+    itoa_s(i, base, buf);
+}
+
+void itoa_s(unsigned short i, unsigned base, char *buf)
+{
+    int pos = 0;
+    int opos = 0;
+    int top = 0;
+    
+    if (i == 0 || base > 16)
+    {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    
+    while (i != 0)
+    {
+        tbuf[pos] = bchars[i % base];
+        pos++;
+        i /= base;
+    }
+    
+    top = pos--;
+    
+    for (opos = 0; opos < top; pos--,opos++)
+    {
+        buf[opos] = tbuf[pos];
+    }
+    
+    buf[opos] = 0;
 }

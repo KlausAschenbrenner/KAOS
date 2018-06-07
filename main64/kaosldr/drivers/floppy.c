@@ -152,7 +152,7 @@ const int FLPY_SECTORS_PER_TRACK = 18;
 
 //! dma tranfer buffer starts here and ends at 0x1000+64k
 //! You can change this as needed. It must be below 16MB and in idenitity mapped memory!
-const int DMA_BUFFER = 0x8000;
+const int DMA_BUFFER = 0x9000;
 
 //============================================================================
 //    IMPLEMENTATION PRIVATE CLASS PROTOTYPES / EXTERNAL CLASS REFERENCES
@@ -202,8 +202,8 @@ void flpydsk_initialize_dma () {
 
 	outb (0x0a,0x06);	//mask dma channel 2
 	outb (0x0c,0xff);	//reset master flip-flop
-	outb (0x04, 0);     //address=0x8000 
-	outb (0x04, 0x80);
+	outb (0x04, 0);     //address=0x9000 
+	outb (0x04, 0x90);
 	outb (0x0c,0xff);	//reset master flip-flop
 	outb (0x05, 0xff);  //count to 0x23ff (number of bytes in a 3.5" floppy disk track)
 	outb (0x05, 0x23);
@@ -269,7 +269,8 @@ void flpydsk_send_command (uint8_t cmd)
 	{
 		if ( flpydsk_read_status () & FLPYDSK_MSR_MASK_DATAREG )
 		{
-			return outb (FLPYDSK_FIFO, cmd);
+			outb (FLPYDSK_FIFO, cmd);
+			break;
 		}
 	}
 }

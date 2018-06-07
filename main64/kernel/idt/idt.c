@@ -10,22 +10,19 @@
 #include "../irq/irq.h"
 
 // The 256 possible Interrupt Gates are stored from 0x8000 to 0x8FFF (4096 Bytes long - each Entry is 16 Bytes)
-IdtEntry *_idtEntries = 0x8000;
+IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
 
 // The pointer that points to the Interrupt Gates
 IdtPointer _idtPointer;
 
 // Our generic ISR handler
-void IsrHandler(int Number, int cr2)
+void IsrHandler(int Number, unsigned long cr2)
 {
+    // We have triggered a Page Fault!
     if (Number == 14)
     {
-        char str[32] = "";
-        itoa(cr2, 16, str);
-        
-        // We have triggered a Page Fault!
-        printf("Page Fault occurred while accessing virtual address 0x");
-        printf(str);
+        HandlePageFault(cr2);
+        return;
     }
     else
     {
@@ -35,10 +32,10 @@ void IsrHandler(int Number, int cr2)
         printf("ISR: ");
         printf("0x");
         printf(str);
-    }
 
-    // Halt the system
-    for (;;);
+        // Halt the system
+        for (;;);
+    }
 }
 
 // Initializes the IDT table

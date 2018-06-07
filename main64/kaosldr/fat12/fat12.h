@@ -39,7 +39,10 @@ struct _RootDirectoryEntry
     unsigned short FirstCluster;
     unsigned int FileSize;
 } __attribute__ ((packed));
-typedef struct _RootDirectoryEntry RootDirectoryEntry; 
+typedef struct _RootDirectoryEntry RootDirectoryEntry;
+
+// Loads the x64 Kernel into Memory
+void LoadKernelIntoMemory();
 
 // Loads some sectors from the Floppy Disk into memory
 void ReadSectors(int StartSector, int Sectors, unsigned char *Buffer);
@@ -47,6 +50,7 @@ void ReadSectors(int StartSector, int Sectors, unsigned char *Buffer);
 // Finds a given Root Directory Entry by its Filename
 RootDirectoryEntry* FindRootDirectoryEntry(char *Filename);
 
+// Reads the next FAT Entry from the FAT Tables
 unsigned short FATRead(unsigned short Cluster);
 
 #endif

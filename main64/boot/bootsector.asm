@@ -99,7 +99,7 @@ start_protected_mode:
 	mov gs, ax
 
 	; Setup the stack
-	mov ebp, 0x90000
+	mov ebp, 0x70000
 	mov esp, ebp
 
 	; Executes KAOSLDR.BIN loaded from the FAT12 file system at 0x20000

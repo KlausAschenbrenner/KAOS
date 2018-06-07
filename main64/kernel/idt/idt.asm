@@ -20,6 +20,24 @@
         iretq
 %endmacro
 
+; The following macro emits the ISR assembly routine
+%macro ISR_ERRORCODE 1
+    [GLOBAL Isr%1]
+    Isr%1:
+        cli
+
+        ; Call the ISR handler that is implemented in C
+        mov rdi, %1
+        mov rsi, cr2
+        call IsrHandler
+
+        ; Remove the Error Code from the Stack
+        add esp, 8
+
+        sti
+        iretq
+%endmacro
+
 ; Emitting our 32 ISR assembly routines
 ISR_NOERRORCODE 0
 ISR_NOERRORCODE 1
@@ -29,13 +47,13 @@ ISR_NOERRORCODE 4
 ISR_NOERRORCODE 5
 ISR_NOERRORCODE 6
 ISR_NOERRORCODE 7
-ISR_NOERRORCODE 8
+ISR_ERRORCODE 8
 ISR_NOERRORCODE 9
-ISR_NOERRORCODE 10
-ISR_NOERRORCODE 11
-ISR_NOERRORCODE 12
-ISR_NOERRORCODE 13
-ISR_NOERRORCODE 14
+ISR_ERRORCODE 10
+ISR_ERRORCODE 11
+ISR_ERRORCODE 12
+ISR_ERRORCODE 13
+ISR_ERRORCODE 14
 ISR_NOERRORCODE 15
 ISR_NOERRORCODE 16
 ISR_NOERRORCODE 17

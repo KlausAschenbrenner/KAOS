@@ -44,10 +44,7 @@ uint8_t* flpydsk_read_sector (int sectorLBA);
 //! converts an LBA address to CHS
 void flpydsk_lba_to_chs (int lba,int *head,int *track,int *sector);
 
-typedef unsigned char uint8_t;
-
-#define false 0
-#define true 1
+// typedef unsigned char uint8_t;
 
 //============================================================================
 //    INTERFACE OBJECT CLASS DEFINITIONS

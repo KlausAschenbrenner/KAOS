@@ -15,19 +15,21 @@ const int ReservedSectors = 1;
 const int RootEntries = 224;
 const int BytesPerSector = 512;
 
-struct T_RootDirectoryEntry
+struct _RootDirectoryEntry
 {
     char Entry[32];
 } __attribute__ ((packed));
-typedef struct T_RootDirectoryEntry RootDirectoryEntry; 
+typedef struct _RootDirectoryEntry RootDirectoryEntry; 
 
-struct T_RootDirectory
+struct _RootDirectory
 {
     RootDirectoryEntry Entries[224];
 } __attribute__ ((packed));
-typedef struct T_RootDirectory RootDirectory; 
+typedef struct _RootDirectory RootDirectory; 
 
 // Loads the FAT12 Root Directory
 void LoadRootDirectory();
+
+void ReadRootDirectory(int StartSector, int Sectors);
 
 #endif

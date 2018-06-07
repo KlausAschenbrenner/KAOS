@@ -34,13 +34,25 @@ IDT:
 
 ; [Page Directory Table at 0x11000]
 ; Entry 001: 0x12000 (es:di + 0x3000)
+; Entry 002: 0x13000 (es:di + 0x4000)
+; Entry 003: 0x14000 (es:di + 0x5000)
 ; Entry ...
 ; Entry 512
 
-; [Page Table at 0x12000]
+; [Page Table 1 at 0x12000]
 ; Entry 001: 0x000000
 ; Entry ...
 ; Entry 512: 0x1FF000
+
+; [Page Table 2 at 0x13000]
+; Entry 001: 0x200000
+; Entry ...
+; Entry 512: 0x2FF000
+
+; [Page Table 3 at 0x14000]
+; Entry 001: 0x400000
+; Entry ...
+; Entry 512: 0x5FF000
 
 SwitchToLongMode:
     mov edi, 0x9000
@@ -65,21 +77,31 @@ SwitchToLongMode:
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
     mov [es:di + 0x1000], eax               ; Store the value of EAX as the first PDPTE.
  
-    ; Build the Page Directory (PD)
+    ; Build the Page Directory (PD Entry 1)
     lea eax, [es:di + 0x3000]               ; Put the address of the Page Table in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
     mov [es:di + 0x2000], eax               ; Store to value of EAX as the first PDE.
+
+    ; Build the Page Directory (PD Entry 2)
+    lea eax, [es:di + 0x4000]               ; Put the address of the Page Table in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
+    mov [es:di + 0x2008], eax               ; Store to value of EAX as the second PDE.
+
+    ; Build the Page Directory (PD Entry 3)
+    lea eax, [es:di + 0x5000]               ; Put the address of the Page Table in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
+    mov [es:di + 0x2010], eax               ; Store to value of EAX as the second PDE.
  
     push di                                 ; Save DI for the time being.
     lea di, [di + 0x3000]                   ; Point DI to the page table.
     mov eax, PAGE_PRESENT | PAGE_WRITE      ; Move the flags into EAX - and point it to 0x0000.
     
-    ; Build the Page Table (PT)
+    ; Build the Page Table (PT 1)
 .LoopPageTable:
     mov [es:di], eax
     add eax, 0x1000
     add di, 8
-    cmp eax, 0x200000                 ; If we did all 2MiB, end.
+    cmp eax, 0x600000                 ; If we did all 6MiB, end.
     jb .LoopPageTable
  
     pop di                            ; Restore DI.
@@ -184,7 +206,7 @@ LongMode:
     mov ss, ax
 
     ; Setup the stack
-	mov ebp, 0x70000
+	mov ebp, 0x90000
 	mov esp, ebp
 
     ; Execute the 64-bit Kernel, which is stored at 0x100000
