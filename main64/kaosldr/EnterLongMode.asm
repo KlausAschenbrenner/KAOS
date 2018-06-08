@@ -25,6 +25,8 @@ IDT:
 ; [Page Map Level 4 at 0x9000]
 ; Entry 001: 0x10000 (es:di + 0x1000)
 ; Entry ...
+; Entry 256: 0x15000 (es:di + 0x6000)   => Needed for the Higher Half Mapping of the Kernel
+; Entry ...
 ; Entry 512
 
 ; [Page Directory Pointer Table at 0x10000]
@@ -49,10 +51,20 @@ IDT:
 ; Entry ...
 ; Entry 512: 0x2FF000
 
-; [Page Table 3 at 0x14000]
-; Entry 001: 0x400000
+; ==========================================================================
+; The following tables are needed for the Higher Half Mapping of the Kernel
+; ==========================================================================
+; [Page Directory Pointer Table at 0x14000]
+; Entry 001: 0x15000 (es:di + 0x6000)
 ; Entry ...
-; Entry 512: 0x5FF000
+; Entry 512
+
+; [Page Directory Table at 0x15000]
+; Entry 001: 0x16000 (es:di + 0x7000)
+; Entry ...
+; Entry 512
+
+; [Page Table 1 at 0x16000]
 
 SwitchToLongMode:
     mov edi, 0x9000
@@ -71,11 +83,33 @@ SwitchToLongMode:
     lea eax, [es:di + 0x1000]               ; Put the address of the Page Directory Pointer Table in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
     mov [es:di], eax                        ; Store the value of EAX as the first PML4E.
+
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
+    ; Add the 256th entry to the PML4...
+    lea eax, [es:di + 0x5000]
+    or eax, PAGE_PRESENT | PAGE_WRITE
+    mov [es:di + 0x800], eax                ; 256th entry
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
  
     ; Build the Page Directory Pointer Table (PDP)
     lea eax, [es:di + 0x2000]               ; Put the address of the Page Directory in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
     mov [es:di + 0x1000], eax               ; Store the value of EAX as the first PDPTE.
+
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
+    ; Build the Page Directory Pointer Table (PDP)
+    lea eax, [es:di + 0x6000]               ; Put the address of the Page Directory in to EAX.
+    or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
+    mov [es:di + 0x5000], eax               ; Store the value of EAX as the first PDPTE.
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
  
     ; Build the Page Directory (PD Entry 1)
     lea eax, [es:di + 0x3000]               ; Put the address of the Page Table in to EAX.
@@ -88,9 +122,20 @@ SwitchToLongMode:
     mov [es:di + 0x2008], eax               ; Store to value of EAX as the second PDE.
 
     ; Build the Page Directory (PD Entry 3)
-    lea eax, [es:di + 0x5000]               ; Put the address of the Page Table in to EAX.
+    ; lea eax, [es:di + 0x5000]               ; Put the address of the Page Table in to EAX.
+    ; or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
+    ; mov [es:di + 0x2010], eax               ; Store to value of EAX as the second PDE.
+
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
+    ; Build the Page Directory (PD Entry 1)
+    lea eax, [es:di + 0x7000]               ; Put the address of the Page Table in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
-    mov [es:di + 0x2010], eax               ; Store to value of EAX as the second PDE.
+    mov [es:di + 0x6000], eax               ; Store to value of EAX as the first PDE.
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
  
     push di                                 ; Save DI for the time being.
     lea di, [di + 0x3000]                   ; Point DI to the page table.
@@ -101,7 +146,7 @@ SwitchToLongMode:
     mov [es:di], eax
     add eax, 0x1000
     add di, 8
-    cmp eax, 0x600000                 ; If we did all 6MiB, end.
+    cmp eax, 0x400000                 ; If we did all 6MiB, end.
     jb .LoopPageTable
  
     pop di                            ; Restore DI.

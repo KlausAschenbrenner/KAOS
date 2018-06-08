@@ -11,6 +11,7 @@
 			"screen.h": "c",
 			"keyboard.h": "c",
 			"frameallocator.h": "c"
-		}
+		},
+		"git.ignoreLimitWarning": true
 	}
 }
