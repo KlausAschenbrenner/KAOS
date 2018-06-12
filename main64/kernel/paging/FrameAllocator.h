@@ -12,28 +12,26 @@
 #define INDEX_FROM_BIT(a) (a / ( 8 * 4))
 #define OFFSET_FROM_BIT(a) (a % ( 8 * 4))
 
-#define FRAMES_START_OFFSET 0x0000000000200000
+#define FRAMES_START_OFFSET 0x400000
 #define FRAME_SIZE 4096
+#define BITSET_FRAMES_START_OFFSET 0xFFFF800000050000
+#define BITSET_FRAMES_SIZE 0x40000
 
 // A bitset of frames - used or free
 long *BitsetFrames;
 long NumberPhysicalFrames;
 
 // Initializes the Physical Frame Allocator.
-// Physical 4KB Frames are allocated in the physical Memory Region between "PhysicalFreeMemoryStartOffset" and "PhysicalFreeMemoryEndOffset"
-void InitializeFrameAllocator(unsigned long PhysicalFreeMemoryStartOffset, unsigned long PhysicalFreeMemoryEndOffset);
+void InitializeFrameAllocator(unsigned long PhysicalAvailableRAM);
 
 // Allocates the specific physical Frame in the Bitset
 void SetFrame(long Frame);
 
 // Function to clear a bit in the frames bitset
-void ClearFrame(long Frame);
+void ClearPhysicalFrame(long Frame);
 
 // Allocates the first free physical Frame and returns the Frame number
-long AllocateFrame();
-
-// Returns the physical Memory Address for a given Frame Number
-long GetPhysicalFrameAddress(long Frame);
+long AllocatePhysicalFrame();
 
 // Tests the Frame Allocator
 void TestFrameAllocator();

@@ -12,8 +12,7 @@ IDT:
     .Base         dd 0
  
 ; Function to switch directly to long mode from real mode.
-; Identity maps the first 2MiB.
-; Uses Intel syntax.
+; Identity maps the first 4MiB.
  
 ; es:edi    Should point to a valid page-aligned 16KiB buffer, for the PML4, PDPT, PD and a PT.
 ; ss:esp    Should point to memory that can be used as a small (1 uint32_t) stack
@@ -22,31 +21,30 @@ IDT:
 ; =========================================
 ; Memory Layout of the various Page Tables
 ; =========================================
-; [Page Map Level 4 at 0x9000]
-; Entry 001: 0x10000 (es:di + 0x1000)
+; [Page Map Level 4 at 0x8000]
+; Entry 001: 0x09000 (es:di + 0x1000)
 ; Entry ...
-; Entry 256: 0x15000 (es:di + 0x6000)   => Needed for the Higher Half Mapping of the Kernel
-; Entry ...
-; Entry 512
-
-; [Page Directory Pointer Table at 0x10000]
-; Entry 001: 0x11000 (es:di + 0x2000)
+; Entry 256: 0x13000 (es:di + 0x5000)   => Needed for the Higher Half Mapping of the Kernel
 ; Entry ...
 ; Entry 512
 
-; [Page Directory Table at 0x11000]
-; Entry 001: 0x12000 (es:di + 0x3000)
-; Entry 002: 0x13000 (es:di + 0x4000)
-; Entry 003: 0x14000 (es:di + 0x5000)
+; [Page Directory Pointer Table at 0x09000]
+; Entry 001: 0x10000 (es:di + 0x2000)
 ; Entry ...
 ; Entry 512
 
-; [Page Table 1 at 0x12000]
+; [Page Directory Table at 0x10000]
+; Entry 001: 0x11000 (es:di + 0x3000)
+; Entry 002: 0x12000 (es:di + 0x4000)
+; Entry ...
+; Entry 512
+
+; [Page Table 1 at 0x11000]
 ; Entry 001: 0x000000
 ; Entry ...
 ; Entry 512: 0x1FF000
 
-; [Page Table 2 at 0x13000]
+; [Page Table 2 at 0x12000]
 ; Entry 001: 0x200000
 ; Entry ...
 ; Entry 512: 0x2FF000
@@ -54,20 +52,25 @@ IDT:
 ; ==========================================================================
 ; The following tables are needed for the Higher Half Mapping of the Kernel
 ; ==========================================================================
-; [Page Directory Pointer Table at 0x14000]
-; Entry 001: 0x15000 (es:di + 0x6000)
+; [Page Directory Pointer Table at 0x13000]
+; Entry 001: 0x14000 (es:di + 0x6000)
 ; Entry ...
 ; Entry 512
 
-; [Page Directory Table at 0x15000]
-; Entry 001: 0x16000 (es:di + 0x7000)
+; [Page Directory Table at 0x14000]
+; Entry 001: 0x15000 (es:di + 0x7000)
 ; Entry ...
 ; Entry 512
 
-; [Page Table 1 at 0x16000]
+; [Page Table 1 at 0x15000]
+; Entry 001: 0x000000
+; Entry 002: 0x001000
+; Entry 003: 0x002000
+; Entry ...
+; Entry 512: 0x200000
 
 SwitchToLongMode:
-    mov edi, 0x9000
+    mov edi, 0x8000
     
     ; Zero out the 16KiB buffer.
     ; Since we are doing a rep stosd, count should be bytes/4.   
@@ -90,7 +93,7 @@ SwitchToLongMode:
     ; Add the 256th entry to the PML4...
     lea eax, [es:di + 0x5000]
     or eax, PAGE_PRESENT | PAGE_WRITE
-    mov [es:di + 0x800], eax                ; 256th entry
+    mov [es:di + 0x800], eax                ; 256th entry * 8 bytes per entry
     ; =================================================
     ; Needed for the Higher Half Mapping of the Kernel
     ; =================================================
@@ -121,11 +124,6 @@ SwitchToLongMode:
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
     mov [es:di + 0x2008], eax               ; Store to value of EAX as the second PDE.
 
-    ; Build the Page Directory (PD Entry 3)
-    ; lea eax, [es:di + 0x5000]               ; Put the address of the Page Table in to EAX.
-    ; or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
-    ; mov [es:di + 0x2010], eax               ; Store to value of EAX as the second PDE.
-
     ; =================================================
     ; Needed for the Higher Half Mapping of the Kernel
     ; =================================================
@@ -146,8 +144,30 @@ SwitchToLongMode:
     mov [es:di], eax
     add eax, 0x1000
     add di, 8
-    cmp eax, 0x400000                 ; If we did all 6MiB, end.
+    cmp eax, 0x400000                 ; If we did all 4MiB, end.
     jb .LoopPageTable
+
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
+
+    pop di
+    push di
+
+    lea di, [di + 0x7000]                   ; Load the address of the 1st Page Table for the Higher Half Mapping of the Kernel
+    mov eax, PAGE_PRESENT | PAGE_WRITE      ; Move the flags into EAX - and point it to 0x0000.
+    
+    ; Build the Page Table (PT 1)
+ .LoopPageTableHigherHalf:
+    mov [es:di], eax
+    add eax, 0x1000
+    add di, 8
+    cmp eax, 0x200000            ; If we did all 2MiB, end.
+    jb .LoopPageTableHigherHalf
+
+    ; =================================================
+    ; Needed for the Higher Half Mapping of the Kernel
+    ; =================================================
  
     pop di                            ; Restore DI.
 
@@ -251,8 +271,10 @@ LongMode:
     mov ss, ax
 
     ; Setup the stack
-	mov ebp, 0x90000
-	mov esp, ebp
+	mov rax, qword 0xFFFF800000050000
+    mov rsp, rax
+    mov rbp, rsp
 
-    ; Execute the 64-bit Kernel, which is stored at 0x100000
-    call 0x100000
+    ; Execute the 64-bit Kernel, which is stored at 0xFFFF800000100000
+    mov rax, qword 0xFFFF800000100000
+    call rax

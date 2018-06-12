@@ -30,7 +30,7 @@ void k_main()
     EnableInterrupts();
 
 	// Initializes the physical Frame Allocator
-	InitializeFrameAllocator(1024 * 1024 * 1024, 0x0000000000200000, 0x0000000080000000);
+	InitializeFrameAllocator(1024 * 1024 * 1024);
 	InitializePaging();
 
 	// Initialize the Floppy Disk Controller
@@ -43,38 +43,47 @@ void k_main()
 	// int k = 0;
 	// int j = i / k;
 
+	// TestFrameAllocator();
+
 	// ScrollScreen();
 
 	// TestKeyboardInput();
 
 	// ReadSectorFromFloppy();
 
-	// char *ptr = (char *)GetPhysicalFrameAddress(AllocateFrame());
+	TestPageFaults();
 
-	// char *ptr = 0x000000000039FFFE;
-	// char *ptr = 0x0000000000200000;
-	// char *ptr = 0x00000000003FFFFE;
-	// char *ptr = 0x0000000000600000;
-	// char *ptr = (char *)0x000000000025FF00;
-
-	// MapAnotherVirtualAddress();
+	// CommandLoop();
 	
-	char *ptr = (char *)0xFFFF8000FFFF0AF4;
+	// printf("Done");
+
+	// Halt the system
+    for (;;);
+}
+
+void TestPageFaults()
+{
+	char *ptr1 = 0x0000000000600000;
+	ptr1[0] = 'A';
+
+	char *ptr2 = 0xFFFFFF1FFFFFFFFF;
+	ptr2[0] = 'X';
+
+	char *ptr3 = (char *)0xFFFFF000FFFF0000;
+	ptr3[0] = 'K';
+
+	char *ptr = (char *)0xFFFF8000FFFF0000;
 	ptr[0] = 'K';
 	ptr[1] = 'l';
 	ptr[2] = 'a';
 	ptr[3] = 'u';
 	ptr[4] = 's';
+
 	print_char(*ptr++);
 	print_char(*ptr++);
 	print_char(*ptr++);
 	print_char(*ptr++);
 	print_char(*ptr);
-
-	// CommandLoop();
-
-	// Halt the system
-    for (;;);
 }
 
 void CommandLoop()
@@ -107,6 +116,9 @@ void ReadDiskSector(int Sector)
 	for (i = 0; i < 512; i++)
 	{
 		itoa(dmaBuffer[i], 16, str);
+
+		// unsigned char *Buffer = 0xFFFF8000FFFF0000;
+		// memcpy(Buffer, dmaBuffer, 512);
 		printf("0x");
 		printf(str);
 	}

@@ -9,12 +9,16 @@ Real Mode
 Protected Mode
 ==============
 0x009000 to 0x019000: Floppy Disk DMA Area
-0x009000 to 0x09FFFF: Page Map Level 4
-0x010000 to 0x01FFFF: Page Directory Pointer Table
-0x011000 to 0x011FFF: Page Directory Table
-0x012000 to 0x012FFF: Page Table 1 (Identity Mapping of 0 - 2 MB: 0x000000 to 0x1FFFFF)
-0x013000 to 0x013FFF: Page Table 2 (Identity Mapping of 2 - 4 MB: 0x200000 to 0x3FFFFF)
-0x014000 to 0x014FFF: Page Table 3 (Identity Mapping of 4 - 6 MB: 0x400000 to 0x5FFFFF)
+                      When the below Page Table Structure is initialized, KERNEL.BIN is already loaded into memory.
+                      Therefore the Floppy Disk DMA Area can be overwritten by the temporily Page Table Structure
+0x008000 to 0x008FFF: Page Map Level 4
+0x009000 to 0x009FFF: Page Directory Pointer Table
+0x010000 to 0x010FFF: Page Directory Table
+0x011000 to 0x011FFF: Page Table 1 (Identity Mapping of 0 - 2 MB: 0x000000 to 0x1FFFFF)
+0x012000 to 0x012FFF: Page Table 2 (Identity Mapping of 2 - 4 MB: 0x200000 to 0x3FFFFF)
+0x013000 to 0x013FFF: Page Directory Pointer Table for the Higher Half Mapping of the Kernel
+0x014000 to 0x014FFF: Page Directory Table for the Higher Half Mapping of the Kernel
+0x015000 to 0x015FFF: Page Table for the Higher Half Mapping of the Kernel
 0x020000 to 0x024400: KAOSLDR.BIN (34 Sectors)
 0x030000 to 0x031C00: FAT Root Directory (14 Sectors)
 0x032000 to 0x034400: FAT Tables (18 Sectors)
@@ -24,12 +28,26 @@ Protected Mode
 
 Long Mode
 =========
-0x008000 to 0x008FFF: x64 IDT Vector
-0x009000 to 0x019000: Floppy Disk DMA Area
-0x019000 to 0x090000: Long Mode Stack
-0x090000 to 0x09FFFF: Bitmask for Physical Frame Allocator (Allocated Bitmap can represent currently a Memory Region of 2 GB)
-0x100000 to 0x200000: KERNEL.BIN (Memory Region is Identity Mapped in Assembler before entering x64 Long Mode)
-0x200000 to 0x600000: Range for the Physical Frame Allocator
-
-
-x64 Long Mode Page Tables are allocated at the start of 0x200000 through the Physical Frame Allocator
+0x007000 to 0x007FFF:  x64 IDT Vector
+0x009000 to 0x019000:  Floppy Disk DMA Area
+0x019000 to 0x050000:  Long Mode Stack (0x50000 is the initial RSP value)
+0x050000 to 0x08FFFF:  Bitmask for Physical Frame Allocator (Allocated Bitmap can represent currently a Memory Region of 2 GB)
+0x090000 to 0x090FFF:  Final Page Map Level 4 Table for the Kernel
+                       Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
+                       Identity Maps 0 - 4 MB (otherwise the allocated Page Tables in that area couldn't be accessed anymore, when we switch the Page Directory)
+0x091000 to 0x091FFF:  Final Page Directory Pointer Table for the Kernel
+                       Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
+0x092000 to 0x092FFF:  Final Page Directory Table for the Kernel
+                       Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
+0x093000 to 0x093FFF:  Final Page Table for 0 - 2 MB for the Kernel
+                       Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
+0x094000 to 0x094FFF:  Final Page Table for 2 - 4 MB for the Kernel
+                       Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
+0x095000 to 0x095FFF:  Final Page Directory Pointer Table for Identity Mapping 0 - 1 MB
+0x096000 to 0x096FFF:  Final Page Directory Table for Identity Mapping 0 - 1 MB
+0x097000 to 0x097FFF:  Final Page Table for Identity Mapping 0 - 1 MB
+0x100000 to 0x3FFFFF:  KERNEL.BIN
+                       Mapped to the Virtual Address Range 0xFFFF800000000000 - 0xFFFF8000003FFFFF
+                       The Kernel can currently consume up to 3 MB of Virtual Address Space
+0x400000 to UNLIMITED: Range for the Physical Frame Allocator
+                       Physical Frames will be mapped on demand by the Page Fault Handler

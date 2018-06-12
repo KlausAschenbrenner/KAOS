@@ -9,15 +9,80 @@
 #ifndef KAOS_paging_h
 #define KAOS_paging_h
 
-long PDE_PRESENT =	1; // 0000000000000000000000000000001
-long PDE_WRITABLE =	2; // 0000000000000000000000000000010
+#define SMALL_PAGE_SIZE 4096
+#define PT_ENTRIES 512
 
-int SMALL_PAGE_SIZE = 4096;
-int PT_ENTRIES = 512;
-long KERNEL_PML4_OFFSET;
+// Macros to index into the various Page Tables
+#define PML4_INDEX(virt) ((((unsigned long)(virt)) >> 39) & 511)
+#define PML3_INDEX(virt) ((((unsigned long)(virt)) >> 30) & 511)
+#define PML2_INDEX(virt) ((((unsigned long)(virt)) >> 21) & 511)
+#define PML1_INDEX(virt) ((((unsigned long)(virt)) >> 12) & 511)
 
-// Represents a 64 Bit long Page Table Entry
-struct _Page
+// Page Table Offsets from the Recursive Page Table Mapping
+#define PML4_TABLE       ((unsigned long *)(0xfffffffffffff000))
+#define PML3_TABLE(virt) ((unsigned long *)(0xffffffffffe00000 + ((((unsigned long)(virt)) >> 27) & 0x00001ff000)))
+#define PML2_TABLE(virt) ((unsigned long *)(0xffffffffc0000000 + ((((unsigned long)(virt)) >> 18) & 0x003ffff000)))
+#define PML1_TABLE(virt) ((unsigned long *)(0xffffff8000000000 + ((((unsigned long)(virt)) >> 9)  & 0x7ffffff000)))
+
+// Macros to return a Page Table Entry
+#define PML4_ENTRY(virt) PML4_TABLE[PML4_INDEX(virt)]
+#define PML3_ENTRY(virt) PML3_TABLE(virt)[PML3_INDEX(virt)]
+#define PML2_ENTRY(virt) PML2_TABLE(virt)[PML2_INDEX(virt)]
+#define PML1_ENTRY(virt) PML1_TABLE(virt)[PML1_INDEX(virt)]
+
+// Represents a 64-bit long PML4 Entry
+struct _PML4Entry
+{
+    unsigned Present : 1;           // P
+    unsigned ReadWrite : 1;         // R/W
+    unsigned User : 1;              // U/S
+    unsigned WriteThrough : 1;      // PWT
+    unsigned CacheDisable : 1;      // PCD
+    unsigned Accessed : 1;          // A
+    unsigned Ignored1 : 1;          // IGN
+    unsigned PageSize : 1;          
+    unsigned Ignored2 : 4;          
+    unsigned long Frame : 36;
+    unsigned short Reserved;
+} __attribute__ ((packed));
+typedef struct _PML4Entry PML4Entry;
+
+// Represents a 64-bit long Page Directory Pointer Entry
+struct _PDPEntry
+{
+    unsigned Present : 1;           // P
+    unsigned ReadWrite : 1;         // R/W
+    unsigned User : 1;              // U/S
+    unsigned WriteThrough : 1;      // PWT
+    unsigned CacheDisable : 1;      // PCD
+    unsigned Accessed : 1;          // A
+    unsigned Ignored1 : 1;          // IGN
+    unsigned PageSize : 1;          
+    unsigned Ignored2 : 4;          
+    unsigned long Frame : 36;
+    unsigned short Reserved;
+} __attribute__ ((packed));
+typedef struct _PDPEntry PDPEntry;
+
+// Represents a 64-bit long Page Directory Entry
+struct _PDEntry
+{
+    unsigned Present : 1;           // P
+    unsigned ReadWrite : 1;         // R/W
+    unsigned User : 1;              // U/S
+    unsigned WriteThrough : 1;      // PWT
+    unsigned CacheDisable : 1;      // PCD
+    unsigned Accessed : 1;          // A
+    unsigned Ignored1 : 1;          // IGN
+    unsigned PageSize : 1;          
+    unsigned Ignored2 : 4;          
+    unsigned long Frame : 36;
+    unsigned short Reserved;
+} __attribute__ ((packed));
+typedef struct _PDEntry PDEntry;
+
+// Represents a 64-bit long Page Table Entry
+struct _PTEntry
 {
     unsigned Present : 1;       // P
     unsigned ReadWrite: 1;      // R/W
@@ -32,30 +97,30 @@ struct _Page
     unsigned long Frame : 36;
     unsigned short Reserved;    // 16 Bits
 } __attribute__ ((packed));
-typedef struct _Page Page;
+typedef struct _PTEntry PTEntry;
 
 // Defines the Page Map Level 4 Table
 typedef struct _PageMapLevel4Table
 {
-    long Entries[512];
+    PML4Entry Entries[512];
 } PageMapLevel4Table;
 
 // Defines the Page Directory Pointer Table
 typedef struct _PageDirectoryPointerTable
 {
-    long Entries[512];
+    PDPEntry Entries[512];
 } PageDirectoryPointerTable;
 
 // Defines the Page Directory Table
 typedef struct _PageDirectoryTable
 {
-    long Entries[512];
+    PDEntry Entries[512];
 } PageDirectoryTable;
 
 // Defines the Page Table
 typedef struct _PageTable
 {
-    Page Entries[512];
+    PTEntry Entries[512];
 } PageTable;
 
 // Initializes the Paging Data Structures

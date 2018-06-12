@@ -9,22 +9,22 @@
 #ifndef KAOS_idt_h
 #define KAOS_idt_h
 
-#define IDT_START_OFFSET 0x0000000000008000
+#define IDT_START_OFFSET 0xFFFF800000007000
 
 // Represents an Interrupt Gate - 128 Bit long
 struct _IdtEntry
 {
-    unsigned short OffsetLow;       // 16 Bit
-    unsigned short Selector;        // 16 Bit
-    unsigned Ist: 3;                // Interrupt Stack Table - 3 Bits
-    unsigned:5;                     // Reserved - 5 Bits
-    unsigned Type: 4;               // Type - 4 Bits
-    unsigned: 1;                    // 1 Bit
-    unsigned Dpl: 2;                // DPL - 2 Bit
-    unsigned P: 1;                  // 1 Bit
-    unsigned short OffsetMiddle;    // 16 Bit
-    unsigned int OffsetHigh;        // 32 Bit
-    unsigned int Reserved;          // 32 Bit
+    unsigned short OffsetLow;           // 16 Bit
+    unsigned short Selector;            // 16 Bit
+    unsigned InterruptStackTable : 3;
+    unsigned Reserved1 : 5;
+    unsigned Type : 4;
+    unsigned Reserved2 : 1;
+    unsigned DPL : 2;
+    unsigned Present : 1;
+    unsigned short OffsetMiddle;        // 16 Bit
+    unsigned int OffsetHigh;            // 32 Bit
+    unsigned int Reserved3;             // 32 Bit
 } __attribute__ ((packed));
 typedef struct _IdtEntry IdtEntry;
 
@@ -37,7 +37,7 @@ struct _IdtPointer
 typedef struct _IdtPointer IdtPointer;
 
 // Installs the corresponding ISR routine in the IDT table
-void IdtSetGate(unsigned char num, unsigned int base);
+void IdtSetGate(unsigned char num, unsigned long base, unsigned char Type);
 
 // Initializes the IDT table for the ISR routines.
 void InitIdt();

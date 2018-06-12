@@ -8,20 +8,17 @@
 
 #include "FrameAllocator.h"
 
-void InitializeFrameAllocator(unsigned long PhysicalFreeMemoryStartOffset, unsigned long PhysicalFreeMemoryEndOffset)
+void InitializeFrameAllocator(unsigned long PhysicalAvailableRAM)
 {
-    // Somehow the input parameters are passed in incorrectly... but why...????
-    // int frames = PhysicalFreeMemoryEndOffset - PhysicalFreeMemoryStartOffset;
+    NumberPhysicalFrames = PhysicalAvailableRAM - FRAMES_START_OFFSET;
+    NumberPhysicalFrames = NumberPhysicalFrames / FRAME_SIZE;
 
-    NumberPhysicalFrames = 0x0000000080000000 - 0x0000000000200000;
-    NumberPhysicalFrames = NumberPhysicalFrames / 4096;
-
-    // With the range from 0x90000 to 0x9FFFF we can manage a physical 2 GB large RAM:
-    // 0x10000 = 65536d
-    // 65536 Bytes * 8 Bits = 524288 Bits
-    // Each of these 524288 Bits represents a 4K large page of 4096 bytes = 2 GB Physical RAM
-    BitsetFrames = (long *)0x90000;
-    memset(BitsetFrames, 0, 0x10000);
+    // With the range from 0x50000 to 0x8FFFF we can manage a physical 8 GB large RAM:
+    // 0x40000 = 262144d
+    // 262144 Bytes * 8 Bits = 2097152 Bits
+    // Each of these 2097152 Bits represents a 4K large page of 4096 bytes = 8 GB Physical RAM
+    BitsetFrames = (long *)BITSET_FRAMES_START_OFFSET;
+    memset(BitsetFrames, 0, BITSET_FRAMES_SIZE);
 }
 
 // Allocates the specific physical Frame in the Bitset
@@ -34,16 +31,17 @@ void SetFrame(long Frame)
 }
 
 // Function to clear a bit in the frames bitset
-void ClearFrame(long Frame)
+void ClearPhysicalFrame(long Frame)
 {
+    Frame = Frame - (FRAMES_START_OFFSET / FRAME_SIZE);
+
     long idx = INDEX_FROM_BIT(Frame);
     long off = OFFSET_FROM_BIT(Frame);
-
     BitsetFrames[idx] &= ~(0x1 << off);
 }
 
 // Allocates the first free physical Frame and returns the Frame number
-long AllocateFrame()
+long AllocatePhysicalFrame()
 {
     long i, j;
 
@@ -53,7 +51,7 @@ long AllocateFrame()
         if (BitsetFrames[i] != 0xFFFFFFFFFFFFFFFF)
         {
             // At least one bit is free here.
-            for (j = 0; j < 32; j++)
+            for (j = 0; j < 64; j++)
             {
                 int test = 0x1 << j;
 
@@ -63,17 +61,11 @@ long AllocateFrame()
                     long frame = i * 4 * 8 + j;
                     SetFrame(frame);
 
-                    return frame;
+                    return (frame + (FRAMES_START_OFFSET / FRAME_SIZE));
                 }
             }
         }
     }
-}
-
-// Returns the physical Memory Address for a given Frame Number
-long GetPhysicalFrameAddress(long Frame)
-{
-    return (Frame * FRAME_SIZE) + FRAMES_START_OFFSET;
 }
 
 void TestFrameAllocator()
@@ -82,124 +74,34 @@ void TestFrameAllocator()
     long i;
 
     // Frame 0
-    int frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
+    int frame0 = AllocatePhysicalFrame();
+    itoa(frame0, 16, str);
+    printf("Frame: 0x");
     printf(str);
     printf("\n");
 
     // Frame 1
-    frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
+    int frame1 = AllocatePhysicalFrame();
+    itoa(frame1, 16, str);
+    printf("Frame: 0x");
     printf(str);
     printf("\n");
 
     // Release Frame 1 & 0
-    ClearFrame(frame);
-    ClearFrame(0);
+    ClearPhysicalFrame(frame1);
+    ClearPhysicalFrame(frame0);
+
+    // Frame 0
+    frame0 = AllocatePhysicalFrame();
+    itoa(frame0, 16, str);
+    printf("Frame: 0x");
+    printf(str);
+    printf("\n");
 
     // Frame 1
-    frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 2
-    frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 3
-    frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 4
-    frame = AllocateFrame();
-    itoa(frame, 16, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Allocate 1000 Frames
-    for (i = 0; i < 1000; i++)
-    {
-        frame = AllocateFrame();
-    }
-
-    // Release all 1003 allocated Frames
-    for (i = 0; i < 1003; i++)
-    {
-        ClearFrame(i);
-    }
-
-    // Allocate 1000 Frames
-    for (i = 0; i < 1000; i++)
-    {
-        frame = AllocateFrame();
-    }
-
-    // Release Frames 500 - 505
-    for (i = 500; i < 505; i++)
-    {
-        ClearFrame(i);
-    }
-
-    // Release Frame 737
-    ClearFrame(737);
-
-    // Frame 500
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 501
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 502
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 503
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 504
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 737
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
-    printf(str);
-    printf("\n");
-
-    // Frame 1000
-    frame = AllocateFrame();
-    itoa(frame, 10, str);
-    printf("Frame: ");
+    frame1 = AllocatePhysicalFrame();
+    itoa(frame1, 16, str);
+    printf("Frame: 0x");
     printf(str);
     printf("\n");
 }

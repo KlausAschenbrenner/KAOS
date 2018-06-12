@@ -24,8 +24,6 @@
 %macro ISR_ERRORCODE 1
     [GLOBAL Isr%1]
     Isr%1:
-        cli
-
         ; Call the ISR handler that is implemented in C
         mov rdi, %1
         mov rsi, cr2
@@ -34,7 +32,13 @@
         ; Remove the Error Code from the Stack
         add esp, 8
 
-        sti
+        ; Correct the Instruction Pointer by decrementing it by 8 bytes, so that the faulting instruction is re-executed
+        ; No idea why this correction is necessary...
+        mov eax, [esp]
+        sub eax, 8
+        mov [esp], eax
+
+        ; Enable the interrupts and return from the ISR routine...
         iretq
 %endmacro
 

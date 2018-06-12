@@ -36,6 +36,19 @@ void *memset(void *s, int c, long n)
     return s;
 }
 
+// A simple memcpy implementation
+void memcpy(void *dest, void *src, int len)
+{
+    int i;
+    char *csrc = (char *)src;
+    char *cdest = (char *)dest;
+
+    for (i = 0; i < len; i++)
+    {
+        cdest[i] = csrc[i];
+    }
+}
+
 int strlen(char *string)
 {
     int len = 0;
