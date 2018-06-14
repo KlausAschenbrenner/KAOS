@@ -189,7 +189,7 @@ static volatile uint8_t _FloppyDiskIRQ = 0;
 
 /**
 *	DMA Routines.
-**	The DMA (Direct Memory Access) controller allows the FDC to send data to the DMA,
+**	The DMA (Direct Memoary Access) controller allows the FDC to send data to the DMA,
 **	which can put the data in memory. While the FDC can be programmed to not use DMA,
 **  it is not very well supported on emulators or virtual machines. Because of this, we
 **  will be using the DMA for data transfers. The DMA is a complex controller, because of

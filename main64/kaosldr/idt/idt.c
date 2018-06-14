@@ -39,7 +39,6 @@ void InitIdt()
 {
     _idtPointer.limit = sizeof(IdtEntry) * 256 - 1;
     _idtPointer.base = (unsigned int)&_idtEntries;
-    
     memset(&_idtEntries, 0, sizeof(IdtEntry) * 256);
     
     // Setup the 32 Exception handler

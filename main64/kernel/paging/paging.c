@@ -7,11 +7,13 @@
 //
 
 #include "paging.h"
+#include "../drivers/screen.h"
 
 static void PageFaultDebugPrint(unsigned long PageTableIndex, char *PageTableName, unsigned long PhysicalFrame)
 {
 	char str[32] = "";
 
+	// Log the Page Fault to the Console Window
 	ltoa(PageTableIndex, 16, str);
 	printf("Allocated the " );
 	printf(PageTableName);
@@ -95,7 +97,8 @@ void InitializePaging()
 	pd->Entries[0].Present = 1;
 	pd->Entries[0].ReadWrite = 1;
 
-	// Identity Mapping of the first 512 small pages of 4K (0 - 2 MB Virtual Address Space)
+	// Mapping of the first 512 small pages of 4K (0 - 2 MB Virtual Address Space)
+	// with a base offset of 0xFFFF800000000000
 	for (i = 0; i < PT_ENTRIES; i++)
 	{
 		pt1->Entries[i].Frame = i;
@@ -108,7 +111,8 @@ void InitializePaging()
 	pd->Entries[1].Present = 1;
 	pd->Entries[1].ReadWrite = 1;
 
-	// Identity Mapping of the next 512 small pages of 4K (2 - 4 MB Virtual Address Space)
+	// Mapping of the next 512 small pages of 4K (2 - 4 MB Virtual Address Space)
+	// with a base offset of 0xFFFF800000000000
 	for (i = 0; i < PT_ENTRIES; i++)
 	{
 		pt2->Entries[i].Frame = i + (PT_ENTRIES * 1);
@@ -135,6 +139,9 @@ void HandlePageFault(unsigned long VirtualAddress)
 	PageDirectoryTable *pd = (PageDirectoryTable *)PML2_TABLE(VirtualAddress);
 	PageTable *pt = (PageTable *)PML1_TABLE(VirtualAddress);
 	char str[32] = "";
+
+	// Set the screen text color to Green
+	int color = SetColor(COLOR_GREEN);
 
 	// Debugging Output
 	ltoa(VirtualAddress, 16, str);
@@ -187,4 +194,7 @@ void HandlePageFault(unsigned long VirtualAddress)
 	}
 
 	printf("\n");
+
+	// Reset the screen tet color
+	SetColor(color);
 }

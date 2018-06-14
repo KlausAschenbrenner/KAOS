@@ -11,10 +11,46 @@
     Isr%1:
         cli
 
+        ; Save the General Purpose Registers on the Stack
+        push rdi
+        push rsi
+        push rbp
+        push rsp
+        push rbx
+        push rdx
+        push rcx
+        push rax
+        push r8
+        push r9
+        push r10
+        push r11
+        push r12
+        push r13
+        push r14
+        push r15
+
         ; Call the ISR handler that is implemented in C
         mov rdi, %1
         mov rsi, cr2
         call IsrHandler
+
+        ; Restore the General Purpose Registers from the Stack
+        pop r15
+        pop r14
+        pop r13
+        pop r12
+        pop r11
+        pop r10
+        pop r9
+        pop r8
+        pop rax
+        pop rcx
+        pop rdx
+        pop rbx
+        pop rsp
+        pop rbp
+        pop rsi
+        pop rdi
 
         sti
         iretq
@@ -24,21 +60,51 @@
 %macro ISR_ERRORCODE 1
     [GLOBAL Isr%1]
     Isr%1:
-        ; Call the ISR handler that is implemented in C
-        mov rdi, %1
-        mov rsi, cr2
-        call IsrHandler
+        ; Save the General Purpose Registers on the Stack
+        push rdi
+        push rsi
+        push rbp
+        push rsp
+        push rbx
+        push rdx
+        push rcx
+        push rax
+        push r8
+        push r9
+        push r10
+        push r11
+        push r12
+        push r13
+        push r14
+        push r15
+
+        ; Call the ISR Handler that is implemented in C
+        mov rdi, %1         ; ISR Number
+        mov rsi, cr2        ; Virtual Address where the Page Fault has occured
+        call IsrHandler     ; ISR Handler
+
+        ; Restore the General Purpose Registers from the Stack
+        pop r15
+        pop r14
+        pop r13
+        pop r12
+        pop r11
+        pop r10
+        pop r9
+        pop r8
+        pop rax
+        pop rcx
+        pop rdx
+        pop rbx
+        pop rsp
+        pop rbp
+        pop rsi
+        pop rdi
 
         ; Remove the Error Code from the Stack
-        add esp, 8
+        add rsp, 8
 
-        ; Correct the Instruction Pointer by decrementing it by 8 bytes, so that the faulting instruction is re-executed
-        ; No idea why this correction is necessary...
-        mov eax, [esp]
-        sub eax, 8
-        mov [esp], eax
-
-        ; Enable the interrupts and return from the ISR routine...
+        ; Return from the ISR routine...
         iretq
 %endmacro
 

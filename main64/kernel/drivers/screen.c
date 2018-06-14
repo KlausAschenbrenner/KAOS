@@ -6,7 +6,16 @@ void InitializeScreen()
 {
     screenLocation.Row = 1;
     screenLocation.Col = 1;
-	screenLocation.Attributes = COLOR_LIGHT_MAGENTA;
+	screenLocation.Attributes = COLOR_WHITE;
+}
+
+// Sets the specific color
+int SetColor(int Color)
+{
+	int currentColor = screenLocation.Attributes;
+	screenLocation.Attributes = Color;
+
+	return currentColor;
 }
 
 // Returns the current cursor position

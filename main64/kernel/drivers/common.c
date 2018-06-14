@@ -167,3 +167,70 @@ int atoi(char *str)
 
     return res;
 }
+
+// A simple strcmp implementation
+int strcmp(char *s1, char *s2)
+{
+    int i = 0;
+    int len = strlen(s2);
+
+    while (*s1 && (*s1 == *s2) && i < len)
+    {
+        s1++;
+        s2++;
+        i++;
+    }
+
+    return *(unsigned char *)s1 - *(unsigned char *)s2;
+}
+
+// Converts a string to upper case
+void ToUpper(char *s)
+{
+    for (; *s; s++)
+        if (('a' <= *s) && (*s <= 'z'))
+            *s = 'A' + (*s - 'a');
+}
+
+// Converts a string to lower case
+void ToLower(char *s)
+{
+    for(; *s; s++)
+        if(('A' <= *s) && (*s <= 'Z'))
+            *s = 'a' + (*s - 'A');
+}
+
+// Returns a substring from a given string
+int substring(char *source, int from, int n, char *target)
+{
+    int length,i;
+    //get string length 
+    for(length=0;source[length]!='\0';length++);
+     
+    if(from>length){
+        printf("Starting index is invalid.\n");
+        return 1;
+    }
+     
+    if((from+n)>length){
+        //get substring till end
+        n=(length-from);
+    }
+     
+    //get substring in target
+    for(i=0;i<n;i++){
+        target[i]=source[from+i];
+    }
+    target[i]='\0'; //assign null at last
+     
+    return 0;    
+}
+
+// Removes the specified junk from the right side of the provided string
+char *rtrim(char *string, char junk)
+{
+    char* original = string + strlen(string);
+    while(*--original == junk);
+    *(original + 1) = '\0';
+    return string;
+}

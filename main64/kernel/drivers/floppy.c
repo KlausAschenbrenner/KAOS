@@ -150,7 +150,7 @@ const int FLOPPY_IRQ = 6;
 //! sectors per track
 const int FLPY_SECTORS_PER_TRACK = 18;
 
-//! dma tranfer buffer starts here and ends at 0x1000+64k
+//! dma tranfer buffer starts here and ends at 0x9000+64k
 //! You can change this as needed. It must be below 16MB and in idenitity mapped memory!
 const int DMA_BUFFER = 0x9000;
 
@@ -270,7 +270,7 @@ void flpydsk_send_command (uint8_t cmd)
 		if ( flpydsk_read_status () & FLPYDSK_MSR_MASK_DATAREG )
 		{
 			outb (FLPYDSK_FIFO, cmd);
-			break;
+			return;
 		}
 	}
 }
@@ -547,7 +547,10 @@ uint8_t flpydsk_get_working_drive () {
 uint8_t* flpydsk_read_sector (int sectorLBA) {
 
 	if (_CurrentDrive >= 4)
+	{
+		printf("Error!");
 		return 0;
+	}
 
 	//! convert LBA sector to CHS
 	int head=0, track=0, sector=1;

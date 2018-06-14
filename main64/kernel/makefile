@@ -10,9 +10,11 @@ kaos64.img : bootsector.bin kernel.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -c -s ../boot/bootsector.bin -f ../kaos64.img
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i ../kaosldr/kaosldr.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i kernel.bin
+	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i ../programs/program1/prog1.bin
+	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i ../programs/program2/prog2.bin
 	
 # Links the C kernel
-kernel.bin: kernel.o idt/idt_asm.o irq/irq_asm.o ${OBJ}
+kernel.bin: kernel.o idt/idt_asm.o irq/irq_asm.o execute.o ${OBJ}
 	~/Documents/dev_x64/opt/cross/bin/x86_64-elf-ld -o $@ -Tlink.ld $^ --oformat binary -z max-page-size=0x1000 -Map kernel.map
 
 # Compiles the C kernel
@@ -26,6 +28,10 @@ idt/idt_asm.o : idt/idt.asm
 # Builds the IRQ handlers written in Assembler
 irq/irq_asm.o : irq/irq.asm
 	~/Documents/dev/nasm-2.13/nasm -felf64 irq/irq.asm -o irq/irq_asm.o
+
+# Builds the Executor written in Assembler
+execute.o : execute.asm
+	~/Documents/dev/nasm-2.13/nasm -felf64 execute.asm -o execute.o
 
 # Builds the Boot Sector
 bootsector.bin: ../boot/bootsector.asm

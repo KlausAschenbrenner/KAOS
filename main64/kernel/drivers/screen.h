@@ -67,4 +67,7 @@ void SetCursorPosition(int Row, int Col);
 // Moves the screen cursor to the current location on the screen.
 void MoveCursor();
 
+// Sets the specific color
+int SetColor(int Color);
+
 #endif

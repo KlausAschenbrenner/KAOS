@@ -9,7 +9,7 @@
 #ifndef KAOS_idt_h
 #define KAOS_idt_h
 
-#define IDT_START_OFFSET 0xFFFF800000007000
+#define IDT_START_OFFSET 0x98000
 
 // Represents an Interrupt Gate - 128 Bit long
 struct _IdtEntry

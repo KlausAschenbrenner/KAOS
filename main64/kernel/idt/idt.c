@@ -9,7 +9,7 @@
 #include "idt.h"
 #include "../irq/irq.h"
 
-// The 256 possible Interrupt Gates are stored from 0x8000 to 0x8FFF (4096 Bytes long - each Entry is 16 Bytes)
+// The 256 possible Interrupt Gates are stored from 0x98000 to 0x98FFF (4096 Bytes long - each Entry is 16 Bytes)
 IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
 
 // The pointer that points to the Interrupt Gates

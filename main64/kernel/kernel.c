@@ -36,27 +36,9 @@ void k_main()
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 	
-	// RaiseInterrupt();
-
-	// Triggers a Divide by Zero Exception...
-	// int i = 1;
-	// int k = 0;
-	// int j = i / k;
-
-	// TestFrameAllocator();
-
-	// ScrollScreen();
-
-	// TestKeyboardInput();
-
-	// ReadSectorFromFloppy();
-
-	TestPageFaults();
-
-	// CommandLoop();
+	// Execute the Command Shell
+	CommandLoop();
 	
-	// printf("Done");
-
 	// Halt the system
     for (;;);
 }
@@ -86,41 +68,50 @@ void TestPageFaults()
 	print_char(*ptr);
 }
 
+// Implements a simple Command Shell
 void CommandLoop()
 {
-	char input[10] = "";
-	int sector;
+	char input[100] = "";
+	ClearScreen();
 
 	while (1 == 1)
 	{
-		ClearScreen();
-		printf("Enter Disk Sector to read: ");
-		scanf(input, 8);
+		printf("A:\>");
+		scanf(input, 98);
 
-		int sector = atoi(input);
-		ReadDiskSector(sector);
-
-		scanf(input, 8);
-	}
-}
-
-void ReadDiskSector(int Sector)
-{
-	int i = 0;
-	char str[32] = "";
-
-	unsigned char *dmaBuffer = (unsigned char *)flpydsk_read_sector(Sector);
-	flpydsk_reset();
-
-	// Print out the read disk sector
-	for (i = 0; i < 512; i++)
-	{
-		itoa(dmaBuffer[i], 16, str);
-
-		// unsigned char *Buffer = 0xFFFF8000FFFF0000;
-		// memcpy(Buffer, dmaBuffer, 512);
-		printf("0x");
-		printf(str);
+		if (strcmp(input, "dir") == 0)
+		{
+			PrintRootDirectory();
+		}
+		else if (strcmp(input, "cls") == 0)
+		{
+			ClearScreen();
+		}
+		else if (strcmp(input, "shutdown") == 0)
+		{
+			printf("Shutting down KAOS...\n");
+		}
+		else if (strcmp(input, "reboot") == 0)
+		{
+			printf("Rebooting KAOS...\n");
+		}
+		else
+		{
+			// Try to load the requested program into memory
+			if (LoadProgram(input) == 1)
+			{
+				// The program was loaded successfully into memory.
+				// Let's execute it now!
+				ExecuteProgram();
+			}
+			else
+			{
+				printf("'");
+				printf(input);
+				printf("' is not recognized as an internal or external command,\n");
+				printf("operable program or batch file.\n\n");
+			}
+		}
 	}
 }
 

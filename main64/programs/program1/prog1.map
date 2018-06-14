@@ -1,0 +1,32 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0xffff8000ffff0000                . = 0xffff8000ffff0000
+
+.text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
+ *(.text .text.*)
+ .text          0xffff8000ffff0000       0x4c main.o
+                0xffff8000ffff0000                main
+                0xffff8000ffff1000                . = ALIGN (0x1000)
+ *fill*         0xffff8000ffff004c      0xfb4 
+
+.eh_frame       0xffff8000ffff1000       0x38 load address 0x00000000ffff1000
+ .eh_frame      0xffff8000ffff1000       0x38 main.o
+
+.data           0xffff8000ffff1038        0x0 load address 0x00000000ffff1038
+ *(.data .data.*)
+ .data          0xffff8000ffff1038        0x0 main.o
+
+.bss            0xffff8000ffff1038        0x0 load address 0x00000000ffff1038
+ *(.bss .bss.*)
+ .bss           0xffff8000ffff1038        0x0 main.o
+LOAD main.o
+OUTPUT(prog1.bin binary)
+
+.comment        0x0000000000000000       0x12
+ .comment       0x0000000000000000       0x12 main.o
