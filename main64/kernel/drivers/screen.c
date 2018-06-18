@@ -122,6 +122,20 @@ void printf(char *string)
 	}
 }
 
+void printf_int(int i, int base)
+{
+	char str[32] = "";
+	itoa(i, base, str);
+	printf(str);
+}
+
+void printf_long(long i, int base)
+{
+	char str[32] = "";
+	ltoa(i, base, str);
+	printf(str);
+}
+
 // Clears the screen
 void ClearScreen()
 {

@@ -251,7 +251,12 @@ GDT:
     dq 0x0000000000000000             ; Null Descriptor - should be present.
  
 .Code:
+    ; 00000000 00100000 10011010 00000000
+    ; 00000000 00000000 00000000 00000000
     dq 0x00209A0000000000             ; 64-bit code descriptor (exec/read).
+
+    ; 00000000 00000000 10010010 00000000
+    ; 00000000 00000000 00000000 00000000
     dq 0x0000920000000000             ; 64-bit data descriptor (read/write).
  
 ALIGN 4
@@ -275,6 +280,6 @@ LongMode:
     mov rsp, rax
     mov rbp, rsp
 
-    ; Execute the 64-bit Kernel, which is stored at 0xFFFF800000100000
-    mov rax, qword 0xFFFF800000100000
+    ; Execute the 64-bit Kernel, which is stored at 0xFFFF800000110000
+    mov rax, qword 0xFFFF800000110000
     call rax

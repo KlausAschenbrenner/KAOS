@@ -20,7 +20,7 @@ const int BytesPerSector = 512;
 
 const int ROOT_DIRECTORY_BUFFER = 0x30000;
 const int FAT_BUFFER = 0x32000;
-const int KERNEL_BUFFER = 0x100000;
+const int KERNEL_BUFFER = 0x110000;
 const int EOF = 0x0FF0;
 
 // Represents a Root Directory Entry

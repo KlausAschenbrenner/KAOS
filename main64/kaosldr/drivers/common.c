@@ -153,3 +153,47 @@ void itoa_s(unsigned short i, unsigned base, char *buf)
     
     buf[opos] = 0;
 }
+
+static void ltoa_s(unsigned long i, unsigned base, char *buf)
+{
+    int pos = 0;
+    int opos = 0;
+    int top = 0;
+    
+    if (i == 0 || base > 16)
+    {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    
+    while (i != 0)
+    {
+        tbuf[pos] = bchars[i % base];
+        pos++;
+        i /= base;
+    }
+    
+    top = pos--;
+    
+    for (opos = 0; opos < top; pos--,opos++)
+    {
+        buf[opos] = tbuf[pos];
+    }
+    
+    buf[opos] = 0;
+}
+
+// Converts a long value to a string value for a specific base (base 10 => decimal, base 16 => hex)
+void ltoa(unsigned long i, unsigned base, char *buf)
+{
+    if (base > 16) return;
+    
+    if (i < 0)
+    {
+        *buf++ = '-';
+        i *= -1;
+    }
+    
+    ltoa_s(i, base, buf);
+}

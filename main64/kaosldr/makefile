@@ -7,7 +7,7 @@ OBJ = ${C_SOURCES:.c=.o}
 
 # Links the C Loader
 kaosldr.bin: kaosldr_entry.o idt/idt_asm.o irq/irq_asm.o EnterLongMode.o ${OBJ}
-	~/Documents/dev/opt/cross/bin/i586-elf-ld -o $@ -Ttext 0x20000 $^ --oformat binary -Map kaosldr.map
+	~/Documents/dev/opt/cross/bin/i586-elf-ld -o $@ -Tlink.ld $^ --oformat binary -Map kaosldr.map
 	
 # Compiles the C Loader
 %.o : %.c ${HEADERS}

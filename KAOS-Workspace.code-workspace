@@ -10,7 +10,8 @@
 			"common.h": "c",
 			"screen.h": "c",
 			"keyboard.h": "c",
-			"frameallocator.h": "c"
+			"frameallocator.h": "c",
+			"heap.h": "c"
 		},
 		"git.ignoreLimitWarning": true
 	}

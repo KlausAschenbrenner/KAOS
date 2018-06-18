@@ -2,7 +2,7 @@ ENTRY(k_main)
 
 SECTIONS
 {
-    . = 0xFFFF800000100000;
+    . = 0xFFFF800000110000;
     .text : AT(ADDR(.text) - 0xFFFF800000000000)
     {
         *(.text .text.*)

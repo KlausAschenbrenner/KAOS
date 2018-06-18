@@ -3,6 +3,7 @@
 #include "drivers/timer.h"
 #include "drivers/keyboard.h"
 #include "kernel.h"
+#include "Heap/Heap.h"
 
 void k_main()
 {
@@ -33,14 +34,45 @@ void k_main()
 	InitializeFrameAllocator(1024 * 1024 * 1024);
 	InitializePaging();
 
+	// Initializes the Heap Manager
+	InitHeap();
+
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 	
 	// Execute the Command Shell
 	CommandLoop();
+
+	printf("Done\n");
 	
 	// Halt the system
     for (;;);
+}
+
+void TestHeap()
+{
+	void *ptr1 = malloc(100);
+	void *ptr2 = malloc(100);
+	void *ptr3 = malloc(100);
+	void *ptr4 = malloc(100);
+	
+	free(ptr2);
+	free(ptr3);
+	
+	void *ptr5 = malloc(5000);
+	void *ptr6 = malloc(204);
+	void *ptr7 = malloc(2768);
+
+	free(ptr1);
+	free(ptr7);
+	free(ptr5);
+	free(ptr4);
+	free(ptr6);
+
+	void *ptr8 = malloc(20000);
+	free(ptr8);
+	
+	DumpHeap();
 }
 
 void TestPageFaults()

@@ -24,7 +24,7 @@ Protected Mode
 0x032000 to 0x034400: FAT Tables (18 Sectors)
 0x034400 to 0x070000: Protected Mode Stack
 0x070000 to 0x090000: Long Mode Stack
-0x100000 to 0x200000: KERNEL.BIN (Memory Region is Identity Mapped in Assembler before entering x64 Long Mode)
+0x110000 to 0x200000: KERNEL.BIN (Memory Region is Identity Mapped in Assembler before entering x64 Long Mode)
 
 Long Mode
 =========
@@ -47,7 +47,7 @@ Long Mode
 0x097000 to 0x097FFF:  Final Page Table for Identity Mapping 0 - 1 MB
 0x098000 to 0x098FFF:  x64 IDT Vector
 0x099000 to 0x099FFF:  <<<Free Space >>>
-0x100000 to 0x3FFFFF:  KERNEL.BIN:
+0x110000 to 0x3FFFFF:  KERNEL.BIN:
                        Virtual Base Address: 0xFFFF800000100000
                        Mapped to the Virtual Address Range 0xFFFF800000000000 - 0xFFFF8000003FFFFF
                        The Kernel can currently consume up to 3 MB of Virtual Address Space
