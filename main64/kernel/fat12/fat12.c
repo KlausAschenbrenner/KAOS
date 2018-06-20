@@ -7,6 +7,7 @@
 //
 
 #include "fat12.h"
+#include "../heap/Heap.h"
 
 // Prints the Root Directory
 void PrintRootDirectory()
@@ -147,9 +148,11 @@ static void LoadRootDirectory()
     short lbaAddressRootDirectory = NumberOfFATs * SectorsPerFAT + ReservedSectors;
 
     // Load the whole Root Directory (14 sectors) into memory
+    ROOT_DIRECTORY_BUFFER = malloc(rootDirectorySectors * BytesPerSector);
     ReadSectors(lbaAddressRootDirectory, rootDirectorySectors, (unsigned char *)ROOT_DIRECTORY_BUFFER);
 
     // Load the whole FAT (18 sectors) into memory
+    FAT_BUFFER = malloc(NumberOfFATs * SectorsPerFAT * BytesPerSector);
     ReadSectors(1, NumberOfFATs * SectorsPerFAT, (unsigned char *)FAT_BUFFER);
 }
 

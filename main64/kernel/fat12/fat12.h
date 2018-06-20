@@ -15,9 +15,9 @@ const int SectorsPerCluster = 1;
 const int ReservedSectors = 1;
 const int RootDirectoryEntries = 224;
 const int BytesPerSector = 512;
-unsigned char *ROOT_DIRECTORY_BUFFER = 0xFFFF800000700000;
-unsigned char *FAT_BUFFER = 0xFFFF800000600000;
 unsigned char *PROGRAM_BUFFER = 0xFFFF8000FFFF0000;
+unsigned char *ROOT_DIRECTORY_BUFFER;
+unsigned char *FAT_BUFFER;
 const int EOF = 0x0FF0;
 int RootDirectoryLoaded = 0;
 

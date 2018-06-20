@@ -130,7 +130,7 @@ void CommandLoop()
 		else
 		{
 			// Try to load the requested program into memory
-			if (LoadProgram(input) == 1)
+			if (LoadProgram(input) != 0)
 			{
 				// The program was loaded successfully into memory.
 				// Let's execute it now!
