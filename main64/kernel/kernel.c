@@ -4,6 +4,7 @@
 #include "drivers/keyboard.h"
 #include "kernel.h"
 #include "Heap/Heap.h"
+#include "Tasks/Task.h"
 
 void k_main()
 {
@@ -39,14 +40,51 @@ void k_main()
 
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
-	
+
 	// Execute the Command Shell
-	CommandLoop();
+	// CommandLoop();
+
+	TestTaskManagement();
 
 	printf("Done\n");
 	
 	// Halt the system
     for (;;);
+}
+
+void Program1() {}
+void Program2() {}
+void Program3() {}
+void Program4() {}
+void Program5() {}
+void Program6() {}
+void Program7() {}
+
+void TestTaskManagement()
+{
+	char input[10] = "";
+	CreateKernelTask(Program1, 1, 0xFFFF800001100000);
+	CreateKernelTask(Program2, 2, 0xFFFF800001200000);
+	CreateKernelTask(Program3, 3, 0xFFFF800001300000);
+	CreateKernelTask(Program4, 4, 0xFFFF800001400000);
+	CreateKernelTask(Program5, 5, 0xFFFF800001500000);
+	CreateKernelTask(Program6, 6, 0xFFFF800001600000);
+	CreateKernelTask(Program7, 7, 0xFFFF800001700000);
+
+
+	DumpRunnableQueue();
+	printf("Continue?\n");
+	printf("\n");
+	scanf(input, 10);
+
+	while (1 == 1)
+	{
+		ClearScreen();
+		MoveToNextTask();
+		DumpRunnableQueue();
+		printf("Continue?\n");
+		scanf(input, 10);
+	}
 }
 
 void TestHeap()

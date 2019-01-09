@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "timer.h"
+#include "../Tasks/Task.h"
 
 int counter = 0;
 
@@ -35,6 +36,9 @@ void InitTimer(int Frequency)
 static void TimerCallback(int Number)
 {
     counter++;
+
+    // Switches to the next Task
+    SwitchTask();
     
     /* char str[32] = {0};
     itoa(counter, 10, str);
