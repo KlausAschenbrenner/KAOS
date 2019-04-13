@@ -18,9 +18,7 @@ typedef struct _Task
     long rcx;
     long rdx;
     long rbp;
-    long rsp;
     long rsi;
-    long rdi;
     long r8;
     long r9;
     long r10;
@@ -29,8 +27,15 @@ typedef struct _Task
     long r13;
     long r14;
     long r15;
-    long Flags;
     long cr3;
+
+    long rdi;
+    long rip;
+    long cs;
+    long rflags;
+    long rsp;
+    long ss;
+
     int PID;
 } Task;
 

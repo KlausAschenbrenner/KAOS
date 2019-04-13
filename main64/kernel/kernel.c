@@ -52,16 +52,18 @@ void k_main()
     for (;;);
 }
 
-void Program1() {}
-void Program2() {}
-void Program3() {}
-void Program4() {}
-void Program5() {}
-void Program6() {}
-void Program7() {}
+void Program1() { printf ("Program1..."); }
+void Program2() { printf ("Program2..."); }
+void Program3() { printf ("Program3..."); }
+void Program4() { printf ("Program4..."); }
+void Program5() { printf ("Program5..."); }
+void Program6() { printf ("Program6..."); }
+void Program7() { printf ("Program7..."); }
 
 void TestTaskManagement()
 {
+	DisableInterrupts();
+
 	char input[10] = "";
 	CreateKernelTask(Program1, 1, 0xFFFF800001100000);
 	CreateKernelTask(Program2, 2, 0xFFFF800001200000);
@@ -71,8 +73,11 @@ void TestTaskManagement()
 	CreateKernelTask(Program6, 6, 0xFFFF800001600000);
 	CreateKernelTask(Program7, 7, 0xFFFF800001700000);
 
+	Program1();
 
-	DumpRunnableQueue();
+	EnableInterrupts();
+
+	/* DumpRunnableQueue();
 	printf("Continue?\n");
 	printf("\n");
 	scanf(input, 10);
@@ -84,7 +89,7 @@ void TestTaskManagement()
 		DumpRunnableQueue();
 		printf("Continue?\n");
 		scanf(input, 10);
-	}
+	} */
 }
 
 void TestHeap()

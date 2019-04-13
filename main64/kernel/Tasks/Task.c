@@ -22,13 +22,26 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->cr3 = 0x90000;
     newTask->PID = PID;
 
-    long *stack = Stack - 5;
+    /* long *stack = Stack - 5;
     newTask->rsp = stack;
     stack[0] = TaskCode;    // RIP
     stack[1] = 0x8;         // Code Segment/Selector
     stack[2] = 0x2202;      // RFLAGS
     stack[3] = Stack;       // Stack Pointer
+    stack[4] = 0x10;        // Stack Segment/Selector */
+
+    long *stack = Stack - 5;
+    stack[0] = TaskCode;    // RIP
+    stack[1] = 0x8;         // Code Segment/Selector
+    stack[2] = 0x2202;      // RFLAGS
+    stack[3] = Stack;       // Stack Pointer
     stack[4] = 0x10;        // Stack Segment/Selector
+
+    newTask->rip = TaskCode;
+    newTask->cs = 0x8;
+    newTask->rflags = 0x2202;
+    newTask->rsp = Stack;
+    newTask->ss = 0x10;
 
     // Add the newly created Task to the end of the RUNNABLE queue
     AddTaskToRunnableQueue(newTask);
@@ -64,6 +77,28 @@ void AddTaskToRunnableQueue(Task *Task)
     }
 }
 
+// Switches to the next Task.
+// This function gets called by the Timer Interrupt.
+void SwitchTask()
+{
+    cntr++;
+
+    /* int oldRow, oldCol;
+    GetCursorPosition(&oldRow, &oldCol);
+    SetCursorPosition(25, 80);
+
+    if (cntr % 2 == 0)
+        print_char('A');
+    else
+        print_char('B');
+
+    SetCursorPosition(oldRow, oldCol); */
+
+    // Switch to the next Task (implemented in Assembler)
+    TaskList *nextEntry = RunnableQueue->Next;
+    TaskSwitch(RunnableQueue->Task, nextEntry->Task);
+}
+
 // Moves the current Task from the head of the RUNNABLE queue to the tail of the RUNNABLE queue.
 void MoveToNextTask()
 {
@@ -80,28 +115,8 @@ void MoveToNextTask()
     // Add the old head of the RUNNABLE queue to the tail of the RUNNABLE queue
     temp->Next = start;
     start->Next = 0x0;
-}
 
-// Switches to the next Task.
-// This function gets called by the Timer Interrupt.
-void SwitchTask()
-{
-    cntr++;
-
-    int oldRow, oldCol;
-    GetCursorPosition(&oldRow, &oldCol);
-    SetCursorPosition(25, 80);
-
-    if (cntr % 2 == 0)
-        print_char('A');
-    else
-        print_char('B');
-
-    SetCursorPosition(oldRow, oldCol);
-
-    // Switch to the next Task (implemented in Assembler)
-    TaskList *nextEntry = RunnableQueue->Next;
-    TaskSwitch(RunnableQueue->Task, nextEntry->Task);
+    DumpRunnableQueue();
 }
 
 // Dumps out the RUNNABLE queue

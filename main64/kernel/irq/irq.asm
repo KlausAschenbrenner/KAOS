@@ -1,5 +1,5 @@
 [BITS 64]
-[extern IrqHandler]
+[EXTERN IrqHandler]
 
 ; Needed that the C code can call these Assembler functions
 [GLOBAL DisableInterrupts]
