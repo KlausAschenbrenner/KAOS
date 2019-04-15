@@ -281,5 +281,6 @@ LongMode:
     mov rbp, rsp
 
     ; Execute the 64-bit Kernel, which is stored at 0xFFFF800000110000
+    mov r15, qword 0xFFFF800000110000
     mov rax, qword 0xFFFF800000110000
     call rax

@@ -16,16 +16,17 @@ int counter = 0;
 void InitTimer(int Frequency)
 {
     // Registers the IRQ callback function for the hardware timer
-    RegisterIRQHandler(32, &TimerCallback);
+    // RegisterIRQHandler(32, &TimerCallback);
 
     int divisor = 1193180 / Frequency;
     
     // Send the command byte
-    outb(0x43, 0x36);
+    // outb(0x43, 0x36);
+    outb(0x43, 0x34);
     
     // Divisor has to be sent byte-wise, so split here into upper/lower bytes
     unsigned char l = (unsigned char)(divisor & 0xFF);
-    unsigned char h = (unsigned char)((divisor >> 8) & 0xFF);
+    unsigned char h = (unsigned char)((divisor >> 8));
     
     // Send the frequency divisor
     outb(0x40, l);
@@ -37,22 +38,19 @@ static void TimerCallback(int Number)
 {
     counter++;
 
-    // Switches to the next Task
-    SwitchTask();
-    
-    /* char str[32] = {0};
+    char str[32] = {0};
     itoa(counter, 10, str);
     
     printf("Timer counter: ");
     printf(str);
-    printf("\n"); */
+    printf("\n");
 }
 
 void Sleep(int Iterations)
 {
     int i;
 
-	for (i = 0;i<Iterations;i++)
+	for (i = 0; i < Iterations; i++)
 	{
         int a;
         int b;

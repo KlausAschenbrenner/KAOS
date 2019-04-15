@@ -226,11 +226,16 @@ int substring(char *source, int from, int n, char *target)
     return 0;    
 }
 
-// Removes the specified junk from the right side of the provided string
-char *rtrim(char *string, char junk)
+// Returns the position of the specific character in the given string
+int find(char *string, char junk)
 {
-    char* original = string + strlen(string);
-    while(*--original == junk);
-    *(original + 1) = '\0';
-    return string;
+    int pos = 0;
+
+    while (*string != junk)
+    {
+        pos++;
+        string++;
+    }
+
+    return pos;
 }

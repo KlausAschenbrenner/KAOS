@@ -1,5 +1,6 @@
 [BITS 64]
 [EXTERN IrqHandler]
+[EXTERN MoveToNextTask] 
 
 ; Needed that the C code can call these Assembler functions
 [GLOBAL DisableInterrupts]

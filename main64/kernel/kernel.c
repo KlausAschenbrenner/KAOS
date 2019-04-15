@@ -23,7 +23,7 @@ void k_main()
     PICInitialize(0x20, 0x28);
 
 	// Initialize the system timer to 20 Hertz
-    InitTimer(20);
+	InitTimer(100000);
 
 	// Initialize the keyboard
     InitKeyboard();
@@ -41,10 +41,16 @@ void k_main()
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 
+	// Creates the various Kernel Tasks that are executed through Context Switching
+	CreateKernelTasks();
+
+	// Initialize the Context Switching through IRQ0
+	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
+	// Everything is done in the various executed Tasks and in the IRQ handlers!
+	InitTimerForContextSwitching();
+
 	// Execute the Command Shell
 	// CommandLoop();
-
-	TestTaskManagement();
 
 	printf("Done\n");
 	
@@ -52,44 +58,21 @@ void k_main()
     for (;;);
 }
 
-void Program1() { printf ("Program1..."); }
-void Program2() { printf ("Program2..."); }
-void Program3() { printf ("Program3..."); }
-void Program4() { printf ("Program4..."); }
-void Program5() { printf ("Program5..."); }
-void Program6() { printf ("Program6..."); }
-void Program7() { printf ("Program7..."); }
 
-void TestTaskManagement()
+
+void Dummy()
 {
-	DisableInterrupts();
-
-	char input[10] = "";
-	CreateKernelTask(Program1, 1, 0xFFFF800001100000);
-	CreateKernelTask(Program2, 2, 0xFFFF800001200000);
-	CreateKernelTask(Program3, 3, 0xFFFF800001300000);
-	CreateKernelTask(Program4, 4, 0xFFFF800001400000);
-	CreateKernelTask(Program5, 5, 0xFFFF800001500000);
-	CreateKernelTask(Program6, 6, 0xFFFF800001600000);
-	CreateKernelTask(Program7, 7, 0xFFFF800001700000);
-
-	Program1();
-
-	EnableInterrupts();
-
-	/* DumpRunnableQueue();
-	printf("Continue?\n");
-	printf("\n");
-	scanf(input, 10);
+	int cntr = 0;
 
 	while (1 == 1)
 	{
-		ClearScreen();
-		MoveToNextTask();
-		DumpRunnableQueue();
-		printf("Continue?\n");
-		scanf(input, 10);
-	} */
+		cntr++;
+		long *value = (long *)0xFFFF800000700000;
+		*value = cntr;
+
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
 }
 
 void TestHeap()
@@ -170,6 +153,16 @@ void CommandLoop()
 		{
 			printf("Rebooting KAOS...\n");
 		}
+		else if (strcmp(input, "status") == 0)
+		{
+			// Print out the calculated value from the other running Task...
+			long *value = (long *)0xFFFF800000700000;
+			printf_long(*value, 10);
+		}
+		else if (strcmp(input, "ps") == 0)
+		{
+			DumpTaskState();
+		}
 		else
 		{
 			// Try to load the requested program into memory
@@ -188,6 +181,12 @@ void CommandLoop()
 			}
 		}
 	}
+}
+
+void CreateKernelTasks()
+{
+	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
+	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
 }
 
 // Dumps out the Memory Map

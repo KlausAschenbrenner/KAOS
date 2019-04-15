@@ -44,5 +44,5 @@ bootsector.bin: ../boot/bootsector.asm
 # Clean up
 clean:
 	rm -f ../boot/*.bin
-	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o
+	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o Tasks/*.o
 	rm -f ../*.img

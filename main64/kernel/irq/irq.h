@@ -12,6 +12,7 @@
 #include "../drivers/common.h"
 
 // Our 15 IRQ routines (implemented in Assembler)
+extern void Irq0_ContextSwitching();
 extern void Irq0();
 extern void Irq1();
 extern void Irq2();

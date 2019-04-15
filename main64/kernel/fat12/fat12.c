@@ -47,7 +47,10 @@ void PrintRootDirectory()
             ToLower(extension);
 
             // Print out the file name
-            printf(rtrim(name, ' '));
+            int pos = find(name, ' ');
+            char trimmedName[9] = "";
+            substring(name, 0, pos, trimmedName);
+            printf(trimmedName);
             printf(".");
             printf(extension);
             printf("\n");
@@ -199,7 +202,11 @@ static RootDirectoryEntry* FindRootDirectoryEntry(unsigned char *Filename)
             ToUpper(Filename);
 
             // Check if we got the Root Directory Entry in which we are interested in
-            if (strcmp(rtrim(name, ' '), Filename) == 0)
+            int pos = find(name, ' ');
+            char trimmedName[9] = "";
+            substring(name, 0, pos, trimmedName);
+
+            if (strcmp(trimmedName, Filename) == 0)
                 return entry;
         }
 

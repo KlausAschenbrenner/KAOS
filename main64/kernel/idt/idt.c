@@ -101,6 +101,15 @@ void InitIdt()
     IdtFlush((unsigned long)&_idtPointer);
 }
 
+// Installs the IRQ0 interrupt handler that performs the Context Switching between the various tasks
+void InitTimerForContextSwitching()
+{
+    IdtSetGate(32, (unsigned long)Irq0_ContextSwitching, 0xE);
+
+    // Loads the IDT table into the processor register (Assembler function)
+    IdtFlush((unsigned long)&_idtPointer);
+}
+
 // Installs the corresponding ISR routine in the IDT table
 void IdtSetGate(unsigned char num, unsigned long base, unsigned char Type)
 {

@@ -18,30 +18,43 @@ TaskList *RunnableQueue = 0x0;
 Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
 {
     Task *newTask = malloc(sizeof(Task));
-    newTask->r15 = newTask;
+    newTask->rax = 0;
+    newTask->rbx = 0;
+    newTask->rcx = 0;
+    newTask->rdx = 0;
+    newTask->rbp = 0;
+    newTask->rsi = 0;
+    newTask->r8 = 0;
+    newTask->r9 = 0;
+    newTask->r10 = 0;
+    newTask->r11 = 0;
+    newTask->r12 = 0;
+    newTask->r13 = 0;
+    newTask->r14 = 0;
+    newTask->r15 = newTask; // We store the state of the Task in register R15
     newTask->cr3 = 0x90000;
-    newTask->PID = PID;
 
-    /* long *stack = Stack - 5;
-    newTask->rsp = stack;
-    stack[0] = TaskCode;    // RIP
-    stack[1] = 0x8;         // Code Segment/Selector
-    stack[2] = 0x2202;      // RFLAGS
-    stack[3] = Stack;       // Stack Pointer
-    stack[4] = 0x10;        // Stack Segment/Selector */
-
-    long *stack = Stack - 5;
-    stack[0] = TaskCode;    // RIP
-    stack[1] = 0x8;         // Code Segment/Selector
-    stack[2] = 0x2202;      // RFLAGS
-    stack[3] = Stack;       // Stack Pointer
-    stack[4] = 0x10;        // Stack Segment/Selector
-
+    newTask->rdi = 0;
     newTask->rip = TaskCode;
     newTask->cs = 0x8;
     newTask->rflags = 0x2202;
-    newTask->rsp = Stack;
+    // newTask->rsp = Stack;
     newTask->ss = 0x10;
+
+    newTask->PID = PID;
+
+    // long *stack = Stack - 5;
+    // newTask->rsp = stack;
+
+    // Prepare the stack of the new Task so that it looks like a traditional Stack Frame from an interrupt.
+    // When we restore the state of this Task the first time, that Stack Frame is used during the IRETQ opcode.
+    long *stack = Stack - 40; // ???? No idea why, but it is needed... ;-)
+    newTask->rsp = stack;
+    stack[0] = TaskCode;    // RIP
+    stack[1] = 0x08;        // Code Segment/Selector
+    stack[2] = 0x2202;      // RFLAGS
+    stack[3] = stack;       // Stack Pointer
+    stack[4] = 0x10;        // Stack Segment/Selector
 
     // Add the newly created Task to the end of the RUNNABLE queue
     AddTaskToRunnableQueue(newTask);
@@ -77,30 +90,8 @@ void AddTaskToRunnableQueue(Task *Task)
     }
 }
 
-// Switches to the next Task.
-// This function gets called by the Timer Interrupt.
-void SwitchTask()
-{
-    cntr++;
-
-    /* int oldRow, oldCol;
-    GetCursorPosition(&oldRow, &oldCol);
-    SetCursorPosition(25, 80);
-
-    if (cntr % 2 == 0)
-        print_char('A');
-    else
-        print_char('B');
-
-    SetCursorPosition(oldRow, oldCol); */
-
-    // Switch to the next Task (implemented in Assembler)
-    TaskList *nextEntry = RunnableQueue->Next;
-    TaskSwitch(RunnableQueue->Task, nextEntry->Task);
-}
-
 // Moves the current Task from the head of the RUNNABLE queue to the tail of the RUNNABLE queue.
-void MoveToNextTask()
+Task* MoveToNextTask()
 {
     TaskList *start = RunnableQueue;
     TaskList *temp = RunnableQueue;
@@ -109,14 +100,18 @@ void MoveToNextTask()
     RunnableQueue = RunnableQueue->Next;
 
     // Iterate through the RUNNABLE queue, until we find the tail of it
-    while (temp->Next != 0)
+    while (temp->Next != 0x0)
         temp = temp->Next;
 
     // Add the old head of the RUNNABLE queue to the tail of the RUNNABLE queue
     temp->Next = start;
     start->Next = 0x0;
 
-    DumpRunnableQueue();
+    // Record the Context Switch
+    RunnableQueue->Task->ContextSwitches++;
+
+    // Return the next Task to be executed
+    return RunnableQueue->Task;
 }
 
 // Dumps out the RUNNABLE queue
@@ -125,7 +120,7 @@ void DumpRunnableQueue()
     TaskList *temp = RunnableQueue;
 
     // Print the 1st Task in the RUNNABLE queue
-    printf("Task #");
+    printf("PID: ");
     printf_int(temp->Task->PID, 10);
     printf("\n");
 
@@ -140,4 +135,17 @@ void DumpRunnableQueue()
         printf_int(temp->Task->PID, 10);
         printf("\n");
     }
+}
+
+void DumpTaskState()
+{
+    // Get a reference to the current Task state
+    Task *state = (Task *)GetTaskState();
+
+    printf("PID: ");
+    printf_int(state->PID, 10);
+    printf("\n");
+    printf("Number of Context Switches: ");
+    printf_int(state->ContextSwitches, 10);
+    printf("\n");
 }

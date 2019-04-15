@@ -36,7 +36,11 @@ typedef struct _Task
     long rsp;
     long ss;
 
+    // The ID of the running Task
     int PID;
+
+    // The number of context switches of the running Task
+    long ContextSwitches;
 } Task;
 
 // Represents a list of Tasks (like the RUNNABLE queue)
@@ -46,9 +50,6 @@ typedef struct _TaskList
     Task *Task;
 } TaskList;
 
-// Switches to the next Task
-void SwitchTask();
-
 // Creates a new Kernel Task
 Task* CreateKernelTask(void *TaskCode, int PID, void *Stack);
 
@@ -56,12 +57,14 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack);
 void AddTaskToRunnableQueue(Task *Task);
 
 // Moves the current Task from the head of the RUNNABLE queue to the tail of the RUNNABLE queue.
-void MoveToNextTask();
+Task* MoveToNextTask();
 
 // Dumps out the RUNNABLE queue
 void DumpRunnableQueue();
 
-// Performs the actual Task Switch - implemented in Assembly
-extern void TaskSwitch(Task *CurrentTask, Task *NextTask);
+// Dumps out the Task State structure of the current executed Task
+void DumpTaskState();
+
+extern long GetTaskState();
 
 #endif

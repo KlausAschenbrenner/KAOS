@@ -42,6 +42,9 @@ void IdtSetGate(unsigned char num, unsigned long base, unsigned char Type);
 // Initializes the IDT table for the ISR routines.
 void InitIdt();
 
+// Installs the IRQ0 interrupt handler that performs the Context Switching between the various tasks
+void InitTimerForContextSwitching();
+
 // Loads the IDT table into the processor register (implemented in Assembler)
 extern void IdtFlush(unsigned long);
 
