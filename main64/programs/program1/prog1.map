@@ -10,10 +10,10 @@ Linker script and memory map
 
 .text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
  *(.text .text.*)
- .text          0xffff8000ffff0000       0x4c main.o
+ .text          0xffff8000ffff0000       0x7b main.o
                 0xffff8000ffff0000                main
                 0xffff8000ffff1000                . = ALIGN (0x1000)
- *fill*         0xffff8000ffff004c      0xfb4 
+ *fill*         0xffff8000ffff007b      0xf85 
 
 .eh_frame       0xffff8000ffff1000       0x38 load address 0x00000000ffff1000
  .eh_frame      0xffff8000ffff1000       0x38 main.o

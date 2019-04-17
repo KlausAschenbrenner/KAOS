@@ -42,15 +42,15 @@ void k_main()
 	flpydsk_install();
 
 	// Creates the various Kernel Tasks that are executed through Context Switching
-	CreateKernelTasks();
+	// CreateKernelTasks();
 
 	// Initialize the Context Switching through IRQ0
 	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
 	// Everything is done in the various executed Tasks and in the IRQ handlers!
-	InitTimerForContextSwitching();
+	// InitTimerForContextSwitching();
 
-	// Execute the Command Shell
-	// CommandLoop();
+	TestScheduler();
+	InitTimerForContextSwitching();
 
 	printf("Done\n");
 	
@@ -58,7 +58,161 @@ void k_main()
     for (;;);
 }
 
+void Program1()
+{
+	int i = 0;
 
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(1000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program2()
+{
+	int i = 0;
+
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(2000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program3()
+{
+	int i = 0;
+
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(3000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program4()
+{
+	int i = 0;
+
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(4000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program5()
+{
+	int i = 0;
+
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(5000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program6()
+{
+	int i = 0;
+
+	for (i = 0; i < 99999; i++)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+
+		// Introduce some delay in the calculation...
+		Sleep(6000);
+	}
+
+	Task *state = (Task *)GetTaskState();
+	TerminateTask(state->PID);
+}
+
+void Program7()
+{
+	int i = 0;
+
+	while (1 == 1)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+	}
+}
+
+void Program8()
+{
+	int i = 0;
+
+	while (1 == 1)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+	}
+}
 
 void Dummy()
 {
@@ -163,6 +317,21 @@ void CommandLoop()
 		{
 			DumpTaskState();
 		}
+		else if (strcmp(input, "d") == 0)
+		{
+			DumpTaskQueue();
+		}
+		else if (StartsWith(input, "kill") == 1)
+		{
+			// Extract the PID to kill
+			char temp[5] = "";
+            substring(input, 5, strlen(input), temp);
+			int pid = atoi(temp);
+
+			// Kill the Task
+			if (KillTask(pid) == 0)
+				printf("The given PID was not found.\n");
+		}
 		else
 		{
 			// Try to load the requested program into memory
@@ -170,7 +339,11 @@ void CommandLoop()
 			{
 				// The program was loaded successfully into memory.
 				// Let's execute it now!
-				ExecuteProgram();
+				// ExecuteProgram();
+
+				// The program was loaded successfully into memory.
+				// Let's execute it as a Kernel Task!
+				CreateKernelTask(0xFFFF8000FFFF0000, 10, 0xFFFF800002000000);
 			}
 			else
 			{
@@ -187,6 +360,40 @@ void CreateKernelTasks()
 {
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+}
+
+void TestScheduler()
+{
+	char input[10] = "";
+	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
+	CreateKernelTask(Program1, 2, 0xFFFF800001200000);
+	CreateKernelTask(Program2, 3, 0xFFFF800001300000);
+	CreateKernelTask(Program3, 4, 0xFFFF800001400000);
+	CreateKernelTask(Program4, 5, 0xFFFF800001500000);
+	CreateKernelTask(Program5, 6, 0xFFFF800001600000);
+	CreateKernelTask(Program6, 7, 0xFFFF800001700000);
+	CreateKernelTask(Program7, 8, 0xFFFF800001800000);
+	CreateKernelTask(Program8, 9, 0xFFFF800001900000);
+
+	/* DumpRunnableQueue();
+	printf("Continue?\n");
+	printf("\n");
+	scanf(input, 8);
+
+	while (1 == 1)
+	{
+		// ClearScreen();
+		DumpRunnableQueue();
+		printf("Enter PID to delete:\n");
+		scanf(input, 8);
+
+		int pid = atoi(input);
+
+		if (pid > 0)
+			TerminateTask(pid);
+
+		MoveToNextTask();
+	} */
 }
 
 // Dumps out the Memory Map

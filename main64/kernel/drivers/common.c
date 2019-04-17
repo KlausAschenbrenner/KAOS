@@ -239,3 +239,15 @@ int find(char *string, char junk)
 
     return pos;
 }
+
+// Checks if a string starts with a given prefix
+int StartsWith(char *string, char *prefix)
+{
+    while (*prefix)
+    {
+        if (*prefix++ != *string++)
+            return 0;
+    }
+
+    return 1;
+}

@@ -11,8 +11,8 @@
 
 int cntr = 0;
 
-// Stores all Tasks in the RUNNABLE state
-TaskList *RunnableQueue = 0x0;
+// Stores all Tasks to be executed
+TaskList *TaskQueue = 0x0;
 
 // Creates a new Kernel Task
 Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
@@ -32,16 +32,16 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->r13 = 0;
     newTask->r14 = 0;
     newTask->r15 = newTask; // We store the state of the Task in register R15
-    newTask->cr3 = 0x90000;
+    newTask->cr3 = 0x90000; // Page Table Address
 
     newTask->rdi = 0;
     newTask->rip = TaskCode;
     newTask->cs = 0x8;
     newTask->rflags = 0x2202;
-    // newTask->rsp = Stack;
     newTask->ss = 0x10;
 
     newTask->PID = PID;
+    newTask->Status = TASK_STATUS_CREATED;
 
     // long *stack = Stack - 5;
     // newTask->rsp = stack;
@@ -56,83 +56,164 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     stack[3] = stack;       // Stack Pointer
     stack[4] = 0x10;        // Stack Segment/Selector
 
-    // Add the newly created Task to the end of the RUNNABLE queue
-    AddTaskToRunnableQueue(newTask);
+    // Add the newly created Task to the end of the Task queue
+    AddTaskToTaskQueue(newTask);
 
     return newTask;
 }
 
-// Adds a new Task at the tail of the RUNNABLE queue
-void AddTaskToRunnableQueue(Task *Task)
+// Adds a new Task at the tail of the Task queue
+void AddTaskToTaskQueue(Task *Task)
 {
-    // Create a new Task entry for the RUNNABLE queue
+    // Create a new Task entry for the Task queue
     TaskList *newEntry = malloc(sizeof(TaskList));
     newEntry->Next = 0x0;
     newEntry->Task = Task;
 
-    // Check if the RUNNABLE queue is already initialized
-    if (RunnableQueue == 0x0)
+    // Check if the Task queue is already initialized
+    if (TaskQueue == 0x0)
     {
-        // If the RUNNABLE queue is not yet initialized, the new Task is currently
-        // the only one in the RUNNABLE queue
-        RunnableQueue = newEntry;
+        // If the Task queue is not yet initialized, the new Task is currently
+        // the only one in the Task queue
+        TaskQueue = newEntry;
+        newEntry->Previous = 0x0;
     }
     else
     {
-        TaskList *temp = RunnableQueue;
+        TaskList *temp = TaskQueue;
 
-        // Iterate through the RUNNABLE queue, until we find the tail of it
+        // Iterate through the Task queue, until we find the tail of it
         while (temp->Next != 0)
             temp = temp->Next;
 
-        // Put the new Task at the tail of the RUNNABLE queue
+        // Put the new Task at the tail of the Task queue
         temp->Next = newEntry;
+        newEntry->Previous = temp;
     }
 }
 
-// Moves the current Task from the head of the RUNNABLE queue to the tail of the RUNNABLE queue.
+// Moves the current Task from the head of the Task queue to the tail of the Task queue.
 Task* MoveToNextTask()
 {
-    TaskList *start = RunnableQueue;
-    TaskList *temp = RunnableQueue;
+    TaskList *start = TaskQueue;
+    TaskList *temp = TaskQueue;
 
-    // Remove the Task at the head of the RUNNABLE queue
-    RunnableQueue = RunnableQueue->Next;
+    // Remove the Task at the head of the Task queue and set its status to RUNNING
+    TaskQueue = TaskQueue->Next;
+    TaskQueue->Task->Status = TASK_STATUS_RUNNING;
+    TaskQueue->Previous = 0x0;
 
-    // Iterate through the RUNNABLE queue, until we find the tail of it
+    // Iterate through the Task queue, until we find the tail of it
     while (temp->Next != 0x0)
         temp = temp->Next;
 
-    // Add the old head of the RUNNABLE queue to the tail of the RUNNABLE queue
+    // Add the old head of the Task queue to the tail of the Task queue and set its status to Task
     temp->Next = start;
     start->Next = 0x0;
+    start->Previous = temp;
+    start->Task->Status = TASK_STATUS_RUNNABLE;
 
     // Record the Context Switch
-    RunnableQueue->Task->ContextSwitches++;
+    TaskQueue->Task->ContextSwitches++;
 
     // Return the next Task to be executed
-    return RunnableQueue->Task;
+    return TaskQueue->Task;
 }
 
-// Dumps out the RUNNABLE queue
-void DumpRunnableQueue()
+// Kills the process with the given PID
+int KillTask(int PID)
 {
-    TaskList *temp = RunnableQueue;
+    return TerminateTask(PID);
+}
 
-    // Print the 1st Task in the RUNNABLE queue
-    printf("PID: ");
-    printf_int(temp->Task->PID, 10);
-    printf("\n");
+// Terminates the process with the given PID
+int TerminateTask(int PID)
+{
+    TaskList *temp = TaskQueue;
+    TaskList *currentTask = 0x0;
+    TaskList *previousTask = 0x0;
+    TaskList *nextTask = 0x0;
 
-    // Iterate through the RUNNABLE queue, until we find the tail of it
+    // Iterate through the Task queue, until we find the given PID
     while (temp->Next != 0)
     {
-        // Move to the next Task in the RUNNABLE queue
+        if (temp->Task->PID == PID)
+            currentTask = temp;
+        
+        temp = temp->Next;
+    }
+
+    // Check the last entry in the Task queue (that one is not covered by the previous while loop)
+    if (temp->Task->PID == PID)
+            currentTask = temp;
+
+    if (currentTask != 0x0)
+    {
+        // If we have to remove the head of the Task queue, we set the new head to the 2nd entry in the Task queue.
+        // This also implies that the next call to "MoveToNextTask" moves that Task to the end of the Task queue.
+        // Therefore we need a whole cycle through the Task queue, so that this Task is scheduled again...
+        if (currentTask->Previous == 0x0)
+        {
+            TaskQueue = TaskQueue->Next;
+        }
+        else
+        {
+            // Remove the Task from the Task queue
+            previousTask = currentTask->Previous;
+            nextTask = currentTask->Next;
+            previousTask->Next = nextTask;
+            nextTask->Previous = previousTask;
+        }
+
+        return 1;
+    }
+    else
+        // The given PID was not found
+        return 0;
+
+    // Schedule the next Task
+    // Irq0_ContextSwitching(); // Causes an 0xD fault when executed through the KillTask code path...
+}
+
+// Dumps out the Task queue
+void DumpTaskQueue()
+{
+    TaskList *temp = TaskQueue;
+
+    // Print the current Task from the Task queue
+    printf("PID: ");
+    printf_int(temp->Task->PID, 10);
+    printf(", next PID: ");
+    TaskList *next = temp->Next;
+    printf_int(next->Task->PID, 10);
+    printf(", previous PID: N/A");
+    printf(", Status: ");
+    printf_int(temp->Task->Status, 10);
+    printf("\n");
+
+    // Iterate through the Task queue, until we find the tail of it
+    while (temp->Next != 0)
+    {
+        // Move to the next Task in the Task queue
         temp = temp->Next;
 
-        // Print the current Task from the RUNNABLE queue
-        printf("Task #");
+        // Print the current Task from the Task queue
+        printf("PID: ");
         printf_int(temp->Task->PID, 10);
+        printf(", next PID: ");
+        TaskList *next = temp->Next;
+
+        if (temp->Next != 0x0)
+            printf_int(next->Task->PID, 10);
+        else
+            printf("N/A");
+
+        printf(", previous PID: ");
+        TaskList *previous = temp->Previous;
+        printf_int(previous->Task->PID, 10);
+
+        printf(", Status: ");
+        printf_int(temp->Task->Status, 10);
         printf("\n");
     }
 }

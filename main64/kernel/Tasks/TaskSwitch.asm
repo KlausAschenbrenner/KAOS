@@ -33,11 +33,11 @@
 Irq0_ContextSwitching:
     cli
 
-    ; The first initial kernel Task that was started by KAOSLDR has no Task structure assigned in register R15.
+    ; The first initial code execution path (entry point of kernel.bin) that was started by KAOSLDR has no Task structure assigned in register R15.
     ; Therefore we only save the current Task State if we have a Task structure assigned in R15.
     push rdi
     mov rdi, r15
-    cmp rdi, qword 0xFFFF800000110000
+    cmp rdi, qword 0xFFFF800000110000   ; A random, dummy, marker value set by KAOSLDR prior executing the Kernel
     je NoTaskStateSaveNecessary
     
     ; Save the current general purpose registers
