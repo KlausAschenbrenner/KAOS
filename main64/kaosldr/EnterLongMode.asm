@@ -253,12 +253,11 @@ GDT:
 .Code:
     ; 00000000 00100000 10011010 00000000
     ; 00000000 00000000 00000000 00000000
-    dq 0x00209A0000000000             ; 64-bit code descriptor (exec/read).
+    dq 0x00209A0000000000             ; 64-bit Kernel Mode (Ring 0) Code Descriptor (exec/read)
 
     ; 00000000 00000000 10010010 00000000
     ; 00000000 00000000 00000000 00000000
-    dq 0x0000920000000000             ; 64-bit data descriptor (read/write).
- 
+    dq 0x0000920000000000             ; 64-bit Kernel Mode (Ring 0) Data Descriptor (read/write)
 ALIGN 4
     dw 0                              ; Padding to make the "address of the GDT" field aligned on a 4-byte boundary
  

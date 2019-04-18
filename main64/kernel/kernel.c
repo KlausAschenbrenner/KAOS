@@ -23,7 +23,7 @@ void k_main()
     PICInitialize(0x20, 0x28);
 
 	// Initialize the system timer to 20 Hertz
-	InitTimer(100000);
+	InitTimer(50);
 
 	// Initialize the keyboard
     InitKeyboard();
@@ -38,6 +38,9 @@ void k_main()
 	// Initializes the Heap Manager
 	InitHeap();
 
+	// Initializes the GDT
+	InitGdt();
+
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 
@@ -49,8 +52,8 @@ void k_main()
 	// Everything is done in the various executed Tasks and in the IRQ handlers!
 	// InitTimerForContextSwitching();
 
-	TestScheduler();
-	InitTimerForContextSwitching();
+	// TestUserMode();
+	// InitTimerForContextSwitching();
 
 	printf("Done\n");
 	
@@ -360,6 +363,25 @@ void CreateKernelTasks()
 {
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+}
+
+void UserModeProgram1()
+{
+	while (1 == 1)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+	}
+}
+
+void TestUserMode()
+{
+	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
+	CreateKernelTask(UserModeProgram1, 2, 0xFFFF800001200000);
 }
 
 void TestScheduler()

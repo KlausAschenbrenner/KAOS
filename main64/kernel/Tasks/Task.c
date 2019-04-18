@@ -37,8 +37,10 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->rdi = 0;
     newTask->rip = TaskCode;
     newTask->cs = 0x8;
+    // newTask->cs = 0x1b;
     newTask->rflags = 0x2202;
     newTask->ss = 0x10;
+    // newTask->ss = 0x23;
 
     newTask->PID = PID;
     newTask->Status = TASK_STATUS_CREATED;
@@ -51,10 +53,12 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     long *stack = Stack - 40; // ???? No idea why, but it is needed... ;-)
     newTask->rsp = stack;
     stack[0] = TaskCode;    // RIP
-    stack[1] = 0x08;        // Code Segment/Selector
+    stack[1] = 0x8;        // Code Segment/Selector
+    // stack[1] = 0x1b;        // Code Segment/Selector
     stack[2] = 0x2202;      // RFLAGS
     stack[3] = stack;       // Stack Pointer
     stack[4] = 0x10;        // Stack Segment/Selector
+    // stack[4] = 0x23;        // Stack Segment/Selector
 
     // Add the newly created Task to the end of the Task queue
     AddTaskToTaskQueue(newTask);

@@ -68,7 +68,7 @@ typedef struct _TaskList
 Task* CreateKernelTask(void *TaskCode, int PID, void *Stack);
 
 // Adds a new Task at the tail of the RUNNABLE queue
-void AddTaskToRunnableQueue(Task *Task);
+void AddTaskToTaskQueue(Task *Task);
 
 // Moves the current Task from the head of the RUNNABLE queue to the tail of the RUNNABLE queue.
 Task* MoveToNextTask();
