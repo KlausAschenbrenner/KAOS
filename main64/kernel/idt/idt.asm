@@ -60,6 +60,8 @@
 %macro ISR_ERRORCODE 1
     [GLOBAL Isr%1]
     Isr%1:
+        cli
+        
         ; Save the General Purpose Registers on the Stack
         push rdi
         push rsi
@@ -105,6 +107,7 @@
         add rsp, 8
 
         ; Return from the ISR routine...
+        sti
         iretq
 %endmacro
 

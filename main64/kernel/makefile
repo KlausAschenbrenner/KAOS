@@ -12,6 +12,9 @@ kaos64.img : bootsector.bin kernel.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i kernel.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i ../programs/program1/prog1.bin
 	~/Documents/dev/opt/cross/bin/fat_imgen -m -f ../kaos64.img -i ../programs/program2/prog2.bin
+	# ~/Documents/dev_x64/opt/cross/bin/x86_64-elf-objdump -M intel -S --disassemble kernel.o > kernel.asm
+	# ~/Documents/dev_x64/opt/cross/bin/x86_64-elf-objdump -M intel -S --disassemble gdt/gdt.o > gdt/gdt_output.asm
+	# ~/Documents/dev_x64/opt/cross/bin/x86_64-elf-objdump -M intel -S --disassemble Tasks/TaskSwitch.o > Tasks/TaskSwitch_Generated.asm
 	
 # Links the C kernel
 kernel.bin: kernel.o idt/idt_asm.o irq/irq_asm.o gdt/gdt_asm.o execute.o Tasks/TaskSwitch.o ${OBJ}

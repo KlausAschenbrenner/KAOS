@@ -9,8 +9,6 @@
 #include "Task.h"
 #include "../Heap/Heap.h"
 
-int cntr = 0;
-
 // Stores all Tasks to be executed
 TaskList *TaskQueue = 0x0;
 
@@ -22,7 +20,7 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->rbx = 0;
     newTask->rcx = 0;
     newTask->rdx = 0;
-    newTask->rbp = 0;
+    newTask->rbp = Stack;
     newTask->rsi = 0;
     newTask->r8 = 0;
     newTask->r9 = 0;
@@ -33,32 +31,72 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->r14 = 0;
     newTask->r15 = newTask; // We store the state of the Task in register R15
     newTask->cr3 = 0x90000; // Page Table Address
-
     newTask->rdi = 0;
     newTask->rip = TaskCode;
-    newTask->cs = 0x8;
-    // newTask->cs = 0x1b;
     newTask->rflags = 0x2202;
-    newTask->ss = 0x10;
-    // newTask->ss = 0x23;
-
     newTask->PID = PID;
     newTask->Status = TASK_STATUS_CREATED;
 
-    // long *stack = Stack - 5;
-    // newTask->rsp = stack;
+    // Set the Selectors for Ring 0
+    newTask->cs = 0x8;
+    newTask->ss = 0x10;
+    newTask->ds = 0x10;
 
     // Prepare the stack of the new Task so that it looks like a traditional Stack Frame from an interrupt.
     // When we restore the state of this Task the first time, that Stack Frame is used during the IRETQ opcode.
-    long *stack = Stack - 40; // ???? No idea why, but it is needed... ;-)
+    long *stack = Stack - 5;
     newTask->rsp = stack;
     stack[0] = TaskCode;    // RIP
-    stack[1] = 0x8;        // Code Segment/Selector
-    // stack[1] = 0x1b;        // Code Segment/Selector
+    stack[1] = 0x8;         // Code Segment/Selector for Ring 0
     stack[2] = 0x2202;      // RFLAGS
-    stack[3] = stack;       // Stack Pointer
-    stack[4] = 0x10;        // Stack Segment/Selector
-    // stack[4] = 0x23;        // Stack Segment/Selector
+    stack[3] = Stack;       // Stack Pointer
+    stack[4] = 0x10;        // Stack Segment/Selector for Ring 0
+
+    // Add the newly created Task to the end of the Task queue
+    AddTaskToTaskQueue(newTask);
+
+    return newTask;
+}
+
+// Creates a new User Task
+Task* CreateUserTask(void *TaskCode, int PID, void *Stack)
+{
+    Task *newTask = malloc(sizeof(Task));
+    newTask->rax = 0;
+    newTask->rbx = 0;
+    newTask->rcx = 0;
+    newTask->rdx = 0;
+    newTask->rbp = Stack;
+    newTask->rsi = 0;
+    newTask->r8 = 0;
+    newTask->r9 = 0;
+    newTask->r10 = 0;
+    newTask->r11 = 0;
+    newTask->r12 = 0;
+    newTask->r13 = 0;
+    newTask->r14 = 0;
+    newTask->r15 = newTask; // We store the state of the Task in register R15
+    newTask->cr3 = 0x90000; // Page Table Address
+    newTask->rdi = 0;
+    newTask->rip = TaskCode;
+    newTask->rflags = 0x2202;
+    newTask->PID = PID;
+    newTask->Status = TASK_STATUS_CREATED;
+
+    // Set the Selectors for Ring 3
+    newTask->cs = 0x1b;
+    newTask->ss = 0x23;
+    newTask->ds = 0x23;
+
+    // Prepare the stack of the new Task so that it looks like a traditional Stack Frame from an interrupt.
+    // When we restore the state of this Task the first time, that Stack Frame is used during the IRETQ opcode.
+    long *stack = Stack - 5;
+    newTask->rsp = stack;
+    stack[0] = TaskCode;    // RIP
+    stack[1] = 0x1b;        // Code Segment/Selector for Ring 3 - with the requested RPL of 3
+    stack[2] = 0x2202;      // RFLAGS
+    stack[3] = Stack;       // Stack Pointer
+    stack[4] = 0x23;        // Stack Segment/Selector for Ring 3 - with the requested RPL of 3
 
     // Add the newly created Task to the end of the Task queue
     AddTaskToTaskQueue(newTask);

@@ -39,22 +39,21 @@ void k_main()
 	InitHeap();
 
 	// Initializes the GDT
+	// This also includes Selectors for Ring 3 and the TSS
 	InitGdt();
 
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 
-	// Creates the various Kernel Tasks that are executed through Context Switching
-	// CreateKernelTasks();
+	// Creates the various Tasks that are executed through Context Switching
+	CreateTasks();
 
 	// Initialize the Context Switching through IRQ0
 	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
 	// Everything is done in the various executed Tasks and in the IRQ handlers!
-	// InitTimerForContextSwitching();
+	InitTimerForContextSwitching();
 
-	// TestUserMode();
-	// InitTimerForContextSwitching();
-
+	// This command is *never* ever reached...
 	printf("Done\n");
 	
 	// Halt the system
@@ -375,13 +374,47 @@ void UserModeProgram1()
         a = 1;
         b = 1;
         c = a + b;
+
+		// printf("UserModeProgram1...\n");
 	}
 }
 
-void TestUserMode()
+void UserModeProgram2()
 {
+	while (1 == 1)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+	}
+}
+
+void UserModeProgram3()
+{
+	while (1 == 1)
+	{
+		int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+	}
+}
+
+void CreateTasks()
+{
+	// The Command Shell is running in Ring 0
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
-	CreateKernelTask(UserModeProgram1, 2, 0xFFFF800001200000);
+
+	// All the remaining Tasks are running in Ring 3
+	CreateUserTask(UserModeProgram1, 2, 0xFFFF800001200000);
+	CreateUserTask(UserModeProgram2, 3, 0xFFFF800001300000);
+	CreateUserTask(UserModeProgram3, 4, 0xFFFF800001400000);
+	CreateUserTask(Dummy, 5, 0xFFFF800001500000);
 }
 
 void TestScheduler()

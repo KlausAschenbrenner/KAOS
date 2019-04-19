@@ -42,6 +42,8 @@ typedef struct _Task
     long rsp;
     long ss;
 
+    long ds;
+
     // The ID of the running Task
     int PID;
 
@@ -66,6 +68,9 @@ typedef struct _TaskList
 
 // Creates a new Kernel Task
 Task* CreateKernelTask(void *TaskCode, int PID, void *Stack);
+
+// Creates a new User Task
+Task* CreateUserTask(void *TaskCode, int PID, void *Stack);
 
 // Adds a new Task at the tail of the RUNNABLE queue
 void AddTaskToTaskQueue(Task *Task);

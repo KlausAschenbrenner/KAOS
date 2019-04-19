@@ -56,11 +56,13 @@ void InitializePaging()
 	pdpIdentityMapped->Entries[0].Frame = (unsigned long)pdIdentityMapped / SMALL_PAGE_SIZE;
 	pdpIdentityMapped->Entries[0].Present = 1;
 	pdpIdentityMapped->Entries[0].ReadWrite = 1;
+	pdpIdentityMapped->Entries[0].User = 1;
 
 	// Point in the 1st PD entry to the PT
 	pdIdentityMapped->Entries[0].Frame = (unsigned long)ptIdentityMapped / SMALL_PAGE_SIZE;
 	pdIdentityMapped->Entries[0].Present = 1;
 	pdIdentityMapped->Entries[0].ReadWrite = 1;
+	pdIdentityMapped->Entries[0].User = 1;
 
 	// Identity Mapping of the first 256 small pages of 4K (0 - 1 MB Virtual Address Space)
 	// In that area we have all the various I/O ports and the above allocated Page Table Structure
@@ -69,6 +71,7 @@ void InitializePaging()
 		ptIdentityMapped->Entries[i].Frame = i;
 		ptIdentityMapped->Entries[i].Present = 1;
 		ptIdentityMapped->Entries[i].ReadWrite = 1;
+		ptIdentityMapped->Entries[i].User = 1;
 	}
 
 	// Identity Mapping of 0 - 1 MB (up to 0x100000 - just below the Kernel), so that the above allocated Page Tables can be still accessed
@@ -76,26 +79,31 @@ void InitializePaging()
 	pml4->Entries[0].Frame = (unsigned long)pdpIdentityMapped / SMALL_PAGE_SIZE;
 	pml4->Entries[0].Present = 1;
 	pml4->Entries[0].ReadWrite = 1;
+	pml4->Entries[0].User = 1;
 
 	// Point in the 1st PML4 entry to the PDP
 	pml4->Entries[256].Frame = (unsigned long)pdp / SMALL_PAGE_SIZE;
 	pml4->Entries[256].Present = 1;
 	pml4->Entries[256].ReadWrite = 1;
+	pml4->Entries[256].User = 1;
 
 	// Install the Recursive Page Table Mapping
 	pml4->Entries[511].Frame = (unsigned long)pml4 / SMALL_PAGE_SIZE;
 	pml4->Entries[511].Present = 1;
 	pml4->Entries[511].ReadWrite = 1;
+	pml4->Entries[511].User = 1;
 
 	// Point in the 1st PDP entry to the PD
 	pdp->Entries[0].Frame = (unsigned long)pd / SMALL_PAGE_SIZE;
 	pdp->Entries[0].Present = 1;
 	pdp->Entries[0].ReadWrite = 1;
+	pdp->Entries[0].User = 1;
 
 	// Point in the 1st PD entry to the PT
 	pd->Entries[0].Frame = (unsigned long)pt1 / SMALL_PAGE_SIZE;
 	pd->Entries[0].Present = 1;
 	pd->Entries[0].ReadWrite = 1;
+	pd->Entries[0].User = 1;
 
 	// Mapping of the first 512 small pages of 4K (0 - 2 MB Virtual Address Space)
 	// with a base offset of 0xFFFF800000000000
@@ -104,12 +112,14 @@ void InitializePaging()
 		pt1->Entries[i].Frame = i;
 		pt1->Entries[i].Present = 1;
 		pt1->Entries[i].ReadWrite = 1;
+		pt1->Entries[i].User = 1;
 	}
 
 	// Point in the 2nd PD entry to the 2nd PT
 	pd->Entries[1].Frame = (unsigned long)pt2 / SMALL_PAGE_SIZE;;
 	pd->Entries[1].Present = 1;
 	pd->Entries[1].ReadWrite = 1;
+	pd->Entries[1].User = 1;
 
 	// Mapping of the next 512 small pages of 4K (2 - 4 MB Virtual Address Space)
 	// with a base offset of 0xFFFF800000000000
@@ -118,6 +128,7 @@ void InitializePaging()
 		pt2->Entries[i].Frame = i + (PT_ENTRIES * 1);
 		pt2->Entries[i].Present = 1;
 		pt2->Entries[i].ReadWrite = 1;
+		pt2->Entries[i].User = 1;
 	}
 
 	// Stores the Memory Address of PML4 in the CR3 register
@@ -155,6 +166,7 @@ void HandlePageFault(unsigned long VirtualAddress)
 		pml4->Entries[PML4_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
 		pml4->Entries[PML4_INDEX(VirtualAddress)].Present = 1;
 		pml4->Entries[PML4_INDEX(VirtualAddress)].ReadWrite = 1;
+		pml4->Entries[PML4_INDEX(VirtualAddress)].User = 1;
 
 		// Debugging Output
 		PageFaultDebugPrint(PML4_INDEX(VirtualAddress), "PML4", pml4->Entries[PML4_INDEX(VirtualAddress)].Frame);
@@ -166,6 +178,7 @@ void HandlePageFault(unsigned long VirtualAddress)
 		pdp->Entries[PML3_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
 		pdp->Entries[PML3_INDEX(VirtualAddress)].Present = 1;
 		pdp->Entries[PML3_INDEX(VirtualAddress)].ReadWrite = 1;
+		pdp->Entries[PML3_INDEX(VirtualAddress)].User = 1;
 
 		// Debugging Output
 		PageFaultDebugPrint(PML3_INDEX(VirtualAddress), "PDP", pdp->Entries[PML3_INDEX(VirtualAddress)].Frame);
@@ -177,6 +190,7 @@ void HandlePageFault(unsigned long VirtualAddress)
 		pd->Entries[PML2_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
 		pd->Entries[PML2_INDEX(VirtualAddress)].Present = 1;
 		pd->Entries[PML2_INDEX(VirtualAddress)].ReadWrite = 1;
+		pd->Entries[PML2_INDEX(VirtualAddress)].User = 1;
 
 		// Debugging Output
 		PageFaultDebugPrint(PML2_INDEX(VirtualAddress), "PD", pd->Entries[PML2_INDEX(VirtualAddress)].Frame);
@@ -188,6 +202,7 @@ void HandlePageFault(unsigned long VirtualAddress)
 		pt->Entries[PML1_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
 		pt->Entries[PML1_INDEX(VirtualAddress)].Present = 1;
 		pt->Entries[PML1_INDEX(VirtualAddress)].ReadWrite = 1;
+		pt->Entries[PML1_INDEX(VirtualAddress)].User = 1;
 
 		// Debugging Output
 		PageFaultDebugPrint(PML1_INDEX(VirtualAddress), "PT", pt->Entries[PML1_INDEX(VirtualAddress)].Frame);

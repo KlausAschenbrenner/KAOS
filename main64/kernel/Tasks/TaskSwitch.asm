@@ -29,6 +29,8 @@
 %define TaskState_RSP       152
 %define TaskState_SS        160
 
+%define TaskState_DS        168
+
 ; This function is called as soon as the Timer Interrupt is raised
 Irq0_ContextSwitching:
     cli
@@ -59,6 +61,9 @@ Irq0_ContextSwitching:
     ; Save RDI
     pop rax
     mov [rdi + TaskState_RDI], rax
+
+    ; Save the DS register
+    mov [rdi + TaskState_DS], ds
 
     ; IRQ STACK FRAME LAYOUT (based on the current RSP)
     ; ==================================================
@@ -153,6 +158,12 @@ Continue:
     ; Restore the register RAX register of the next Task
     mov rax, [rdi + TaskState_RAX]
 
+    ; Restore the remaining Segment Registers
+    mov ds, [rdi + TaskState_DS]
+    mov es, [rdi + TaskState_DS]
+    mov fs, [rdi + TaskState_DS]
+    mov gs, [rdi + TaskState_DS]
+    
     ; Return from the Interrupt Handler
     ; Because we have patched the Stack Frame of the Interrupt Handler, we continue with the execution of 
     ; the next Task - based on the restored register RIP on the Stack...
