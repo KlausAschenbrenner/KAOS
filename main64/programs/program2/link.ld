@@ -2,10 +2,11 @@ ENTRY(main)
 
 SECTIONS
 {
-    . = 0xFFFF800000800000;
+    . = 0xFFFF8000FFFF0000;
     .text : AT(ADDR(.text) - 0xFFFF800000000000)
     {
         *(.text .text.*)
+        *(.rodata .rodata.*)
         . = ALIGN(4K);
     }
 

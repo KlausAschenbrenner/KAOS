@@ -48,6 +48,9 @@ void InitTimerForContextSwitching();
 // Loads the IDT table into the processor register (implemented in Assembler)
 extern void IdtFlush(unsigned long);
 
+// Handles the INT 0x80 SysCall
+extern void SysCallHandlerAsm();
+
 // Our 32 ISR routines (implemented in Assembler)
 extern void Isr0();
 extern void Isr1();

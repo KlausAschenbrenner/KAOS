@@ -1,34 +1,47 @@
+//
+//  main.c
+//  KAOS
+//
+//  Created by Klaus Aschenbrenner on 20.04.2019.
+//  Copyright (c) 2019 Klaus Aschenbrenner. All rights reserved.
+//
+
+#include "syscalls/syscall.h"
+
+void Sleep(int Iterations);
+
 void main()
 {
-	char *video_memory = (char *)0xFFFF8000000B8000;
-	int i = 0;
-	int j = 0;
+	char *string = "Klaus Aschenbrenner\0";
+	int i;
 
-	for (i = 0; i < 4000; i++)
+	RaiseSysCall(SYSCALL_PRINTF, "\n");
+	
+	for (i = 0; i < 5; i++)
 	{
-		video_memory[i] = 'K';
-
-		for (j = 0; j < 100000; j++)
-		{
-			int a;
-			int b;
-			int c;
-			a = 1;
-			b = 1;
-			c = a + b;
-		}
+		// Print out a string
+		RaiseSysCall(SYSCALL_PRINTF, string);
+		RaiseSysCall(SYSCALL_PRINTF, "\n");
+		
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
 	}
 
-	while (1 == 1);
+	// Terminate the current Task
+	RaiseSysCall(SYSCALL_TERMINATE_TASK, 0);
+}
 
+void Sleep(int Iterations)
+{
+    int i;
 
-	/* // Print out "Klaus"
-    char *video_memory = (char *)0xFFFF8000000B8000;
-	video_memory[0] = 'K';
-	video_memory[2] = 'l';
-	video_memory[4] = 'a';
-	video_memory[6] = 'u';
-	video_memory[8] = 's';
-
-    return; */
+	for (i = 0; i < Iterations; i++)
+	{
+        int a;
+        int b;
+        int c;
+        a = 1;
+        b = 1;
+        c = a + b;
+    }
 }

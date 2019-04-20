@@ -6,26 +6,33 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-                0xffff800000800000                . = 0xffff800000800000
+                0xffff8000ffff0000                . = 0xffff8000ffff0000
 
-.text           0xffff800000800000     0x1000 load address 0x0000000000800000
+.text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
  *(.text .text.*)
- .text          0xffff800000800000       0x78 main.o
-                0xffff800000800000                main
-                0xffff800000801000                . = ALIGN (0x1000)
- *fill*         0xffff800000800078      0xf88 
+ .text          0xffff8000ffff0000       0xdb main.o
+                0xffff8000ffff0000                main
+                0xffff8000ffff00a0                Sleep
+ *fill*         0xffff8000ffff00db        0x5 
+ .text          0xffff8000ffff00e0        0x9 syscalls/syscall_asm.o
+                0xffff8000ffff00e0                RaiseSysCall
+ *(.rodata .rodata.*)
+ .rodata        0xffff8000ffff00e9       0x15 main.o
+                0xffff8000ffff1000                . = ALIGN (0x1000)
+ *fill*         0xffff8000ffff00fe      0xf02 
 
-.eh_frame       0xffff800000801000       0x38 load address 0x0000000000801000
- .eh_frame      0xffff800000801000       0x38 main.o
+.eh_frame       0xffff8000ffff1000       0x58 load address 0x00000000ffff1000
+ .eh_frame      0xffff8000ffff1000       0x58 main.o
 
-.data           0xffff800000801038        0x0 load address 0x0000000000801038
+.data           0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
  *(.data .data.*)
- .data          0xffff800000801038        0x0 main.o
+ .data          0xffff8000ffff1058        0x0 main.o
 
-.bss            0xffff800000801038        0x0 load address 0x0000000000801038
+.bss            0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
  *(.bss .bss.*)
- .bss           0xffff800000801038        0x0 main.o
+ .bss           0xffff8000ffff1058        0x0 main.o
 LOAD main.o
+LOAD syscalls/syscall_asm.o
 OUTPUT(prog2.bin binary)
 
 .comment        0x0000000000000000       0x12

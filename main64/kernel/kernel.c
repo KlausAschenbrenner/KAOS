@@ -23,7 +23,8 @@ void k_main()
     PICInitialize(0x20, 0x28);
 
 	// Initialize the system timer to 20 Hertz
-	InitTimer(50);
+	// InitTimer(50);
+	InitTimer(100000);
 
 	// Initialize the keyboard
     InitKeyboard();
@@ -58,228 +59,6 @@ void k_main()
 	
 	// Halt the system
     for (;;);
-}
-
-void Program1()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(1000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program2()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(2000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program3()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(3000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program4()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(4000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program5()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(5000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program6()
-{
-	int i = 0;
-
-	for (i = 0; i < 99999; i++)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-
-		// Introduce some delay in the calculation...
-		Sleep(6000);
-	}
-
-	Task *state = (Task *)GetTaskState();
-	TerminateTask(state->PID);
-}
-
-void Program7()
-{
-	int i = 0;
-
-	while (1 == 1)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-	}
-}
-
-void Program8()
-{
-	int i = 0;
-
-	while (1 == 1)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-	}
-}
-
-void Dummy()
-{
-	int cntr = 0;
-
-	while (1 == 1)
-	{
-		cntr++;
-		long *value = (long *)0xFFFF800000700000;
-		*value = cntr;
-
-		// Introduce some delay in the calculation...
-		Sleep(99999999);
-	}
-}
-
-void TestHeap()
-{
-	void *ptr1 = malloc(100);
-	void *ptr2 = malloc(100);
-	void *ptr3 = malloc(100);
-	void *ptr4 = malloc(100);
-	
-	free(ptr2);
-	free(ptr3);
-	
-	void *ptr5 = malloc(5000);
-	void *ptr6 = malloc(204);
-	void *ptr7 = malloc(2768);
-
-	free(ptr1);
-	free(ptr7);
-	free(ptr5);
-	free(ptr4);
-	free(ptr6);
-
-	void *ptr8 = malloc(20000);
-	free(ptr8);
-	
-	DumpHeap();
-}
-
-void TestPageFaults()
-{
-	char *ptr1 = 0x0000000000600000;
-	ptr1[0] = 'A';
-
-	char *ptr2 = 0xFFFFFF1FFFFFFFFF;
-	ptr2[0] = 'X';
-
-	char *ptr3 = (char *)0xFFFFF000FFFF0000;
-	ptr3[0] = 'K';
-
-	char *ptr = (char *)0xFFFF8000FFFF0000;
-	ptr[0] = 'K';
-	ptr[1] = 'l';
-	ptr[2] = 'a';
-	ptr[3] = 'u';
-	ptr[4] = 's';
-
-	print_char(*ptr++);
-	print_char(*ptr++);
-	print_char(*ptr++);
-	print_char(*ptr++);
-	print_char(*ptr);
 }
 
 // Implements a simple Command Shell
@@ -339,13 +118,9 @@ void CommandLoop()
 			// Try to load the requested program into memory
 			if (LoadProgram(input) != 0)
 			{
-				// The program was loaded successfully into memory.
-				// Let's execute it now!
-				// ExecuteProgram();
-
-				// The program was loaded successfully into memory.
-				// Let's execute it as a Kernel Task!
-				CreateKernelTask(0xFFFF8000FFFF0000, 10, 0xFFFF800002000000);
+				// The pro>gram was loaded successfully into memory.
+				// Let's execute it as a User Task!
+				CreateUserTask(0xFFFF8000FFFF0000, 10, 0xFFFF800002000000);
 			}
 			else
 			{
@@ -358,52 +133,21 @@ void CommandLoop()
 	}
 }
 
-void CreateKernelTasks()
+void Dummy()
 {
-	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
-	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
-}
+	int cntr = 0;
 
-void UserModeProgram1()
-{
 	while (1 == 1)
 	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
+		cntr++;
+		long *value = (long *)0xFFFF800000700000;
+		*value = cntr;
 
-		// printf("UserModeProgram1...\n");
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
 	}
 }
 
-void UserModeProgram2()
-{
-	while (1 == 1)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-	}
-}
-
-void UserModeProgram3()
-{
-	while (1 == 1)
-	{
-		int a;
-        int b;
-        int c;
-        a = 1;
-        b = 1;
-        c = a + b;
-	}
-}
 
 void CreateTasks()
 {
@@ -411,15 +155,12 @@ void CreateTasks()
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
-	CreateUserTask(UserModeProgram1, 2, 0xFFFF800001200000);
-	CreateUserTask(UserModeProgram2, 3, 0xFFFF800001300000);
-	CreateUserTask(UserModeProgram3, 4, 0xFFFF800001400000);
-	CreateUserTask(Dummy, 5, 0xFFFF800001500000);
+	CreateUserTask(Dummy, 2, 0xFFFF800001200000);
 }
 
 void TestScheduler()
 {
-	char input[10] = "";
+	/* char input[10] = "";
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 	CreateKernelTask(Program1, 2, 0xFFFF800001200000);
 	CreateKernelTask(Program2, 3, 0xFFFF800001300000);
@@ -430,7 +171,7 @@ void TestScheduler()
 	CreateKernelTask(Program7, 8, 0xFFFF800001800000);
 	CreateKernelTask(Program8, 9, 0xFFFF800001900000);
 
-	/* DumpRunnableQueue();
+	DumpRunnableQueue();
 	printf("Continue?\n");
 	printf("\n");
 	scanf(input, 8);
@@ -546,4 +287,55 @@ void ScrollScreen()
 		printf("Line 10\n");
 		Sleep();
 	}
+}
+
+void TestHeap()
+{
+	void *ptr1 = malloc(100);
+	void *ptr2 = malloc(100);
+	void *ptr3 = malloc(100);
+	void *ptr4 = malloc(100);
+	
+	free(ptr2);
+	free(ptr3);
+	
+	void *ptr5 = malloc(5000);
+	void *ptr6 = malloc(204);
+	void *ptr7 = malloc(2768);
+
+	free(ptr1);
+	free(ptr7);
+	free(ptr5);
+	free(ptr4);
+	free(ptr6);
+
+	void *ptr8 = malloc(20000);
+	free(ptr8);
+	
+	DumpHeap();
+}
+
+void TestPageFaults()
+{
+	char *ptr1 = 0x0000000000600000;
+	ptr1[0] = 'A';
+
+	char *ptr2 = 0xFFFFFF1FFFFFFFFF;
+	ptr2[0] = 'X';
+
+	char *ptr3 = (char *)0xFFFFF000FFFF0000;
+	ptr3[0] = 'K';
+
+	char *ptr = (char *)0xFFFF8000FFFF0000;
+	ptr[0] = 'K';
+	ptr[1] = 'l';
+	ptr[2] = 'a';
+	ptr[3] = 'u';
+	ptr[4] = 's';
+
+	print_char(*ptr++);
+	print_char(*ptr++);
+	print_char(*ptr++);
+	print_char(*ptr++);
+	print_char(*ptr);
 }

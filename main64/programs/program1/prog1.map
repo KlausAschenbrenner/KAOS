@@ -10,22 +10,29 @@ Linker script and memory map
 
 .text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
  *(.text .text.*)
- .text          0xffff8000ffff0000       0x7b main.o
+ .text          0xffff8000ffff0000       0xdb main.o
                 0xffff8000ffff0000                main
+                0xffff8000ffff00a0                Sleep
+ *fill*         0xffff8000ffff00db        0x5 
+ .text          0xffff8000ffff00e0        0x9 syscalls/syscall_asm.o
+                0xffff8000ffff00e0                RaiseSysCall
+ *(.rodata .rodata.*)
+ .rodata        0xffff8000ffff00e9       0x17 main.o
                 0xffff8000ffff1000                . = ALIGN (0x1000)
- *fill*         0xffff8000ffff007b      0xf85 
+ *fill*         0xffff8000ffff0100      0xf00 
 
-.eh_frame       0xffff8000ffff1000       0x38 load address 0x00000000ffff1000
- .eh_frame      0xffff8000ffff1000       0x38 main.o
+.eh_frame       0xffff8000ffff1000       0x58 load address 0x00000000ffff1000
+ .eh_frame      0xffff8000ffff1000       0x58 main.o
 
-.data           0xffff8000ffff1038        0x0 load address 0x00000000ffff1038
+.data           0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
  *(.data .data.*)
- .data          0xffff8000ffff1038        0x0 main.o
+ .data          0xffff8000ffff1058        0x0 main.o
 
-.bss            0xffff8000ffff1038        0x0 load address 0x00000000ffff1038
+.bss            0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
  *(.bss .bss.*)
- .bss           0xffff8000ffff1038        0x0 main.o
+ .bss           0xffff8000ffff1058        0x0 main.o
 LOAD main.o
+LOAD syscalls/syscall_asm.o
 OUTPUT(prog1.bin binary)
 
 .comment        0x0000000000000000       0x12
