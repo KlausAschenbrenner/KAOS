@@ -5,6 +5,8 @@
 #include "kernel.h"
 #include "Heap/Heap.h"
 #include "Tasks/Task.h"
+#include "structs/KPCR.h"
+#include "idt/idt.h"
 
 void k_main()
 {
@@ -18,8 +20,6 @@ void k_main()
     DisableInterrupts();
 
 	// Initializes the PIC, and remap the IRQ handler
-    // 0x20: 32 decimal
-    // 0x28: 40 decimal
     PICInitialize(0x20, 0x28);
 
 	// Initialize the system timer to 20 Hertz
@@ -39,6 +39,9 @@ void k_main()
 	// Initializes the Heap Manager
 	InitHeap();
 
+	// Initializes the KPCR Data Structures
+	InitKPCR();
+
 	// Initializes the GDT
 	// This also includes Selectors for Ring 3 and the TSS
 	InitGdt();
@@ -48,7 +51,7 @@ void k_main()
 
 	// Creates the various Tasks that are executed through Context Switching
 	CreateTasks();
-
+	
 	// Initialize the Context Switching through IRQ0
 	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
 	// Everything is done in the various executed Tasks and in the IRQ handlers!
@@ -59,6 +62,16 @@ void k_main()
 	
 	// Halt the system
     for (;;);
+}
+
+// Initializes the KPCR Data Structure
+void InitKPCR()
+{
+	KPCR *kpcr = malloc(sizeof(KPCR));
+	kpcr->IDT = IDT_START_OFFSET;
+
+	// Moves the KPCR pointer to the R14 register for further references
+	MoveKPCRToRegister(kpcr);
 }
 
 // Implements a simple Command Shell
@@ -98,9 +111,19 @@ void CommandLoop()
 		{
 			DumpTaskState();
 		}
-		else if (strcmp(input, "d") == 0)
+		else if (strcmp(input, "tasks") == 0)
 		{
 			DumpTaskQueue();
+		}
+		else if (strcmp(input, "kpcr") == 0)
+		{
+			// Dumps out the KPCR data structure
+			DumpKPCR();
+		}
+		else if (strcmp(input, "heap") == 0)
+		{
+			// Dumps out the KPCR data structure
+			DumpHeap();
 		}
 		else if (StartsWith(input, "kill") == 1)
 		{
@@ -118,9 +141,9 @@ void CommandLoop()
 			// Try to load the requested program into memory
 			if (LoadProgram(input) != 0)
 			{
-				// The pro>gram was loaded successfully into memory.
+				// The program was loaded successfully into memory.
 				// Let's execute it as a User Task!
-				CreateUserTask(0xFFFF8000FFFF0000, 10, 0xFFFF800002000000);
+				CreateUserTask(0xFFFF8000FFFF0000, 9, 0xFFFF800001900000, 0xFFFF800000090000);
 			}
 			else
 			{
@@ -148,14 +171,13 @@ void Dummy()
 	}
 }
 
-
 void CreateTasks()
 {
 	// The Command Shell is running in Ring 0
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
-	CreateUserTask(Dummy, 2, 0xFFFF800001200000);
+	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);
 }
 
 void TestScheduler()

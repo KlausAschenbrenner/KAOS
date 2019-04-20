@@ -1,6 +1,6 @@
 # Automatically generate lists of sources using wildcards.
-C_SOURCES = $(wildcard *.c drivers/*.c pic/*.c idt/*.c irq/*.c paging/*.c fat12/*.c heap/*.c Tasks/*.c gdt/*.c syscall/*.c)
-HEADERS = $(wildcard *.h drivers/*.h pic/*.h idt/*.h irq/*.h paging.h fat12/*.h heap/*.h Tasks/*.h gdt/*.h syscall/*.h)
+C_SOURCES = $(wildcard *.c drivers/*.c pic/*.c idt/*.c irq/*.c paging/*.c fat12/*.c heap/*.c Tasks/*.c gdt/*.c syscall/*.c structs/*.c)
+HEADERS = $(wildcard *.h drivers/*.h pic/*.h idt/*.h irq/*.h paging.h fat12/*.h heap/*.h Tasks/*.h gdt/*.h syscall/*.h structs/*.h)
 
 # Convert the *.c filenames to *.o to give a list of object files to build
 OBJ = ${C_SOURCES:.c=.o}
@@ -17,7 +17,7 @@ kaos64.img : bootsector.bin kernel.bin
 	# ~/Documents/dev_x64/opt/cross/bin/x86_64-elf-objdump -M intel -S --disassemble Tasks/TaskSwitch.o > Tasks/TaskSwitch_Generated.asm
 	
 # Links the C kernel
-kernel.bin: kernel.o idt/idt_asm.o irq/irq_asm.o gdt/gdt_asm.o execute.o Tasks/TaskSwitch.o syscalls/syscall_asm.o syscalls/syscall.o ${OBJ}
+kernel.bin: kernel.o idt/idt_asm.o irq/irq_asm.o gdt/gdt_asm.o execute.o Tasks/TaskSwitch.o syscalls/syscall_asm.o syscalls/syscall.o structs/kpcr_asm.o ${OBJ}
 	~/Documents/dev_x64/opt/cross/bin/x86_64-elf-ld -o $@ -Tlink.ld $^ --oformat binary -z max-page-size=0x1000 -Map kernel.map
 
 # Compiles the C kernel
@@ -44,6 +44,9 @@ irq/irq_asm.o : irq/irq.asm
 syscalls/syscall_asm.o : syscalls/syscall.asm
 	~/Documents/dev/nasm-2.13/nasm -felf64 syscalls/syscall.asm -o syscalls/syscall_asm.o
 
+structs/kpcr_asm.o : structs/kpcr.asm
+	~/Documents/dev/nasm-2.13/nasm -felf64 structs/kpcr.asm -o structs/kpcr_asm.o
+
 # Builds the Executor written in Assembler
 execute.o : execute.asm
 	~/Documents/dev/nasm-2.13/nasm -felf64 execute.asm -o execute.o
@@ -55,5 +58,5 @@ bootsector.bin: ../boot/bootsector.asm
 # Clean up
 clean:
 	rm -f ../boot/*.bin
-	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o Tasks/*.o gdt/*.o syscalls/*.o
+	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o Tasks/*.o gdt/*.o syscalls/*.o structs/*.o
 	rm -f ../*.img

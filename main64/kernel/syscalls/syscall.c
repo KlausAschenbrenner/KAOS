@@ -8,6 +8,7 @@
 
 #include "syscall.h"
 #include "../Tasks/Task.h"
+#include "../structs/KPCR.h"
 
 // Implements the SysCall Handler
 void SysCallHandlerC(int SysCallNumber, void *Parameters)

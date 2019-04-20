@@ -8,19 +8,21 @@
 
 #include "Task.h"
 #include "../Heap/Heap.h"
+#include "../structs/KPCR.h"
+#include "../gdt/tss.h"
 
 // Stores all Tasks to be executed
 TaskList *TaskQueue = 0x0;
 
 // Creates a new Kernel Task
-Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
+Task* CreateKernelTask(void *TaskCode, int PID, long *KernelModeStack)
 {
     Task *newTask = malloc(sizeof(Task));
     newTask->rax = 0;
     newTask->rbx = 0;
     newTask->rcx = 0;
     newTask->rdx = 0;
-    newTask->rbp = Stack;
+    newTask->rbp = KernelModeStack;
     newTask->rsi = 0;
     newTask->r8 = 0;
     newTask->r9 = 0;
@@ -28,9 +30,9 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
     newTask->r11 = 0;
     newTask->r12 = 0;
     newTask->r13 = 0;
-    newTask->r14 = 0;
-    newTask->r15 = newTask; // We store the state of the Task in register R15
-    newTask->cr3 = 0x90000; // Page Table Address
+    // newTask->r14 = 0;           // Register R14 is currently not used, because it stores *globally* a reference to the KPCR Data Structure!
+    newTask->r15 = newTask;     // We store the state of the Task in register R15
+    newTask->cr3 = 0x90000;     // Page Table Address
     newTask->rdi = 0;
     newTask->rip = TaskCode;
     newTask->rflags = 0x2202;
@@ -44,13 +46,13 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
 
     // Prepare the stack of the new Task so that it looks like a traditional Stack Frame from an interrupt.
     // When we restore the state of this Task the first time, that Stack Frame is used during the IRETQ opcode.
-    long *stack = Stack - 5;
+    long *stack = KernelModeStack - 5;
     newTask->rsp = stack;
-    stack[0] = TaskCode;    // RIP
-    stack[1] = 0x8;         // Code Segment/Selector for Ring 0
-    stack[2] = 0x2202;      // RFLAGS
-    stack[3] = Stack;       // Stack Pointer
-    stack[4] = 0x10;        // Stack Segment/Selector for Ring 0
+    stack[0] = TaskCode;            // RIP
+    stack[1] = 0x8;                 // Code Segment/Selector for Ring 0
+    stack[2] = 0x2202;              // RFLAGS
+    stack[3] = KernelModeStack;     // Stack Pointer
+    stack[4] = 0x10;                // Stack Segment/Selector for Ring 0
 
     // Add the newly created Task to the end of the Task queue
     AddTaskToTaskQueue(newTask);
@@ -59,14 +61,14 @@ Task* CreateKernelTask(void *TaskCode, int PID, void *Stack)
 }
 
 // Creates a new User Task
-Task* CreateUserTask(void *TaskCode, int PID, void *Stack)
+Task* CreateUserTask(void *TaskCode, int PID, long *UserModeStack, long *KernelModeStack)
 {
     Task *newTask = malloc(sizeof(Task));
     newTask->rax = 0;
     newTask->rbx = 0;
     newTask->rcx = 0;
     newTask->rdx = 0;
-    newTask->rbp = Stack;
+    newTask->rbp = UserModeStack;
     newTask->rsi = 0;
     newTask->r8 = 0;
     newTask->r9 = 0;
@@ -82,6 +84,7 @@ Task* CreateUserTask(void *TaskCode, int PID, void *Stack)
     newTask->rflags = 0x2202;
     newTask->PID = PID;
     newTask->Status = TASK_STATUS_CREATED;
+    newTask->KernelModeStack = KernelModeStack;
 
     // Set the Selectors for Ring 3
     newTask->cs = 0x1b;
@@ -90,13 +93,13 @@ Task* CreateUserTask(void *TaskCode, int PID, void *Stack)
 
     // Prepare the stack of the new Task so that it looks like a traditional Stack Frame from an interrupt.
     // When we restore the state of this Task the first time, that Stack Frame is used during the IRETQ opcode.
-    long *stack = Stack - 5;
+    long *stack = UserModeStack - 5;
     newTask->rsp = stack;
-    stack[0] = TaskCode;    // RIP
-    stack[1] = 0x1b;        // Code Segment/Selector for Ring 3 - with the requested RPL of 3
-    stack[2] = 0x2202;      // RFLAGS
-    stack[3] = Stack;       // Stack Pointer
-    stack[4] = 0x23;        // Stack Segment/Selector for Ring 3 - with the requested RPL of 3
+    stack[0] = TaskCode;            // RIP
+    stack[1] = 0x1b;                // Code Segment/Selector for Ring 3 - with the requested RPL of 3
+    stack[2] = 0x2202;              // RFLAGS
+    stack[3] = UserModeStack;       // Stack Pointer
+    stack[4] = 0x23;                // Stack Segment/Selector for Ring 3 - with the requested RPL of 3
 
     // Add the newly created Task to the end of the Task queue
     AddTaskToTaskQueue(newTask);
@@ -157,6 +160,12 @@ Task* MoveToNextTask()
 
     // Record the Context Switch
     TaskQueue->Task->ContextSwitches++;
+
+    // Store the Kernel Mode Stack of the next Task to be scheduled in the TSS
+    KPCR *kpcr = (KPCR *)GetKPCR();
+    Task *task = TaskQueue->Task;
+    TSSEntry *tss = kpcr->TSS;
+    tss->rsp0 = task->KernelModeStack;
 
     // Return the next Task to be executed
     return TaskQueue->Task;

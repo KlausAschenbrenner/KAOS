@@ -47,6 +47,9 @@ typedef struct _Task
     // The ID of the running Task
     int PID;
 
+    // The used Kernel Mode Stack
+    long KernelModeStack;
+
     // The number of context switches of the running Task
     long ContextSwitches;
 
@@ -67,10 +70,10 @@ typedef struct _TaskList
 } TaskList;
 
 // Creates a new Kernel Task
-Task* CreateKernelTask(void *TaskCode, int PID, void *Stack);
+Task* CreateKernelTask(void *TaskCode, int PID, long *KernelModeStack);
 
 // Creates a new User Task
-Task* CreateUserTask(void *TaskCode, int PID, void *Stack);
+Task* CreateUserTask(void *TaskCode, int PID, long *UserModeStack, long *KernelModeStack);
 
 // Adds a new Task at the tail of the RUNNABLE queue
 void AddTaskToTaskQueue(Task *Task);

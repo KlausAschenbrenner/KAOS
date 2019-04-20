@@ -55,7 +55,7 @@ Irq0_ContextSwitching:
     mov [rdi + TaskState_R11], r11
     mov [rdi + TaskState_R12], r12
     mov [rdi + TaskState_R13], r13
-    mov [rdi + TaskState_R14], r14
+    ; mov [rdi + TaskState_R14], r14 ; Register R14 is currently not used, because it stores *globally* a reference to the KPCR Data Structure!
     mov [rdi + TaskState_R15], r15
 
     ; Save RDI
@@ -112,7 +112,7 @@ Continue:
     ; It was returned in the register RAX from the previous function call.
     mov rdi, rax
     
-    ; Restore the general purpose reigsters of the next Task to be executed
+    ; Restore the general purpose registers of the next Task to be executed
     mov rbx, [rdi + TaskState_RBX]
     mov rcx, [rdi + TaskState_RCX]
     mov rdx, [rdi + TaskState_RDX]
@@ -124,7 +124,7 @@ Continue:
     mov r11, [rdi + TaskState_R11]
     mov r12, [rdi + TaskState_R12]
     mov r13, [rdi + TaskState_R13]
-    mov r14, [rdi + TaskState_R14]
+    ; mov r14, [rdi + TaskState_R14] ; Register R14 is currently not used, because it stores *globally* a reference to the KPCR Data Structure!
     mov r15, [rdi + TaskState_R15]
 
     ; IRQ STACK FRAME LAYOUT (based on the current RSP)

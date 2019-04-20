@@ -8,6 +8,7 @@
 
 #include "gdt.h"
 #include "tss.h"
+#include "../structs/KPCR.h"
 
 static GdtPointer *gdtPointer;
 static GdtEntry *gdtEntries;
@@ -26,10 +27,10 @@ void InitGdt()
     gdtPointer->Limit = sizeof(GdtEntry) * (GDT_ENTRIES + 1) - 1;
     gdtPointer->Base = (unsigned long)gdtEntries;
 
-    // Initialize the TSS entry with the Kernel Mode Stack Pointer (RSP)
+    // Initialize the TSS entry with the Kernel Mode Stack Pointer (RSP) for the first initial Task
     tssEntry = malloc(sizeof(TSSEntry));
     memset(tssEntry, 0, sizeof(TSSEntry));
-    tssEntry->rsp0 = 0xFFFF800000050000;
+    tssEntry->rsp0 = 0xFFFF800000010000;
 
     // The NULL Descriptor
     GdtSetGate(0, 0, 0, 0, 0);
@@ -51,6 +52,11 @@ void InitGdt()
 
     // Install the new GDT
     GdtFlush((unsigned long)gdtPointer);
+
+    // Store the references to the GDT and TSS in the KPCR data structure
+    KPCR *kpcr = (KPCR *)GetKPCR();
+    kpcr->GDT = gdtEntries;
+    kpcr->TSS = tssEntry;
 }
 
 // Sets the GDT Entry

@@ -29,14 +29,6 @@ SysCallHandlerAsm:
     mov rsi, rbx
     call SysCallHandlerC
 
-    ; Prints out the current Kernel Stack Pointer
-    ; mov rdi, rsp
-    ; mov rsi, 16
-    ; call printf_long
-
-    ; loop:
-    ;    jmp loop
-
     ; Restore the General Purpose Registers from the Stack
     pop r15
     pop r14
