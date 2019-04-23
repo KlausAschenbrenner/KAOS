@@ -47,7 +47,7 @@ void k_main()
 	// Initializes the GDT
 	// This also includes Selectors for Ring 3 and the TSS
 	InitGdt();
-
+	
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 

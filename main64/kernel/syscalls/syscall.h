@@ -11,9 +11,11 @@
 
 // Defines the various available SysCalls
 #define SYSCALL_PRINTF 1
-#define SYSCALL_TERMINATE_TASK 2
+#define SYSCALL_PRINTF_INT 2
+#define SYSCALL_TERMINATE_TASK 3
+#define SYSCALL_GET_PID 4
 
 // Implements the SysCall Handler
-void SysCallHandlerC(int SysCallNumber, void *Parameters);
+int SysCallHandlerC(int SysCallNumber, void *Parameters);
 
 #endif

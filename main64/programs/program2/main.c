@@ -13,8 +13,11 @@ void Sleep(int Iterations);
 void main()
 {
 	char *string = "Karin Hochstoeger\0";
+	int pid = RaiseSysCall(SYSCALL_GET_PID, "");
 	int i;
 
+	RaiseSysCall(SYSCALL_PRINTF, "\n");
+	RaiseSysCall(SYSCALL_PRINTF_INT, (int *)&pid);
 	RaiseSysCall(SYSCALL_PRINTF, "\n");
 	
 	for (i = 0; i < 10; i++)

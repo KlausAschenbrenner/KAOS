@@ -38,8 +38,13 @@ SysCallHandlerAsm:
     pop r10
     pop r9
     pop r8
-    pop rax
+    
+    ; We don't restore the RAX register, because it contains the result of the SysCall (from the function call to "SysCallHandlerC").
+    ; So we just pop the old RAX value into RCX and then pop the old RCX value into RCX
+    ; pop rax
     pop rcx
+    pop rcx
+    
     pop rdx
     pop rbx
     pop rsp

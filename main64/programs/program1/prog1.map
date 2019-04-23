@@ -10,30 +10,38 @@ Linker script and memory map
 
 .text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
  *(.text .text.*)
- .text          0xffff8000ffff0000       0xdb main.o
+ .text          0xffff8000ffff0000      0x14f main.o
                 0xffff8000ffff0000                main
-                0xffff8000ffff00a0                Sleep
- *fill*         0xffff8000ffff00db        0x5 
- .text          0xffff8000ffff00e0        0x9 syscalls/syscall_asm.o
-                0xffff8000ffff00e0                RaiseSysCall
+                0xffff8000ffff0114                Sleep
+ .text          0xffff8000ffff014f       0x64 syscalls/syscall.o
+                0xffff8000ffff014f                RaiseSysCall
+ *fill*         0xffff8000ffff01b3        0xd 
+ .text          0xffff8000ffff01c0        0x9 syscalls/syscall_asm.o
+                0xffff8000ffff01c0                RaiseSysCallAsm
  *(.rodata .rodata.*)
- .rodata        0xffff8000ffff00e9       0x17 main.o
+ .rodata        0xffff8000ffff01c9       0x18 main.o
+ .rodata        0xffff8000ffff01e1       0x1d syscalls/syscall.o
                 0xffff8000ffff1000                . = ALIGN (0x1000)
- *fill*         0xffff8000ffff0100      0xf00 
+ *fill*         0xffff8000ffff01fe      0xe02 
 
-.eh_frame       0xffff8000ffff1000       0x58 load address 0x00000000ffff1000
+.eh_frame       0xffff8000ffff1000       0x90 load address 0x00000000ffff1000
  .eh_frame      0xffff8000ffff1000       0x58 main.o
+ .eh_frame      0xffff8000ffff1058       0x38 syscalls/syscall.o
 
-.data           0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
+.data           0xffff8000ffff1090        0x0 load address 0x00000000ffff1090
  *(.data .data.*)
- .data          0xffff8000ffff1058        0x0 main.o
+ .data          0xffff8000ffff1090        0x0 main.o
+ .data          0xffff8000ffff1090        0x0 syscalls/syscall.o
 
-.bss            0xffff8000ffff1058        0x0 load address 0x00000000ffff1058
+.bss            0xffff8000ffff1090        0x0 load address 0x00000000ffff1090
  *(.bss .bss.*)
- .bss           0xffff8000ffff1058        0x0 main.o
+ .bss           0xffff8000ffff1090        0x0 main.o
+ .bss           0xffff8000ffff1090        0x0 syscalls/syscall.o
 LOAD main.o
+LOAD syscalls/syscall.o
 LOAD syscalls/syscall_asm.o
 OUTPUT(prog1.bin binary)
 
-.comment        0x0000000000000000       0x12
+.comment        0x0000000000000000       0x24
  .comment       0x0000000000000000       0x12 main.o
+ .comment       0x0000000000000012       0x12 syscalls/syscall.o

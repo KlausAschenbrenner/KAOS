@@ -1,8 +1,8 @@
 [BITS 64]
-[GLOBAL RaiseSysCall]
+[GLOBAL RaiseSysCallAsm]
 
 ; Raises a SysCall
-RaiseSysCall:
+RaiseSysCallAsm:
     mov rax, rdi    ; SysCall Number
     mov rbx, rsi    ; SysCall Parameter
     int 0x80

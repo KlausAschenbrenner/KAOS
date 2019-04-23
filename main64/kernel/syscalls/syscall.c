@@ -11,17 +11,32 @@
 #include "../structs/KPCR.h"
 
 // Implements the SysCall Handler
-void SysCallHandlerC(int SysCallNumber, void *Parameters)
+int SysCallHandlerC(int SysCallNumber, void *Parameters)
 {
     // printf
     if (SysCallNumber == SYSCALL_PRINTF)
     {
         printf(Parameters);
+        return 0;
+    }
+    // printf_int
+    else if (SysCallNumber == SYSCALL_PRINTF_INT)
+    {
+        int value = *(int *)Parameters;
+        printf_int(value, 10);
+        return 0;
     }
     // TerminateTask
     else if (SysCallNumber == SYSCALL_TERMINATE_TASK)
     {
         Task *state = (Task *)GetTaskState();
         TerminateTask(state->PID);
+        return 0;
+    }
+    // Get PID
+    else if (SysCallNumber == SYSCALL_GET_PID)
+    {
+        Task *state = (Task *)GetTaskState();
+        return state->PID;
     }
 }
