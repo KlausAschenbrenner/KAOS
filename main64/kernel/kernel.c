@@ -8,6 +8,8 @@
 #include "structs/KPCR.h"
 #include "idt/idt.h"
 
+void Shell();
+
 void k_main()
 {
     // Initializes the screen
@@ -58,9 +60,7 @@ void k_main()
 	InitTimerForContextSwitching();
 
 	// This command is *never* ever reached...
-	printf("Done\n");
-	
-	// Halt the system
+	printf("Done\n");	// Halt the system
     for (;;);
 }
 
@@ -72,88 +72,6 @@ void InitKPCR()
 
 	// Moves the KPCR pointer to the R14 register for further references
 	MoveKPCRToRegister(kpcr);
-}
-
-// Implements a simple Command Shell
-void CommandLoop()
-{
-	char input[100] = "";
-	ClearScreen();
-
-	while (1 == 1)
-	{
-		printf("A:\>");
-		scanf(input, 98);
-
-		if (strcmp(input, "dir") == 0)
-		{
-			PrintRootDirectory();
-		}
-		else if (strcmp(input, "cls") == 0)
-		{
-			ClearScreen();
-		}
-		else if (strcmp(input, "shutdown") == 0)
-		{
-			printf("Shutting down KAOS...\n");
-		}
-		else if (strcmp(input, "reboot") == 0)
-		{
-			printf("Rebooting KAOS...\n");
-		}
-		else if (strcmp(input, "status") == 0)
-		{
-			// Print out the calculated value from the other running Task...
-			long *value = (long *)0xFFFF800000700000;
-			printf_long(*value, 10);
-		}
-		else if (strcmp(input, "ps") == 0)
-		{
-			DumpTaskState();
-		}
-		else if (strcmp(input, "tasks") == 0)
-		{
-			DumpTaskQueue();
-		}
-		else if (strcmp(input, "kpcr") == 0)
-		{
-			// Dumps out the KPCR data structure
-			DumpKPCR();
-		}
-		else if (strcmp(input, "heap") == 0)
-		{
-			// Dumps out the KPCR data structure
-			DumpHeap();
-		}
-		else if (StartsWith(input, "kill") == 1)
-		{
-			// Extract the PID to kill
-			char temp[5] = "";
-            substring(input, 5, strlen(input), temp);
-			int pid = atoi(temp);
-
-			// Kill the Task
-			if (KillTask(pid) == 0)
-				printf("The given PID was not found.\n");
-		}
-		else
-		{
-			// Try to load the requested program into memory
-			if (LoadProgram(input) != 0)
-			{
-				// The program was loaded successfully into memory.
-				// Let's execute it as a User Task!
-				CreateUserTask(0xFFFF8000FFFF0000, 9, 0xFFFF800001900000, 0xFFFF800000090000);
-			}
-			else
-			{
-				printf("'");
-				printf(input);
-				printf("' is not recognized as an internal or external command,\n");
-				printf("operable program or batch file.\n\n");
-			}
-		}
-	}
 }
 
 void Dummy()
@@ -174,7 +92,8 @@ void Dummy()
 void CreateTasks()
 {
 	// The Command Shell is running in Ring 0
-	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
+	// CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
+	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
 	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);

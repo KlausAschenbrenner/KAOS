@@ -6,6 +6,7 @@ SECTIONS
     .text : AT(ADDR(.text) - 0xFFFF800000000000)
     {
         *(.text .text.*)
+        *(.rodata .rodata.*)
         . = ALIGN(4K);
     }
 

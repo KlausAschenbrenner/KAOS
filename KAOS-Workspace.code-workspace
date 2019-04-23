@@ -12,7 +12,8 @@
 			"keyboard.h": "c",
 			"frameallocator.h": "c",
 			"heap.h": "c",
-			"task.h": "c"
+			"task.h": "c",
+			"kpcr.h": "c"
 		},
 		"git.ignoreLimitWarning": true
 	}
