@@ -94,6 +94,7 @@ SwitchToLongMode:
     lea eax, [es:di + 0x5000]
     or eax, PAGE_PRESENT | PAGE_WRITE
     mov [es:di + 0x800], eax                ; 256th entry * 8 bytes per entry
+
     ; =================================================
     ; Needed for the Higher Half Mapping of the Kernel
     ; =================================================
@@ -110,6 +111,7 @@ SwitchToLongMode:
     lea eax, [es:di + 0x6000]               ; Put the address of the Page Directory in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writable flag.
     mov [es:di + 0x5000], eax               ; Store the value of EAX as the first PDPTE.
+    
     ; =================================================
     ; Needed for the Higher Half Mapping of the Kernel
     ; =================================================
@@ -131,6 +133,7 @@ SwitchToLongMode:
     lea eax, [es:di + 0x7000]               ; Put the address of the Page Table in to EAX.
     or eax, PAGE_PRESENT | PAGE_WRITE       ; Or EAX with the flags - present flag, writeable flag.
     mov [es:di + 0x6000], eax               ; Store to value of EAX as the first PDE.
+
     ; =================================================
     ; Needed for the Higher Half Mapping of the Kernel
     ; =================================================
@@ -144,7 +147,7 @@ SwitchToLongMode:
     mov [es:di], eax
     add eax, 0x1000
     add di, 8
-    cmp eax, 0x400000                 ; If we did all 4MiB, end.
+    cmp eax, 0x200000                 ; If we did all 4MiB, end.
     jb .LoopPageTable
 
     ; =================================================

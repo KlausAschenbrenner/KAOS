@@ -42,6 +42,11 @@ Main:
 	mov bp, 0x8000
 	mov sp, bp
 
+	; Set the graphics mode to VGA
+	; mov ah, 00h
+	; mov al, 13h
+	; int 0x10
+
 	call EnableA20
     call LoadRootDirectory
 

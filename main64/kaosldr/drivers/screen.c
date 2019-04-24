@@ -125,6 +125,13 @@ void printf_len(char *string, int len)
     }
 }
 
+void printf_long(long i, int base)
+{
+	char str[32] = "";
+	ltoa(i, base, str);
+	printf(str);
+}
+
 // Clears the screen
 void ClearScreen()
 {

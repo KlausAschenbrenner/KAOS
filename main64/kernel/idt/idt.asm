@@ -29,6 +29,10 @@
         push r14
         push r15
 
+        ; RIP where the Exception has occured
+        ; We have to add 128 bytes to the Stack Pointer, because we have pushed 16 registers onto the stack previously (16 * 8 bytes)
+        mov rdx, [rsp + 128]
+
         ; Call the ISR handler that is implemented in C
         mov rdi, %1
         mov rsi, cr2
@@ -80,10 +84,14 @@
         push r14
         push r15
 
-        ; Call the ISR Handler that is implemented in C
-        mov rdi, %1         ; ISR Number
-        mov rsi, cr2        ; Virtual Address where the Page Fault has occured
-        call IsrHandler     ; ISR Handler
+        ; RIP where the Exception has occured
+        ; We have to add 128 bytes to the Stack Pointer, because we have pushed 16 registers onto the stack previously (16 * 8 bytes)
+        mov rdx, [rsp + 128]
+
+        ; Call the ISR handler that is implemented in C
+        mov rdi, %1
+        mov rsi, cr2
+        call IsrHandler
 
         ; Restore the General Purpose Registers from the Stack
         pop r15

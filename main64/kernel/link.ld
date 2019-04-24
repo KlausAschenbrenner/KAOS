@@ -19,4 +19,9 @@ SECTIONS
     {
         *(.bss .bss.*)
     }
+
+    .eh_frame : AT(ADDR(.eh_frame) - 0xFFFF800000000000)
+    {
+        *(.eh_frame .eh_frame.*)
+    }
 }

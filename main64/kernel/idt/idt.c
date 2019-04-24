@@ -16,7 +16,7 @@ IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
 IdtPointer _idtPointer;
 
 // Our generic ISR handler
-void IsrHandler(int Number, unsigned long cr2)
+void IsrHandler(int Number, unsigned long cr2, unsigned long rip)
 {
     // We have triggered a Page Fault!
     if (Number == 14)
@@ -32,6 +32,8 @@ void IsrHandler(int Number, unsigned long cr2)
         printf("ISR: ");
         printf("0x");
         printf(str);
+        printf("\nRIP: ");
+        printf_long(rip, 16);
 
         // Halt the system
         for (;;);

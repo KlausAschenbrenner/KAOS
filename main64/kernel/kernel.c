@@ -53,14 +53,14 @@ void k_main()
 
 	// Creates the various Tasks that are executed through Context Switching
 	CreateTasks();
+	// CreateTasksVGA();
 	
 	// Initialize the Context Switching through IRQ0
 	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
 	// Everything is done in the various executed Tasks and in the IRQ handlers!
 	InitTimerForContextSwitching();
 
-	// This command is *never* ever reached...
-	printf("Done\n");	// Halt the system
+	// Halt the system
     for (;;);
 }
 
@@ -92,11 +92,92 @@ void Dummy()
 void CreateTasks()
 {
 	// The Command Shell is running in Ring 0
-	// CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
 	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);
+}
+
+void TestDrawing1()
+{
+	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
+	int start = 32000;
+	int i = 0;
+
+	while (1 == 1)
+	{
+		// Erase the old line
+		for (i = start - 320; i < start; i++)
+		 	p[i] = 0; // black pixel
+
+		// Draw the new line
+		for (i = start; i < start + 320; i++)
+			p[i] = 1; // blue pixel
+
+		start += 320;
+
+		if (start > 320 * 200)
+			start = 0;
+		
+		Sleep(9999999);
+	}
+}
+
+void TestDrawing2()
+{
+	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
+	int start = 0;
+	int i = 0;
+
+	while (1 == 1)
+	{
+		// Erase the old line
+		for (i = start - 320; i < start; i++)
+		 	p[i] = 0; // black pixel
+
+		// Draw the new line
+		for (i = start; i < start + 320; i++)
+			p[i] = 4; // red pixel
+
+		start += 320;
+
+		if (start > 320 * 200)
+			start = 0; 
+		
+		Sleep(9999999);
+	}
+}
+
+void TestDrawing3()
+{
+	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
+	int start = 16000;
+	int i = 0;
+
+	while (1 == 1)
+	{
+		// Erase the old line
+		for (i = start - 320; i < start; i++)
+		 	p[i] = 0; // black pixel
+
+		// Draw the new line
+		for (i = start; i < start + 320; i++)
+			p[i] = 4; // red pixel
+
+		start += 320;
+
+		if (start > 320 * 200)
+			start = 0; 
+		
+		Sleep(9999999);
+	}
+}
+
+void CreateTasksVGA()
+{
+	CreateUserTask(TestDrawing1, 1, 0xFFFF800001100000, 0xFFFF800000010000);
+	CreateUserTask(TestDrawing2, 2, 0xFFFF800001200000, 0xFFFF800000020000);
+	CreateUserTask(TestDrawing3, 3, 0xFFFF800001300000, 0xFFFF800000030000);
 }
 
 void TestScheduler()
