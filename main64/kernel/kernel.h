@@ -6,6 +6,9 @@
 //  Copyright (c) 2018 Klaus Aschenbrenner. All rights reserved.
 //
 
+#ifndef KAOS_kernel_h
+#define KAOS_kernel_h
+
 typedef struct MemoryRegion
 {
 	long Start;
@@ -36,3 +39,5 @@ void TestKeyboardInput();
 
 // Tests the scrolling of the Screen
 void ScrollScreen();
+
+#endif

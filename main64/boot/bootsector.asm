@@ -42,10 +42,15 @@ Main:
 	mov bp, 0x8000
 	mov sp, bp
 
-	; Set the graphics mode to VGA
+	; Set the graphics mode to VGA (320 x 200)
 	; mov ah, 00h
 	; mov al, 13h
 	; int 0x10
+	
+	; Set the graphics mode to SVGA (1280 x 1024 - 64K Colors)
+	mov ax, 4F02h
+	mov bx, 0x411A
+	int 0x10
 
 	call EnableA20
     call LoadRootDirectory
@@ -82,10 +87,10 @@ switch_to_protected_mode:
 EnableA20:
 	cli					; Disables interrupts
 	push	ax			; Save AX on the stack
-	mov	al, 0xdd		; Enable the A20 address line on the keyboard controller
-	out	0x64, al		; Send the command to the keyboard controller 
-	; mov al, 2
-	; out 0x92, al
+	; mov	al, 0xdd		; Enable the A20 address line on the keyboard controller
+	; out	0x64, al		; Send the command to the keyboard controller 
+	mov al, 2
+	out 0x92, al
 	pop	ax				; Restore the value of AX from the stack
 	sti					; Enable the interrupts again
 	ret 
@@ -124,7 +129,7 @@ SecondStageError		            db '', 0
 Cluster			                    dw 0x0000
 
 welcome_message:                    db '', 0
-disk_read_error_message:            db 'e', 0
+disk_read_error_message:            db 'd', 0
 DataSectorBeginning:                dw 0x0000
 
 ;=============================================

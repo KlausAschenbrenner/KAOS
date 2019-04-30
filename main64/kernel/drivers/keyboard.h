@@ -279,7 +279,7 @@ void InitKeyboard();
 void scanf(char *buffer, int buffer_size);
 
 // Waits for a key stroke, and returns it
-static char getchar();
+char getchar();
 
 // Discards the last key press
 static void DiscardLastKey();
@@ -288,7 +288,7 @@ static void DiscardLastKey();
 static char GetLastKey();
 
 // Converts the pressed keyboard key to the correct ASCII key
-static char KeyboardKeyToASCII(char key);
+char KeyboardKeyToASCII(char key);
 
 // Keyboard callback function
 static void KeyboardCallback(int Number);

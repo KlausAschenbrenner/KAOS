@@ -8,6 +8,9 @@
 
 #include "idt.h"
 #include "../irq/irq.h"
+#include "../ui/window.h"
+
+extern int UIMode;
 
 // The 256 possible Interrupt Gates are stored from 0x98000 to 0x98FFF (4096 Bytes long - each Entry is 16 Bytes)
 IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
@@ -27,17 +30,41 @@ void IsrHandler(int Number, unsigned long cr2, unsigned long rip)
     else
     {
         char str[32] = "";
+        char strRIP[32] = "";
         itoa(Number, 16, str);
+        itoa(rip, 16, strRIP);
 
-        printf("ISR: ");
-        printf("0x");
-        printf(str);
-        printf("\nRIP: ");
-        printf_long(rip, 16);
+        if (UIMode == 0)
+        {
+            printf("ISR: ");
+            printf("0x");
+            printf(str);
+            printf("\nRIP: ");
+            printf_long(rip, 16);
+        }
+        else
+        {
+            // We are running with a GUI
+            DisplayBlueScreen(&str, &strRIP);
+        }
+        
 
         // Halt the system
         for (;;);
     }
+}
+
+// Displays a blue screen with the occured exception
+void DisplayBlueScreen(char *str, char *strRIP)
+{
+    // Fill the whole display with a blue color
+    Context *context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FRAME_BUFFER, WINDOW_FRAME_BUFFER);;
+    Context_FillRect(context, 0, 0, context->Width, context->Height, 0x025B);
+    DrawString(context, "A fatal error occured! ", 10, 10, 0xFFFF);
+    DrawString(context, "ISR: 0x", 10, 26, 0xFFFF);
+    DrawString(context, str, 66, 26, 0xFFFF);
+    DrawString(context, "RIP: 0x", 10, 42, 0xFFFF);
+    DrawString(context, strRIP, 66, 42, 0xFFFF);
 }
 
 // Initializes the IDT table

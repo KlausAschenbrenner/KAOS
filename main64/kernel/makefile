@@ -1,6 +1,6 @@
 # Automatically generate lists of sources using wildcards.
-C_SOURCES = $(wildcard *.c drivers/*.c pic/*.c idt/*.c irq/*.c paging/*.c fat12/*.c heap/*.c Tasks/*.c gdt/*.c syscall/*.c structs/*.c)
-HEADERS = $(wildcard *.h drivers/*.h pic/*.h idt/*.h irq/*.h paging.h fat12/*.h heap/*.h Tasks/*.h gdt/*.h syscall/*.h structs/*.h)
+C_SOURCES = $(wildcard *.c drivers/*.c pic/*.c idt/*.c irq/*.c paging/*.c fat12/*.c heap/*.c Tasks/*.c gdt/*.c syscall/*.c structs/*.c ui/*.c)
+HEADERS = $(wildcard *.h drivers/*.h pic/*.h idt/*.h irq/*.h paging.h fat12/*.h heap/*.h Tasks/*.h gdt/*.h syscall/*.h structs/*.h ui/*.h)
 
 # Convert the *.c filenames to *.o to give a list of object files to build
 OBJ = ${C_SOURCES:.c=.o}
@@ -58,5 +58,5 @@ bootsector.bin: ../boot/bootsector.asm
 # Clean up
 clean:
 	rm -f ../boot/*.bin
-	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o Tasks/*.o gdt/*.o syscalls/*.o structs/*.o
+	rm -f *.bin *.map *.o idt/*.o pic/*.o irq/*.o paging/*.o drivers/*.o fat12/*.o heap/*.o Tasks/*.o gdt/*.o syscalls/*.o structs/*.o ui/*.o
 	rm -f ../*.img
