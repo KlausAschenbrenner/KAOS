@@ -7,6 +7,7 @@
 //
 
 #include "paging.h"
+#include "../ui/window.h"
 #include "../drivers/screen.h"
 
 static void PageFaultDebugPrint(unsigned long PageTableIndex, char *PageTableName, unsigned long PhysicalFrame)
@@ -133,12 +134,90 @@ void InitializePaging()
 
 	// Stores the Memory Address of PML4 in the CR3 register
 	SwitchPageDirectory(pml4);
+
+	// Maps the VESA Frame Buffer
+	MapFrameBuffer();
 }
 
 // Switches the PML4 Page Table Offset in the CR3 Register
 void SwitchPageDirectory(PageMapLevel4Table *PML4)
 {
     asm volatile("mov %0, %%cr3":: "r"(PML4));
+}
+
+void MapFrameBuffer()
+{
+	unsigned long virtualAddress = WINDOW_FRAME_BUFFER;
+	unsigned long physicalAddress = WINDOW_FRAME_BUFFER_PHYSICAL;
+	int i;
+
+	// 1280 x 1024 with 2 bytes per pixel (2^16 = 64K color)
+	int pages = WINDOW_WIDTH * WINDOW_HEIGHT * WINDOW_BPP / 8 / SMALL_PAGE_SIZE;
+
+	for (i = 0; i < pages; i++)
+	{
+		MapVirtualAddressToPhysicalAddress(virtualAddress, physicalAddress);
+		virtualAddress += 0x1000;
+		physicalAddress += 0x1000;
+	}
+}
+
+// Maps a Virtual Address to a Physical Address
+void MapVirtualAddressToPhysicalAddress(unsigned long VirtualAddress, unsigned long PhysicalAddress)
+{
+	// Get references to the various Page Tables through the Recursive Page Table Mapping
+	PageMapLevel4Table *pml4 = (PageMapLevel4Table *)PML4_TABLE;
+	PageDirectoryPointerTable *pdp = (PageDirectoryPointerTable *)PML3_TABLE(VirtualAddress);
+	PageDirectoryTable *pd = (PageDirectoryTable *)PML2_TABLE(VirtualAddress);
+	PageTable *pt = (PageTable *)PML1_TABLE(VirtualAddress);
+
+	if (pml4->Entries[PML4_INDEX(VirtualAddress)].Present == 0)
+	{
+		// Allocate a physical frame for the missing PML4 entry
+		pml4->Entries[PML4_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
+		pml4->Entries[PML4_INDEX(VirtualAddress)].Present = 1;
+		pml4->Entries[PML4_INDEX(VirtualAddress)].ReadWrite = 1;
+		pml4->Entries[PML4_INDEX(VirtualAddress)].User = 1;
+
+		// Debugging Output
+		PageFaultDebugPrint(PML4_INDEX(VirtualAddress), "PML4", pml4->Entries[PML4_INDEX(VirtualAddress)].Frame);
+	}
+
+	if (pdp->Entries[PML3_INDEX(VirtualAddress)].Present == 0)
+	{
+		// Allocate a physical frame for the missing PDP entry
+		pdp->Entries[PML3_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
+		pdp->Entries[PML3_INDEX(VirtualAddress)].Present = 1;
+		pdp->Entries[PML3_INDEX(VirtualAddress)].ReadWrite = 1;
+		pdp->Entries[PML3_INDEX(VirtualAddress)].User = 1;
+
+		// Debugging Output
+		PageFaultDebugPrint(PML3_INDEX(VirtualAddress), "PDP", pdp->Entries[PML3_INDEX(VirtualAddress)].Frame);
+	}
+
+	if (pd->Entries[PML2_INDEX(VirtualAddress)].Present == 0)
+	{
+		// Allocate a physical frame for the missing PD entry
+		pd->Entries[PML2_INDEX(VirtualAddress)].Frame = AllocatePhysicalFrame();
+		pd->Entries[PML2_INDEX(VirtualAddress)].Present = 1;
+		pd->Entries[PML2_INDEX(VirtualAddress)].ReadWrite = 1;
+		pd->Entries[PML2_INDEX(VirtualAddress)].User = 1;
+
+		// Debugging Output
+		PageFaultDebugPrint(PML2_INDEX(VirtualAddress), "PD", pd->Entries[PML2_INDEX(VirtualAddress)].Frame);
+	}
+
+	if (pt->Entries[PML1_INDEX(VirtualAddress)].Present == 0)
+	{
+		// Install the provided physical frame address
+		pt->Entries[PML1_INDEX(VirtualAddress)].Frame = PhysicalAddress / SMALL_PAGE_SIZE;
+		pt->Entries[PML1_INDEX(VirtualAddress)].Present = 1;
+		pt->Entries[PML1_INDEX(VirtualAddress)].ReadWrite = 1;
+		pt->Entries[PML1_INDEX(VirtualAddress)].User = 1;
+
+		// Debugging Output
+		PageFaultDebugPrint(PML1_INDEX(VirtualAddress), "PT", pt->Entries[PML1_INDEX(VirtualAddress)].Frame);
+	}
 }
 
 // Handles a Page Fault

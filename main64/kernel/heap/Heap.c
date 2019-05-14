@@ -62,6 +62,11 @@ void *malloc(int Size)
     }
 }
 
+long GetHeapEndOffset()
+{
+    return HEAP_END_OFFSET;
+}
+
 // Frees up a Heap Block
 void free(void *ptr)
 {

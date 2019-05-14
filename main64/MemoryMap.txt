@@ -30,7 +30,8 @@ Long Mode
 =========
 0x009000 to 0x019000:  Floppy Disk DMA Area
 0x019000 to 0x050000:  Long Mode Stack (0x50000 is the initial RSP value)
-0x050000 to 0x08FFFF:  Bitmask for Physical Frame Allocator (Allocated Bitmap can represent currently a Memory Region of 2 GB)
+0x050000 to 0x07FFFF:  Bitmask for Physical Frame Allocator
+0x080000 to 0x08FFFF:  x64 Global Descriptor Table (GDT)
 0x090000 to 0x090FFF:  Final Page Map Level 4 Table for the Kernel
                        Maps the Kernel Address Space to the Higher Half at 0xFFFF800000000000
                        Identity Maps 0 - 4 MB (otherwise the allocated Page Tables in that area couldn't be accessed anymore, when we switch the Page Directory)
@@ -46,7 +47,7 @@ Long Mode
 0x096000 to 0x096FFF:  Final Page Directory Table for Identity Mapping 0 - 1 MB
 0x097000 to 0x097FFF:  Final Page Table for Identity Mapping 0 - 1 MB
 0x098000 to 0x098FFF:  x64 IDT Vector
-0x099000 to 0x099FFF:  <<<Free Space >>>
+0x099000 to 0x099FFF:  Structure "RegisterState" for Exception Handlers
 0x110000 to 0x3FFFFF:  KERNEL.BIN:
                        Virtual Base Address: 0xFFFF800000100000
                        Mapped to the Virtual Address Range 0xFFFF800000000000 - 0xFFFF8000003FFFFF

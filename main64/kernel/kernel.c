@@ -7,8 +7,14 @@
 #include "Tasks/Task.h"
 #include "structs/KPCR.h"
 #include "idt/idt.h"
+#include "ui/window.h"
 
 void Shell();
+Context *context = 0x0;
+Desktop *desktop = 0x0;
+
+// Indicates if KAOS is executed with a GUI or in Text Mode
+int UIMode = 1;
 
 void k_main()
 {
@@ -24,9 +30,8 @@ void k_main()
 	// Initializes the PIC, and remap the IRQ handler
     PICInitialize(0x20, 0x28);
 
-	// Initialize the system timer to 20 Hertz
-	// InitTimer(50);
-	InitTimer(100000);
+	// Initialize the system timer to 250 Hertz - a 4ms quantum
+	InitTimer(250);
 
 	// Initialize the keyboard
     InitKeyboard();
@@ -51,9 +56,19 @@ void k_main()
 	// Initialize the Floppy Disk Controller
 	flpydsk_install();
 
-	// Creates the various Tasks that are executed through Context Switching
-	CreateTasks();
-	// CreateTasksVGA();
+	if (UIMode == 1)
+	{
+		// Initializes the Window System
+		InitWindowSystem();
+
+		// Creates the various Tasks that are executed through Context Switching
+		CreateTasksVGA();
+	}
+	else
+	{
+		// Creates the various Tasks that are executed through Context Switching
+		CreateTasks();
+	}
 	
 	// Initialize the Context Switching through IRQ0
 	// As soon as the Context Swichting is in place, we will *never* resume with the code execution here!
@@ -62,6 +77,17 @@ void k_main()
 
 	// Halt the system
     for (;;);
+}
+
+void InitWindowSystem()
+{
+	// Create a new Drawing Context
+	context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_DOUBLE_BUFFER, WINDOW_FRAME_BUFFER);
+	
+	// Create a new Desktop and set the intial mouse position
+	desktop = (Desktop *)NewDesktop(context, 0x05FF);
+	desktop->MouseX = 50;
+	desktop->MouseY = 50;
 }
 
 // Initializes the KPCR Data Structure
@@ -89,100 +115,226 @@ void Dummy()
 	}
 }
 
-void CreateTasks()
+void DesktopWindow1()
 {
-	// The Command Shell is running in Ring 0
-	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
-
-	// All the remaining Tasks are running in Ring 3
-	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);
-}
-
-void TestDrawing1()
-{
-	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
-	int start = 32000;
-	int i = 0;
+	int cntr = 0;
+	Window *window = NewDesktopWindow(desktop, 50, 50, 400, 720, "Window Title 1");
+	window->Task = (Task *)GetTaskState();
 
 	while (1 == 1)
 	{
-		// Erase the old line
-		for (i = start - 320; i < start; i++)
-		 	p[i] = 0; // black pixel
+		cntr++;
 
-		// Draw the new line
-		for (i = start; i < start + 320; i++)
-			p[i] = 1; // blue pixel
-
-		start += 320;
-
-		if (start > 320 * 200)
-			start = 0;
-		
-		Sleep(9999999);
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
 	}
 }
 
-void TestDrawing2()
+void DesktopWindow2()
 {
-	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
-	int start = 0;
-	int i = 0;
+	int cntr = 0;
+	Window *window = NewDesktopWindow(desktop, 200, 200, 400, 720, "Window Title 2");
+	window->Task = (Task *)GetTaskState();
 
 	while (1 == 1)
 	{
-		// Erase the old line
-		for (i = start - 320; i < start; i++)
-		 	p[i] = 0; // black pixel
+		cntr++;
 
-		// Draw the new line
-		for (i = start; i < start + 320; i++)
-			p[i] = 4; // red pixel
-
-		start += 320;
-
-		if (start > 320 * 200)
-			start = 0; 
-		
-		Sleep(9999999);
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
 	}
 }
 
-void TestDrawing3()
+void DesktopWindow3()
 {
-	unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
-	int start = 16000;
-	int i = 0;
+	int cntr = 0;
+	Window *window = NewDesktopWindow(desktop, 300, 300, 400, 720, "Window Title 3");
+	window->Task = (Task *)GetTaskState();
 
 	while (1 == 1)
 	{
-		// Erase the old line
-		for (i = start - 320; i < start; i++)
-		 	p[i] = 0; // black pixel
+		cntr++;
+		long *value = (long *)0xFFFF800000700000;
+		*value = cntr;
+		// *value = GetHeapEndOffset();
+		DesktopPaint(desktop);
 
-		// Draw the new line
-		for (i = start; i < start + 320; i++)
-			p[i] = 4; // red pixel
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
+}
 
-		start += 320;
+// Simulates a simple Mouse through various keystrokes
+void MouseHandler()
+{
+	int MouseX = 50;
+	int MouseY = 50;
+	int mouseClick = 0;
+	int dragWindow = 0;
 
-		if (start > 320 * 200)
-			start = 0; 
+	// Draw initially the Desktop
+	DesktopPaint(desktop);
+
+	while (1 == 1)
+	{
+		// Get the next keystroke that moves the mouse on the Desktop
+		char input = getchar();
+		input = KeyboardKeyToASCII(input);
+
+		// Left + 1
+		if (input == 'a')
+		{
+			MouseX--;
+		}
+		// Left + 10
+		else if (input == 'j')
+		{
+			MouseX -= 10;
+		}
+		// Right + 1
+		else if (input == 'f')
+		{
+			MouseX++;
+		}
+		// Right + 10
+		else if (input == 'l')
+		{
+			MouseX += 10;
+		}
+		// Up + 1
+		else if (input == 'e')
+		{
+			MouseY--;
+		}
+		// Up + 10
+		else if (input == 'i')
+		{
+			MouseY -= 10;
+		}
+		// Down + 1
+		else if (input == 'x')
+		{
+			MouseY++;
+		}
+		// Down + 10
+		else if (input == 'm')
+		{
+			MouseY += 10;
+		}
+		// Mouse Click
+		else if (input == ' ')
+		{
+			mouseClick = 1;
+		}
+		// Dragging Left + 1
+		else if (input == 'A')
+		{
+			MouseX -= 1;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Left + 10
+		else if (input == 'J')
+		{
+			MouseX -= 10;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Right + 1
+		else if (input == 'F')
+		{
+			MouseX++;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Right + 10
+		else if (input == 'L')
+		{
+			MouseX += 10;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Up + 1
+		else if (input == 'E')
+		{
+			MouseY--;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Up + 10
+		else if (input == 'I')
+		{
+			MouseY -= 10;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Down + 1
+		else if (input == 'X')
+		{
+			MouseY++;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+		// Dragging Down + 10
+		else if (input == 'M')
+		{
+			MouseY += 10;
+			mouseClick = 1;
+			dragWindow = 1;
+		}
+
+		// Limit the Mouse to the current screen area
+		if (MouseX < 0)
+			MouseX = 0;
+
+		if (MouseY < 0)
+			MouseY = 0;
+
+		if (MouseX > WINDOW_WIDTH - MOUSE_WIDTH)
+			MouseX = WINDOW_WIDTH - MOUSE_WIDTH;
+
+		if (MouseY > WINDOW_HEIGHT - 5)
+			MouseY = WINDOW_HEIGHT - 5;
 		
-		Sleep(9999999);
+		// Process the Mouse Event
+		DesktopProcessMouse(desktop, MouseX, MouseY, mouseClick, dragWindow);
+		mouseClick = 0;
+		dragWindow = 0;
+
+		printf_int(MouseX, 16);
+		printf(", ");
+		printf_int(MouseY, 16);
+		printf("\n");
+
+		// Redraw the Desktop
+    	// DesktopPaint(desktop);
 	}
 }
 
 void CreateTasksVGA()
 {
-	CreateUserTask(TestDrawing1, 1, 0xFFFF800001100000, 0xFFFF800000010000);
-	CreateUserTask(TestDrawing2, 2, 0xFFFF800001200000, 0xFFFF800000020000);
-	CreateUserTask(TestDrawing3, 3, 0xFFFF800001300000, 0xFFFF800000030000);
+	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
+	CreateUserTask(DesktopWindow1, 2, 0xFFFF800001200000, 0xFFFF800000020000);
+	CreateUserTask(DesktopWindow2, 3, 0xFFFF800001300000, 0xFFFF800000030000);
+	CreateUserTask(DesktopWindow3, 4, 0xFFFF800001400000, 0xFFFF800000040000);
+	/* CreateKernelTask(DesktopWindow1, 2, 0xFFFF800001200000);
+	CreateKernelTask(DesktopWindow2, 3, 0xFFFF800001300000);
+	CreateKernelTask(DesktopWindow3, 4, 0xFFFF800001400000); */
 }
 
-void TestScheduler()
+void CreateTasks()
 {
-	/* char input[10] = "";
+	// The Command Shell is running in Ring 0
+	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
+	// CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
+
+	// All the remaining Tasks are running in Ring 3
+	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);
+}
+
+/* void TestScheduler()
+{
+	char input[10] = "";
 	CreateKernelTask(CommandLoop, 1, 0xFFFF800001100000);
 	CreateKernelTask(Program1, 2, 0xFFFF800001200000);
 	CreateKernelTask(Program2, 3, 0xFFFF800001300000);
@@ -211,7 +363,7 @@ void TestScheduler()
 			TerminateTask(pid);
 
 		MoveToNextTask();
-	} */
+	}
 }
 
 // Dumps out the Memory Map
@@ -360,4 +512,4 @@ void TestPageFaults()
 	print_char(*ptr++);
 	print_char(*ptr++);
 	print_char(*ptr);
-}
+} */

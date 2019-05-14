@@ -13,7 +13,10 @@
 			"frameallocator.h": "c",
 			"heap.h": "c",
 			"task.h": "c",
-			"kpcr.h": "c"
+			"kpcr.h": "c",
+			"window.h": "c",
+			"sstream": "c",
+			"tss.h": "c"
 		},
 		"git.ignoreLimitWarning": true
 	}

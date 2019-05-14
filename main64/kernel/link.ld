@@ -6,13 +6,9 @@ SECTIONS
     .text : AT(ADDR(.text) - 0xFFFF800000000000)
     {
         *(.text .text.*)
+        *(.data .data.*)
         *(.rodata .rodata.*)
         . = ALIGN(4K);
-    }
-
-    .data : AT(ADDR(.data) - 0xFFFF800000000000)
-    {
-        *(.data .data.*)
     }
 
     .bss : AT(ADDR(.bss) - 0xFFFF800000000000)

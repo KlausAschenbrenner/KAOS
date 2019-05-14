@@ -9,7 +9,7 @@
 #ifndef KAOS_gdt_h
 #define KAOS_gdt_h
 
-#define GDT_START_OFFSET 0x99000
+#define GDT_START_OFFSET 0x80000
 
 /// This segment is a data segment
 #define GDT_FLAG_DATASEG	0x02

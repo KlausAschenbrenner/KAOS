@@ -56,4 +56,6 @@ static int Merge();
 // Dumps out the status of a Heap Block
 static void PrintHeapBlock(HeapBlock *Block);
 
+long GetHeapEndOffset();
+
 #endif

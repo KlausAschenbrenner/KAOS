@@ -1,7 +1,8 @@
 [BITS 64]
-[GLOBAL TaskSwitch]
 [GLOBAL Irq0_ContextSwitching]
 [GLOBAL GetTaskState]
+[GLOBAL AcquireLock]
+[GLOBAL ReleaseLock]
 [EXTERN IrqHandler]
 [EXTERN MoveToNextTask]
 
@@ -99,11 +100,8 @@ NoTaskStateSaveNecessary:
     pop rax
 
 Continue:
-
-    ; Call the ISR handler that is implemented in C
-    ; It sends the reset signal to the master PIC...
-    mov rdi, 32
-    call IrqHandler
+    push rbp
+    mov rbp,rsp
 
     ; Move to the next Task to be executed
     call MoveToNextTask
@@ -163,7 +161,13 @@ Continue:
     mov es, [rdi + TaskState_DS]
     mov fs, [rdi + TaskState_DS]
     mov gs, [rdi + TaskState_DS]
-    
+
+    ; Send the reset signal to the master PIC...
+    push rax
+    mov rax, 0x20
+    out 0x20, eax
+    pop rax
+
     ; Return from the Interrupt Handler
     ; Because we have patched the Stack Frame of the Interrupt Handler, we continue with the execution of 
     ; the next Task - based on the restored register RIP on the Stack...
@@ -173,4 +177,21 @@ Continue:
 ; This function returns a pointer to the Task structure of the current executing Task
 GetTaskState:
     mov rax, r15
+    ret
+
+; Acquires a Spinlock
+AcquireLock:
+    mov rsi, 0
+    lock bts [rdi], rsi
+    jc .spin_wait
+    ret
+
+.spin_wait:
+    test dword [rdi], 1
+    jnz .spin_wait
+    jmp AcquireLock
+
+; Releases a Spinlock
+ReleaseLock:
+    mov dword [rdi], 0
     ret

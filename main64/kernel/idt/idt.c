@@ -7,7 +7,11 @@
 //
 
 #include "idt.h"
+#include "../drivers/common.h"
 #include "../irq/irq.h"
+#include "../ui/window.h"
+
+extern int UIMode;
 
 // The 256 possible Interrupt Gates are stored from 0x98000 to 0x98FFF (4096 Bytes long - each Entry is 16 Bytes)
 IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
@@ -16,7 +20,7 @@ IdtEntry *_idtEntries = (IdtEntry *)IDT_START_OFFSET;
 IdtPointer _idtPointer;
 
 // Our generic ISR handler
-void IsrHandler(int Number, unsigned long cr2, unsigned long rip)
+void IsrHandler(int Number, unsigned long cr2, RegisterState *Registers)
 {
     // We have triggered a Page Fault!
     if (Number == 14)
@@ -26,17 +30,207 @@ void IsrHandler(int Number, unsigned long cr2, unsigned long rip)
     }
     else
     {
-        char str[32] = "";
-        itoa(Number, 16, str);
-
-        printf("ISR: ");
-        printf("0x");
-        printf(str);
-        printf("\nRIP: ");
-        printf_long(rip, 16);
-
+        if (UIMode == 0)
+        {
+            // We are running in text mode
+            DisplayException(Number, Registers);
+        }
+        else
+        {
+            // We are running with a GUI
+            DisplayBlueScreen(Number, Registers);
+        }
+        
         // Halt the system
         for (;;);
+    }
+}
+
+void DisplayException(int Number, RegisterState *Registers)
+{
+    printf("A fatal error has occured!\n");
+    printf("ISR: 0x");
+    printf_int(Number, 16);
+    printf("\n");
+
+    printf("RIP: 0x");
+    printf_long(Registers->RIP, 16);
+    printf("\n");
+
+    printf("RDI: 0x");
+    printf_long(Registers->RDI, 16);
+    printf("\n");
+
+    printf("RSI: 0x");
+    printf_long(Registers->RSI, 16);
+    printf("\n");
+
+    printf("RBP: 0x");
+    printf_long(Registers->RBP, 16);
+    printf("\n");
+
+    printf("RSP: 0x");
+    printf_long(Registers->RSP, 16);
+    printf("\n");
+
+    printf("RAX: 0x");
+    printf_long(Registers->RAX, 16);
+    printf("\n");
+
+    printf("RBX: 0x");
+    printf_long(Registers->RBX, 16);
+    printf("\n");
+
+    printf("RCX: 0x");
+    printf_long(Registers->RCX, 16);
+    printf("\n");
+
+    printf("RDX: 0x");
+    printf_long(Registers->RDX, 16);
+    printf("\n");
+
+    printf("R8:  0x");
+    printf_long(Registers->R8, 16);
+    printf("\n");
+
+    printf("R9:  0x");
+    printf_long(Registers->R9, 16);
+    printf("\n");
+
+    printf("R10: 0x");
+    printf_long(Registers->R10, 16);
+    printf("\n");
+
+    printf("R11: 0x");
+    printf_long(Registers->R11, 16);
+    printf("\n");
+
+    printf("R12: 0x");
+    printf_long(Registers->R12, 16);
+    printf("\n");
+
+    printf("R13: 0x");
+    printf_long(Registers->R13, 16);
+    printf("\n");
+
+    printf("R14: 0x");
+    printf_long(Registers->R14, 16);
+    printf("\n");
+
+    printf("R15: 0x");
+    printf_long(Registers->R15, 16);
+    printf("\n");
+}
+
+// Displays a blue screen with the occured exception
+void DisplayBlueScreen(int Number, RegisterState *Registers)
+{   
+    char str[32] = "";
+    itoa(Number, 16, str);
+
+    // Fill the whole display with a blue color
+    Context *context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FRAME_BUFFER, WINDOW_FRAME_BUFFER);;
+    Context_FillRect(context, 0, 0, context->Width, context->Height, 0x025B);
+    DrawString(context, "A fatal has error occured! ", 10, 10, 0xFFFF);
+    DrawString(context, "ISR: 0x", 10, 26, 0xFFFF);
+    DrawString(context, str, 66, 26, 0xFFFF);
+
+    ltoa(Registers->RIP, 16, str);
+    DrawString(context, "RIP: 0x", 10, 42, 0xFFFF);
+    DrawString(context, str, 66, 42, 0xFFFF);
+
+    ltoa(Registers->RDI, 16, str);
+    DrawString(context, "RDI: 0x", 10, 58, 0xFFFF);
+    DrawString(context, str, 66, 58, 0xFFFF);
+
+    ltoa(Registers->RSI, 16, str);
+    DrawString(context, "RSI: 0x", 10, 74, 0xFFFF);
+    DrawString(context, str, 66, 74, 0xFFFF);
+
+    ltoa(Registers->RBP, 16, str);
+    DrawString(context, "RBP: 0x", 10, 90, 0xFFFF);
+    DrawString(context, str, 66, 90, 0xFFFF);
+
+    ltoa(Registers->RSP, 16, str);
+    DrawString(context, "RSP: 0x", 10, 106, 0xFFFF);
+    DrawString(context, str, 66, 106, 0xFFFF);
+
+    ltoa(Registers->RAX, 16, str);
+    DrawString(context, "RAX: 0x", 10, 122, 0xFFFF);
+    DrawString(context, str, 66, 122, 0xFFFF);
+
+    ltoa(Registers->RBX, 16, str);
+    DrawString(context, "RBX: 0x", 10, 138, 0xFFFF);
+    DrawString(context, str, 66, 138, 0xFFFF);
+
+    ltoa(Registers->RCX, 16, str);
+    DrawString(context, "RCX: 0x", 10, 154, 0xFFFF);
+    DrawString(context, str, 66, 154, 0xFFFF);
+
+    ltoa(Registers->RDX, 16, str);
+    DrawString(context, "RDX: 0x", 10, 170, 0xFFFF);
+    DrawString(context, str, 66, 170, 0xFFFF);
+
+    ltoa(Registers->R8, 16, str);
+    DrawString(context, "R8:  0x", 10, 186, 0xFFFF);
+    DrawString(context, str, 66, 186, 0xFFFF);
+
+    ltoa(Registers->R9, 16, str);
+    DrawString(context, "R9:  0x", 10, 202, 0xFFFF);
+    DrawString(context, str, 66, 202, 0xFFFF);
+
+    ltoa(Registers->R10, 16, str);
+    DrawString(context, "R10: 0x", 10, 218, 0xFFFF);
+    DrawString(context, str, 66, 218, 0xFFFF);
+
+    ltoa(Registers->R11, 16, str);
+    DrawString(context, "R11: 0x", 10, 234, 0xFFFF);
+    DrawString(context, str, 66, 234, 0xFFFF);
+
+    ltoa(Registers->R12, 16, str);
+    DrawString(context, "R12: 0x", 10, 250, 0xFFFF);
+    DrawString(context, str, 66, 250, 0xFFFF);
+
+    ltoa(Registers->R13, 16, str);
+    DrawString(context, "R13: 0x", 10, 266, 0xFFFF);
+    DrawString(context, str, 66, 266, 0xFFFF);
+
+    ltoa(Registers->R14, 16, str);
+    DrawString(context, "R14: 0x", 10, 282, 0xFFFF);
+    DrawString(context, str, 66, 282, 0xFFFF);
+
+    ltoa(Registers->R15, 16, str);
+    DrawString(context, "R15: 0x", 10, 298, 0xFFFF);
+    DrawString(context, str, 66, 298, 0xFFFF);
+
+    ltoa(GetHeapEndOffset(), 16, str);
+    DrawString(context, "Heap 0x", 10, 314, 0xFFFF);
+    DrawString(context, str, 66, 314, 0xFFFF);
+
+    // Produce a Stack Trace
+    StackTrace(context);
+}
+
+// Produces a Stack Trace
+void StackTrace(Context *context)
+{
+    char str[32] = "";
+    StackFrame *frame;
+    int pos = 346;
+
+    // Get the current RBP value
+    asm volatile("mov %%rbp, %0" : "=r" (frame));
+    DrawString(context, "Stack Trace:", 10, pos, 0xFFFF);
+    pos += 16;
+
+    // Walk the Stack
+    while (frame != 0x0)
+    {
+        ltoa(frame->rip, 16, str);
+        DrawString(context, "RIP: 0x", 10, pos, 0xFFFF);
+        DrawString(context, str, 66, pos, 0xFFFF);
+        frame = frame->rbp;
+        pos += 16;
     }
 }
 

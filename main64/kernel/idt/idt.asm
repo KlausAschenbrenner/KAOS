@@ -11,31 +11,122 @@
     Isr%1:
         cli
 
-        ; Save the General Purpose Registers on the Stack
-        push rdi
-        push rsi
+        ; Produce a new Stack Frame
         push rbp
-        push rsp
-        push rbx
-        push rdx
-        push rcx
-        push rax
-        push r8
-        push r9
-        push r10
-        push r11
-        push r12
-        push r13
-        push r14
-        push r15
+        mov rbp, rsp
 
-        ; RIP where the Exception has occured
-        ; We have to add 128 bytes to the Stack Pointer, because we have pushed 16 registers onto the stack previously (16 * 8 bytes)
-        mov rdx, [rsp + 128]
+        ; Save the General Purpose Registers on the Stack
+        push rdi    ; [rsp + 120]
+        push rsi    ; [rsp + 112]
+        push rbp    ; [rsp + 104]
+        push rsp    ; [rsp + 96]
+        push rbx    ; [rsp + 88]
+        push rdx    ; [rsp + 80]
+        push rcx    ; [rsp + 72]
+        push rax    ; [rsp + 64]
+        push r8     ; [rsp + 56]
+        push r9     ; [rsp + 48]
+        push r10    ; [rsp + 40]
+        push r11    ; [rsp + 32]
+        push r12    ; [rsp + 24]
+        push r13    ; [rsp + 16]
+        push r14    ; [rsp + 8]
+        push r15    ; [rsp + 0]
+        
+        ; Store the RIP
+        mov rax, 0x99000
+        mov rbx, [rsp + 136]
+        mov [rax], rbx
+
+        ; Store the Error Code
+        add rax, 0x8
+        mov rbx, 0x0    ; There is no Error Code
+        mov [rax], rbx
+
+        ; Store the RDI register
+        add rax, 0x8
+        mov rbx, [rsp + 120]
+        mov [rax], rbx
+
+        ; Store the RSI register
+        add rax, 0x8
+        mov rbx, [rsp + 112]
+        mov [rax], rbx
+
+        ; Store the RBP register
+        add rax, 0x8
+        mov rbx, [rsp + 104]
+        mov [rax], rbx
+
+        ; Store the RSP register
+        add rax, 0x8
+        mov rbx, [rsp + 96]
+        mov [rax], rbx
+
+        ; Store the RBX register
+        add rax, 0x8
+        mov rbx, [rsp + 88]
+        mov [rax], rbx
+
+        ; Store the RDX register
+        add rax, 0x8
+        mov rbx, [rsp + 80]
+        mov [rax], rbx
+
+        ; Store the RCX register
+        add rax, 0x8
+        mov rbx, [rsp + 72]
+        mov [rax], rbx
+
+        ; Store the RAX register
+        add rax, 0x8
+        mov rbx, [rsp + 64]
+        mov [rax], rbx
+
+        ; Store the R8 register
+        add rax, 0x8
+        mov rbx, [rsp + 56]
+        mov [rax], rbx
+
+        ; Store the R9 register
+        add rax, 0x8
+        mov rbx, [rsp + 48]
+        mov [rax], rbx
+
+        ; Store the R10 register
+        add rax, 0x8
+        mov rbx, [rsp + 40]
+        mov [rax], rbx
+
+        ; Store the R11 register
+        add rax, 0x8
+        mov rbx, [rsp + 32]
+        mov [rax], rbx
+
+        ; Store the R12 register
+        add rax, 0x8
+        mov rbx, [rsp + 24]
+        mov [rax], rbx
+
+        ; Store the R13 register
+        add rax, 0x8
+        mov rbx, [rsp + 16]
+        mov [rax], rbx
+
+        ; Store the R14 register
+        add rax, 0x8
+        mov rbx, [rsp + 8]
+        mov [rax], rbx
+
+        ; Store the R15 register
+        add rax, 0x8
+        mov rbx, [rsp + 0]
+        mov [rax], rbx
 
         ; Call the ISR handler that is implemented in C
-        mov rdi, %1
-        mov rsi, cr2
+        mov rdi, %1          ; 1st parameter
+        mov rsi, cr2         ; 2nd parameter
+        mov rdx, 0x99000     ; Set the 3rd parameter to the memory location where the structure with the RegisterState is stored
         call IsrHandler
 
         ; Restore the General Purpose Registers from the Stack
@@ -55,6 +146,9 @@
         pop rbp
         pop rsi
         pop rdi
+
+        ; Restore the Stack Base Pointer
+        pop rbp
 
         sti
         iretq
@@ -65,32 +159,127 @@
     [GLOBAL Isr%1]
     Isr%1:
         cli
+
+        ; Produce a new Stack Frame
+        push rbp
+        mov rbp, rsp
         
         ; Save the General Purpose Registers on the Stack
-        push rdi
-        push rsi
-        push rbp
-        push rsp
-        push rbx
-        push rdx
-        push rcx
-        push rax
-        push r8
-        push r9
-        push r10
-        push r11
-        push r12
-        push r13
-        push r14
-        push r15
+        push rdi    ; [rsp + 120]
+        push rsi    ; [rsp + 112]
+        push rbp    ; [rsp + 104]
+        push rsp    ; [rsp + 96]
+        push rbx    ; [rsp + 88]
+        push rdx    ; [rsp + 80]
+        push rcx    ; [rsp + 72]
+        push rax    ; [rsp + 64]
+        push r8     ; [rsp + 56]
+        push r9     ; [rsp + 48]
+        push r10    ; [rsp + 40]
+        push r11    ; [rsp + 32]
+        push r12    ; [rsp + 24]
+        push r13    ; [rsp + 16]
+        push r14    ; [rsp + 8]
+        push r15    ; [rsp + 0]
 
         ; RIP where the Exception has occured
-        ; We have to add 128 bytes to the Stack Pointer, because we have pushed 16 registers onto the stack previously (16 * 8 bytes)
-        mov rdx, [rsp + 128]
+        ; We have to add 136 bytes to the Stack Pointer, because we have pushed 16 registers onto the stack previously (16 * 8 bytes + 8 bytes Error Code)
+        mov rdx, [rsp + 136]
+        
+        ; Store the RIP
+        mov rax, 0x99000
+        mov rbx, [rsp + 144]
+        mov [rax], rbx
+
+        ; Store the Error Code
+        add rax, 0x8
+        mov rbx, [rsp + 128]
+        mov [rax], rbx
+
+        ; Store the RDI register
+        add rax, 0x8
+        mov rbx, [rsp + 120]
+        mov [rax], rbx
+
+        ; Store the RSI register
+        add rax, 0x8
+        mov rbx, [rsp + 112]
+        mov [rax], rbx
+
+        ; Store the RBP register
+        add rax, 0x8
+        mov rbx, [rsp + 104]
+        mov [rax], rbx
+
+        ; Store the RSP register
+        add rax, 0x8
+        mov rbx, [rsp + 96]
+        mov [rax], rbx
+
+        ; Store the RBX register
+        add rax, 0x8
+        mov rbx, [rsp + 88]
+        mov [rax], rbx
+
+        ; Store the RDX register
+        add rax, 0x8
+        mov rbx, [rsp + 80]
+        mov [rax], rbx
+
+        ; Store the RCX register
+        add rax, 0x8
+        mov rbx, [rsp + 72]
+        mov [rax], rbx
+
+        ; Store the RAX register
+        add rax, 0x8
+        mov rbx, [rsp + 64]
+        mov [rax], rbx
+
+        ; Store the R8 register
+        add rax, 0x8
+        mov rbx, [rsp + 56]
+        mov [rax], rbx
+
+        ; Store the R9 register
+        add rax, 0x8
+        mov rbx, [rsp + 48]
+        mov [rax], rbx
+
+        ; Store the R10 register
+        add rax, 0x8
+        mov rbx, [rsp + 40]
+        mov [rax], rbx
+
+        ; Store the R11 register
+        add rax, 0x8
+        mov rbx, [rsp + 32]
+        mov [rax], rbx
+
+        ; Store the R12 register
+        add rax, 0x8
+        mov rbx, [rsp + 24]
+        mov [rax], rbx
+
+        ; Store the R13 register
+        add rax, 0x8
+        mov rbx, [rsp + 16]
+        mov [rax], rbx
+
+        ; Store the R14 register
+        add rax, 0x8
+        mov rbx, [rsp + 8]
+        mov [rax], rbx
+
+        ; Store the R15 register
+        add rax, 0x8
+        mov rbx, [rsp + 0]
+        mov [rax], rbx
 
         ; Call the ISR handler that is implemented in C
-        mov rdi, %1
-        mov rsi, cr2
+        mov rdi, %1          ; 1st parameter
+        mov rsi, cr2         ; 2nd parameter
+        mov rdx, 0x99000     ; Set the 3rd parameter to the memory location where the structure with the RegisterState is stored
         call IsrHandler
 
         ; Restore the General Purpose Registers from the Stack
@@ -110,6 +299,9 @@
         pop rbp
         pop rsi
         pop rdi
+
+        ; Restore the Stack Base Pointer
+        pop rbp
 
         ; Remove the Error Code from the Stack
         add rsp, 8

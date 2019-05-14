@@ -19,39 +19,39 @@
 typedef struct _Task
 {
     // General Purpose Registers
-    long rax;
-    long rbx;
-    long rcx;
-    long rdx;
-    long rbp;
-    long rsi;
-    long r8;
-    long r9;
-    long r10;
-    long r11;
-    long r12;
-    long r13;
-    long r14;
-    long r15;
-    long cr3;
+    unsigned long rax;
+    unsigned long rbx;
+    unsigned long rcx;
+    unsigned long rdx;
+    unsigned long rbp;
+    unsigned long rsi;
+    unsigned long r8;
+    unsigned long r9;
+    unsigned long r10;
+    unsigned long r11;
+    unsigned long r12;
+    unsigned long r13;
+    unsigned long r14;
+    unsigned long r15;
+    unsigned long cr3;
 
-    long rdi;
-    long rip;
-    long cs;
-    long rflags;
-    long rsp;
-    long ss;
+    unsigned long rdi;
+    unsigned long rip;
+    unsigned long cs;
+    unsigned long rflags;
+    unsigned long rsp;
+    unsigned long ss;
 
-    long ds;
+    unsigned long ds;
 
     // The ID of the running Task
     int PID;
 
     // The used Kernel Mode Stack
-    long KernelModeStack;
+    unsigned long KernelModeStack;
 
     // The number of context switches of the running Task
-    long ContextSwitches;
+    unsigned long ContextSwitches;
 
     // The status of the Task:
     // 0: CREATED
@@ -95,5 +95,9 @@ void DumpTaskState();
 
 // Returns a reference to the current Task State structure by returning the value from the register R15
 extern long GetTaskState();
+
+extern void AcquireLock(unsigned long Spinlock);
+
+extern void ReleaseLock(unsigned long Spinlock);
 
 #endif

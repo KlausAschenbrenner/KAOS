@@ -104,7 +104,7 @@ void scanf(char *buffer, int buffer_size)
 }
 
 // Waits for a key press, and returns it
-static char getchar()
+char getchar()
 {
     char key = INVALID_SCANCODE;
     
@@ -135,7 +135,7 @@ static void DiscardLastKey()
 
 // Converts the pressed keyboard key to the correct ASCII key
 // (e.g. performing an upper case conversion)
-static char KeyboardKeyToASCII(char key)
+char KeyboardKeyToASCII(char key)
 {
     if (_shiftKey || _capsLock)
     {

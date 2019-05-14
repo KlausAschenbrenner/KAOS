@@ -282,6 +282,9 @@ LongMode:
     mov rsp, rax
     mov rbp, rsp
 
+    ; Set the inital RBP to NULL, so that we can produce a Stack Trace in the Exception Handler
+    xor rbp, rbp
+
     ; Execute the 64-bit Kernel, which is stored at 0xFFFF800000110000
     mov r15, qword 0xFFFF800000110000
     mov rax, qword 0xFFFF800000110000

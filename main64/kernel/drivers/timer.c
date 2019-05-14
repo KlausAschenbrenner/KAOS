@@ -21,8 +21,7 @@ void InitTimer(int Frequency)
     int divisor = 1193180 / Frequency;
     
     // Send the command byte
-    // outb(0x43, 0x36);
-    outb(0x43, 0x34);
+    outb(0x43, 0x36);
     
     // Divisor has to be sent byte-wise, so split here into upper/lower bytes
     unsigned char l = (unsigned char)(divisor & 0xFF);

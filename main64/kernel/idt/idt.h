@@ -28,6 +28,28 @@ struct _IdtEntry
 } __attribute__ ((packed));
 typedef struct _IdtEntry IdtEntry;
 
+typedef struct _RegisterState
+{
+    unsigned long RIP;
+    unsigned long ErrorCode;
+    unsigned long RDI;
+    unsigned long RSI;
+    unsigned long RBP;
+    unsigned long RSP;
+    unsigned long RBX;
+    unsigned long RDX;
+    unsigned long RCX;
+    unsigned long RAX;
+    unsigned long R8;
+    unsigned long R9;
+    unsigned long R10;
+    unsigned long R11;
+    unsigned long R12;
+    unsigned long R13;
+    unsigned long R14;
+    unsigned long R15;
+} RegisterState;
+
 // Represents the pointer to the interrupt gates
 struct _IdtPointer
 {
@@ -35,6 +57,13 @@ struct _IdtPointer
     unsigned long Base;
 } __attribute((packed));
 typedef struct _IdtPointer IdtPointer;
+
+// Represents a x64 Stack Frame
+typedef struct _StackFrame
+{
+    struct StackFrame *rbp;
+    unsigned long rip;
+} StackFrame;
 
 // Installs the corresponding ISR routine in the IDT table
 void IdtSetGate(unsigned char num, unsigned long base, unsigned char Type);
@@ -50,6 +79,9 @@ extern void IdtFlush(unsigned long);
 
 // Handles the INT 0x80 SysCall
 extern void SysCallHandlerAsm();
+
+// Produces a Stack Trace
+void StackTrace();
 
 // Our 32 ISR routines (implemented in Assembler)
 extern void Isr0();
