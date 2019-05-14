@@ -124,7 +124,7 @@ SecondStageError		            db '', 0
 Cluster			                    dw 0x0000
 
 welcome_message:                    db '', 0
-disk_read_error_message:            db 'e', 0
+disk_read_error_message:            db 'd', 0
 DataSectorBeginning:                dw 0x0000
 
 ;=============================================

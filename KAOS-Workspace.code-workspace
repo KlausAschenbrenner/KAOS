@@ -14,9 +14,13 @@
 			"heap.h": "c",
 			"task.h": "c",
 			"kpcr.h": "c",
+<<<<<<< HEAD
 			"window.h": "c",
 			"sstream": "c",
 			"tss.h": "c"
+=======
+			"window.h": "c"
+>>>>>>> 24465e0d9b1d4f86208b3194913f9576ab555568
 		},
 		"git.ignoreLimitWarning": true
 	}

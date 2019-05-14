@@ -15,7 +15,6 @@
 
 // Virtual and physical memory adresess
 #define WINDOW_FRAME_BUFFER 0xFFFF8000E8000000
-// #define WINDOW_DOUBLE_BUFFER 0xFFFF800002000000
 #define WINDOW_DOUBLE_BUFFER 0xFFFF800008000000
 #define WINDOW_FRAME_BUFFER_PHYSICAL 0x00000000E8000000
 
@@ -105,8 +104,6 @@ Window *NewWindow(int X, int Y, int Width, int Height, Context *Context, char *T
 
 // Draws a filled Rectangle
 void Context_FillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color);
-
-void ContextClippedRectangle(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, Rectangle *ClipArea, int Color);
 
 // Draws a Window
 void WindowPaint(Window *Window);

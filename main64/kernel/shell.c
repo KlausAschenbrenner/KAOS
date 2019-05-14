@@ -48,7 +48,7 @@ int (*command_functions[]) (char *param) =
 
 void Shell()
 {
-	ClearScreen();
+	// ClearScreen();
     int i;
 
     while (1 == 1)

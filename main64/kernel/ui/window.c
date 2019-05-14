@@ -11,8 +11,6 @@
 #include "../heap/Heap.h"
 #include "window.h"
 
-unsigned long spinlock;
-
 // This array represents the definition of the Mouse Pointer Image
 unsigned int MouseImage[MOUSE_BUFFER_SIZE] = 
 {

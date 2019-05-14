@@ -146,6 +146,8 @@ char KeyboardKeyToASCII(char key)
     return key;
 }
 
+static int start = 16000;
+
 // Keyboard callback function
 static void KeyboardCallback(int Number)
 {
