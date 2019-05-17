@@ -7,11 +7,16 @@
 #include "Tasks/Task.h"
 #include "structs/KPCR.h"
 #include "idt/idt.h"
-#include "ui/window.h"
+#include "ui/Window.h"
+#include "ui/Desktop.h"
+#include "ui/Controls/Button.h"
+#include "ui/Controls/Label.h"
+#include "ui/Controls/TextBox.h"
 
 void Shell();
 Context *context = 0x0;
 Desktop *desktop = 0x0;
+TextBox *textbox = 0x0;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
 int UIMode = 1;
@@ -30,7 +35,7 @@ void k_main()
 	// Initializes the PIC, and remap the IRQ handler
     PICInitialize(0x20, 0x28);
 
-	// Initialize the system timer to 250 Hertz - a 4ms quantum
+	// Initialize the system timer to 250 Hertz - a 4ms quantum for the Context Switching mechanism
 	InitTimer(250);
 
 	// Initialize the keyboard
@@ -76,7 +81,7 @@ void k_main()
 	InitTimerForContextSwitching();
 
 	// Halt the system
-    for (;;);
+    while (1 == 1);
 }
 
 void InitWindowSystem()
@@ -115,15 +120,60 @@ void Dummy()
 	}
 }
 
+// Handles the OnClick event of the Button
+void ButtonOnClick(Window *ButtonWindow, int X, int Y)
+{
+	// textbox->Window.Title = "Klaus";
+
+	// Window *window = NewDesktopWindow((Window *)desktop, 400, 400, 400, 720, "Window Title 4");
+	WindowAppendTitle((Window *)textbox, "1");
+}
+
 void DesktopWindow1()
 {
+	char str1[32] = "";
+	char str2[32] = "";
 	int cntr = 0;
-	Window *window = NewDesktopWindow(desktop, 50, 50, 400, 720, "Window Title 1");
+	Window *window = NewDesktopWindow((Window *)desktop, 50, 50, 400, 720, "Window Title 1");
 	window->Task = (Task *)GetTaskState();
 
+	// Create a new Button
+	Button *button = NewButton(10, 100, 100, 35);
+	button->Window.Title = "Button 1";
+	button->OnClick = ButtonOnClick;
+	WindowInsertChild(window, (Window *)button);
+
+	// Create a new Label
+	Label *label = NewLabel(5, 5);
+	label->Window.Title = "PID: ";
+	WindowInsertChild(window, (Window *)label);
+
+	// Create a new Label
+	Label *lbl2 = NewLabel(25, 5);
+	ltoa(window->Task->PID, 10, str1);
+	lbl2->Window.Title = str1;
+	WindowInsertChild(window, (Window *)lbl2);
+
+	// Create a new Label
+	Label *lbl3 = NewLabel(5, 15);
+	lbl3->Window.Title = "Number of Context Switches:";
+	WindowInsertChild(window, (Window *)lbl3);
+
+	// Create a new Label
+	Label *lbl4 = NewLabel(115, 15);
+	lbl4->Window.Title = "0";
+	WindowInsertChild(window, (Window *)lbl4);
+
+	// Create a new TextBox
+	textbox = NewTextBox(10, 150, 100, 20);
+	textbox->Window.Title = "Test";
+	WindowInsertChild(window, (Window *)textbox);
+	
 	while (1 == 1)
 	{
 		cntr++;
+		ltoa(window->Task->ContextSwitches, 10, str2);
+		lbl4->Window.Title = str2;
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -132,13 +182,43 @@ void DesktopWindow1()
 
 void DesktopWindow2()
 {
+	char str1[32] = "";
+	char str2[32] = "";
 	int cntr = 0;
-	Window *window = NewDesktopWindow(desktop, 200, 200, 400, 720, "Window Title 2");
+	Window *window = NewDesktopWindow((Window *)desktop, 200, 200, 400, 720, "Window Title 2");
 	window->Task = (Task *)GetTaskState();
+
+	// Create a new Button
+	Button *button = NewButton(10, 100, 100, 35);
+	button->Window.Title = "Button 1";
+	WindowInsertChild(window, (Window *)button);
+
+	// Create a new Label
+	Label *label = NewLabel(5, 5);
+	label->Window.Title = "PID: ";
+	WindowInsertChild(window, (Window *)label);
+
+	// Create a new Label
+	Label *lbl2 = NewLabel(25, 5);
+	ltoa(window->Task->PID, 10, str1);
+	lbl2->Window.Title = str1;
+	WindowInsertChild(window, (Window *)lbl2);
+
+	// Create a new Label
+	Label *lbl3 = NewLabel(5, 15);
+	lbl3->Window.Title = "Number of Context Switches:";
+	WindowInsertChild(window, (Window *)lbl3);
+
+	// Create a new Label
+	Label *lbl4 = NewLabel(115, 15);
+	lbl4->Window.Title = "0";
+	WindowInsertChild(window, (Window *)lbl4);
 
 	while (1 == 1)
 	{
 		cntr++;
+		ltoa(window->Task->ContextSwitches, 10, str2);
+		lbl4->Window.Title = str2;
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -147,17 +227,49 @@ void DesktopWindow2()
 
 void DesktopWindow3()
 {
+	char str1[32] = "";
+	char str2[32] = "";
 	int cntr = 0;
-	Window *window = NewDesktopWindow(desktop, 300, 300, 400, 720, "Window Title 3");
+	Window *window = NewDesktopWindow((Window *)desktop, 300, 300, 400, 720, "Window Title 3");
 	window->Task = (Task *)GetTaskState();
+
+	// Create a new Button
+	Button *button = NewButton(10, 100, 100, 35);
+	button->Window.Title = "Button 1";
+	WindowInsertChild(window, (Window *)button);
+
+	// Create a new Label
+	Label *label = NewLabel(5, 5);
+	label->Window.Title = "PID: ";
+	WindowInsertChild(window, (Window *)label);
+
+	// Create a new Label
+	Label *lbl2 = NewLabel(25, 5);
+	ltoa(window->Task->PID, 10, str1);
+	lbl2->Window.Title = str1;
+	WindowInsertChild(window, (Window *)lbl2);
+
+	// Create a new Label
+	Label *lbl3 = NewLabel(5, 15);
+	lbl3->Window.Title = "Number of Context Switches:";
+	WindowInsertChild(window, (Window *)lbl3);
+
+	// Create a new Label
+	Label *lbl4 = NewLabel(115, 15);
+	lbl4->Window.Title = "0";
+	WindowInsertChild(window, (Window *)lbl4);
 
 	while (1 == 1)
 	{
 		cntr++;
 		long *value = (long *)0xFFFF800000700000;
 		*value = cntr;
-		// *value = GetHeapEndOffset();
-		DesktopPaint(desktop);
+
+		ltoa(window->Task->ContextSwitches, 10, str2);
+		lbl4->Window.Title = str2;
+
+		// WindowInvalidate(window, 0, 0, 10, 10);
+		// WindowPaint((Window *)desktop, (List *) 0x0, 0);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -173,7 +285,7 @@ void MouseHandler()
 	int dragWindow = 0;
 
 	// Draw initially the Desktop
-	DesktopPaint(desktop);
+	WindowPaint((Window *)desktop, (List *) 0x0, 0);
 
 	while (1 == 1)
 	{

@@ -152,6 +152,7 @@ static void LoadRootDirectory()
 
     // Load the whole Root Directory (14 sectors) into memory
     ROOT_DIRECTORY_BUFFER = malloc(rootDirectorySectors * BytesPerSector);
+
     ReadSectors(lbaAddressRootDirectory, rootDirectorySectors, (unsigned char *)ROOT_DIRECTORY_BUFFER);
 
     // Load the whole FAT (18 sectors) into memory

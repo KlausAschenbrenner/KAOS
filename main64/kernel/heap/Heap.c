@@ -53,9 +53,8 @@ void *malloc(int Size)
         lastBlock->Size = HEAP_GROWTH;
         HEAP_END_OFFSET += HEAP_GROWTH;
 
-        // Merges multiple free blocks into larger free blocks
-        // to get rid of Heap Fragmentation
-        Merge();
+        // Merge the last free block with the newly allocated block together
+        // Merge();
 
         // Try to allocate the requested block after the expansion of the Heap...
         return malloc(Size - HEADER_SIZE);
@@ -74,12 +73,12 @@ void free(void *ptr)
     HeapBlock *block = ptr - HEADER_SIZE;
     block->InUse = 0;
 
-    // Merge free blocks together
+    /* // Merge free blocks together
     if (Merge() > 0)
     {
         // If we have merged some free blocks together, we try it once again
         Merge();
-    }
+    } */
 }
 
 // Merges 2 free blocks into one larger free block

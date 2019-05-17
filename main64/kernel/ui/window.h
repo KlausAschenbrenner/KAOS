@@ -1,5 +1,5 @@
 //
-//  window.h
+//  Window.h
 //  KAOS
 //
 //  Created by Klaus Aschenbrenner on 24.04.2019.
@@ -8,14 +8,18 @@
 //  This code is based on http://www.trackze.ro
 //
 
-#include "../Tasks/Task.h"
-
 #ifndef KAOS_window_h
 #define KAOS_window_h
 
+#include "../Tasks/Task.h"
+#include "ListNode.h"
+#include "List.h"
+#include "Rectangle.h"
+#include "Context.h"
+
 // Virtual and physical memory adresess
-#define WINDOW_FRAME_BUFFER 0xFFFF8000E8000000
-#define WINDOW_DOUBLE_BUFFER 0xFFFF800008000000
+#define WINDOW_FRAME_BUFFER          0xFFFF8000E8000000
+#define WINDOW_DOUBLE_BUFFER         0xFFFF800008000000
 #define WINDOW_FRAME_BUFFER_PHYSICAL 0x00000000E8000000
 
 // Screen properties
@@ -28,146 +32,77 @@
 #define WINDOW_TITLE_COLOR_ACTIVE 0x12BA
 #define WINDOW_TITLE_COLOR_INACTIVE 0xA555
 #define WINDOW_BORDERCOLOR 0
+#define WINDOW_TITLEHEIGHT 31
+#define WINDOW_BORDERWIDTH 3
 
-// Mouse properties
-#define MOUSE_WIDTH 11
-#define MOUSE_HEIGHT 18
-#define MOUSE_BUFFER_SIZE (MOUSE_WIDTH * MOUSE_HEIGHT)
-#define cX 0x0000   // A black pixel for the Mouse Pointer
-#define cO 0xFFFF   // A white pixel for the Mouse Pointer
-#define c_ 0xDEAD   // The transparent pixel for the Mouse Pointer
+// Flags
+#define WINDOW_NODECORATION 0x1
 
-// Font properties
-#define FONT_WIDTH 8
-#define FONT_HEIGHT 12
-#define FONT_CHARACTERS 128
+// The Paint Handler for a given Window
+typedef void (*WindowPaintFunctionHandler)(struct _Window*);
 
-// Defines a Node in a Double Linked List
-typedef struct _ListNode
-{
-    void *Payload;
-    struct _List *Previous;
-    struct _List *Next;
-} ListNode;
-
-// Defines a simple Doube Linked List
-typedef struct _List
-{
-    int Count;
-    ListNode *RootNode;
-} List;
-
-typedef struct _Context
-{
-    unsigned short *FrameDoubleBuffer;
-    unsigned short *VgaFrameBuffer;
-    int Width;
-    int Height;
-} Context;
+// The Mouse Handler for a given Window
+typedef void (*WindowMouseDownFunctionHandler)(struct _Window*, int, int);
 
 // Defines a Window
 typedef struct _Window
 {
+    struct _Window *Parent;
     int X;
     int Y;
     int Width;
     int Height;
+    int Flags;
     Context *Context;
+    struct _Window *DraggedChild;
+    struct _Window *ActiveChild;
+    List *Children;
+    int DragOffsetX;
+    int DragOffsetY;
+    int LastMouseButtonState;
+    WindowPaintFunctionHandler PaintFunction;
+    WindowMouseDownFunctionHandler MouseDownFunction;
     char *Title;
     Task *Task;
 } Window;
 
-// Defines the Desktop
-typedef struct _Desktop
-{
-    List *Children;
-    Context *Context;
-    int Color;
-    int MouseX;
-    int MouseY;
-    int LastMouseButtonState;
-    Window *DraggedChild;
-    int DragOffsetX;
-    int DragOffsetY;
-} Desktop;
-
-typedef struct _Rectangle
-{
-    int Top;
-    int Left;
-    int Bottom;
-    int Right;
-} Rectangle;
-
 // Creates a new Window
-Window *NewWindow(int X, int Y, int Width, int Height, Context *Context, char *Title);
+Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context);
 
-// Draws a filled Rectangle
-void Context_FillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color);
+// Initializes a new Window object
+void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context);
+
+// Inserts a Child Window
+void WindowInsertChild(Window *InputWindow, Window *Child);
+
+// Raises the given Window to the top of the Desktop
+void WindowRaise(Window *InputWindow);
 
 // Draws a Window
-void WindowPaint(Window *Window);
+void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion);
 
-// Creates a new List
-List *NewList();
+// Invalidates the given region of the Window and repaints it
+void WindowInvalidate(Window *Window, int Top, int Left, int Bottom, int Right);
 
-// Creates a new ListNode
-ListNode *NewListNode(void *Payload);
+// Processes the Mouse on the Window
+void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow);
 
-// Adds a new Node to the given List
-void AddNodeToList(List *List, void *Payload);
+// Adds additional characters to the Window Title
+void WindowAppendTitle(Window *Window, char *AdditionalChars);
 
-// Removes a Node from the given List
-void *RemoveNodeFromList(List *List, int Index);
+// Draws a border around the Window
+static void WindowDrawBorder(Window *Window);
 
-// Returns a Node from the given List
-void *GetNodeFromList(List *List, int Index);
+// The default paint method
+static void WindowPaintHandler(Window *Window);
 
-// Creates a new Desktop
-Desktop *NewDesktop(Context *Context, int Color);
+// The default Mouse Handler does nothing
+static void WindowMouseDownHandler(Window *Window, int X, int Y);
 
-// Adds a new Window to the Desktop
-Window *NewDesktopWindow(Desktop *Desktop, int X, int Y, int Width, int Height, char *Title);
+// Returns the absolute X coordinate of the given Window
+static int WindowScreenX(Window *Window);
 
-// Draws the Desktop
-void DesktopPaint(Desktop *Desktop);
-
-// Processes the Mouse on the Desktop
-void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow);
-
-// Gets a list of windows overlapping the passed in window
-List *DesktopGetWindowsAbove(Desktop *Desktop, Window *InputWindow);
-
-// Creates a new Rectangle
-Rectangle *NewRectange(int Top, int Left, int Bottom, int Right);
-
-// Splits the 2 given Rectangles
-List *RectangleSplit(Rectangle *SubjectRectangle, Rectangle *CuttingRectangle);
-
-// Creates a new Context
-Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, unsigned char *VgaFrameBuffer);
-
-// Adds a new clipped Rectangle to the Context
-void ContextAddClipRectangle(Context *Context, Rectangle *AddedRectangle);
-
-void ContextSubtractClipRectangle(Context *Context, Rectangle *SubtractedRectangle);
-
-// Clears the clipped Rectangles from the Context
-void ContextClearClipRectangle(Context *Context);
-
-// Draws a Rectangle
-void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color);
-
-// Draws a horizontal line
-void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color);
-
-// Draws a vertical line
-void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color);
-
-// Draws a single Character
-static void DrawCharacter(Context *Context, char Character, int X, int Y, int Color);
-
-// Draws a null-terminated String at the given location
-void DrawString(Context *Context, char *String, int X, int Y, int Color);
+// Returns the absolute Y coordinate of the given Window
+static int WindowScreenY(Window *Window);
 
 #endif

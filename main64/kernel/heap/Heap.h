@@ -11,9 +11,9 @@
 
 #define HEADER_SIZE 4
 static long HEAP_START_OFFSET = 0xFFFF800000500000;
-static long HEAP_END_OFFSET =   0xFFFF800000501000;
-static int INITIAL_HEAP_SIZE =  0x1000;
-static int HEAP_GROWTH =        0x1000;
+static long HEAP_END_OFFSET =   0xFFFF800000510000;
+static int INITIAL_HEAP_SIZE =  0x10000;
+static int HEAP_GROWTH =        0x10000;
 
 typedef struct _HeapBlock
 {

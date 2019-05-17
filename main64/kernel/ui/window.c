@@ -1,5 +1,5 @@
 //
-//  window.c
+//  Window.c
 //  KAOS
 //
 //  Created by Klaus Aschenbrenner on 24.04.2019.
@@ -9,444 +9,313 @@
 //
 
 #include "../heap/Heap.h"
-#include "window.h"
-
-// This array represents the definition of the Mouse Pointer Image
-unsigned int MouseImage[MOUSE_BUFFER_SIZE] = 
-{
-    cX, c_, c_, c_, c_, c_, c_, c_, c_, c_, c_,
-    cX, cX, c_, c_, c_, c_, c_, c_, c_, c_, c_,
-    cX, cO, cX, c_, c_, c_, c_, c_, c_, c_, c_,
-    cX, cO, cO, cX, c_, c_, c_, c_, c_, c_, c_,
-    cX, cO, cO, cO, cX, c_, c_ ,c_, c_, c_, c_,
-    cX, cO, cO, cO, cO, cX, c_, c_, c_, c_, c_,
-    cX, cO, cO, cO, cO, cO, cX, c_, c_, c_, c_,
-    cX, cO, cO, cO, cO, cO, cO, cX, c_, c_, c_,
-    cX, cO, cO, cO, cO, cO, cO, cO, cX, c_, c_,
-    cX, cO, cO, cO, cO, cO, cO, cO, cO, cX, c_,
-    cX, cO, cO, cO, cO, cO, cO, cO, cO, cO, cX,
-    cX, cX, cX, cX, cO, cO, cO, cX, cX, cX, cX,
-    c_, c_, c_, c_, cX, cO, cO, cX, c_, c_, c_,
-    c_, c_, c_, c_, cX, cO, cO, cX, c_, c_, c_,
-    c_, c_, c_, c_, c_, cX, cO, cO, cX, c_, c_,
-    c_, c_, c_, c_, c_, cX, cO, cO, cX, c_, c_,
-    c_, c_, c_, c_, c_, c_, cX, cO, cX, c_, c_,
-    c_, c_, c_, c_, c_, c_, c_, cX, cX, c_, c_ 
-};
-
-// This array represents our font.
-// 128 characters with 8 bits wide and 12 bits height.
-// Each bit tells us if the bit should be drawn or not.
-char FontArray[] =
-{
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x24, 0x00, 0x00, 0x00, 0x00, 0x10, 0x08, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x60, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x24, 0x00, 0x08, 0x00, 0x00, 0x10, 0x10, 0x10, 0x54, 0x00, 0x00, 0x00, 0x00, 0x04, 0x38, 0x08, 0x3c, 0x7e, 0x04, 0x3e, 0x3c, 0x7e, 0x18, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x18, 0x70, 0x3c, 0x78, 0x7e, 0x7e, 0x3c, 0x42, 0x7c, 0x7e, 0x44, 0x40, 0x41, 0x42, 0x3c, 0x7c, 0x3c, 0x7c, 0x3c, 0x7f, 0x42, 0x42, 0x41, 0x42, 0x44, 0x7e, 0x1c, 0x40, 0x38, 0x10, 0x00, 0x30, 0x00, 0x40, 0x00, 0x02, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x24, 0x12, 0x1c, 0x40, 0x18, 0x10, 0x10, 0x10, 0x38, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x18, 0x42, 0x02, 0x0c, 0x20, 0x42, 0x02, 0x24, 0x42, 0x10, 0x00, 0x00, 0x00, 0x00, 0x24, 0x38, 0x24, 0x48, 0x42, 0x44, 0x40, 0x40, 0x42, 0x42, 0x10, 0x04, 0x44, 0x40, 0x63, 0x62, 0x42, 0x42, 0x42, 0x42, 0x42, 0x08, 0x42, 0x42, 0x41, 0x42, 0x44, 0x02, 0x10, 0x40, 0x08, 0x28, 0x00, 0x10, 0x00, 0x40, 0x00, 0x02, 0x00, 0x0c, 0x00, 0x40, 0x00, 0x00, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x48, 0x12, 0x2a, 0xa2, 0x20, 0x10, 0x20, 0x08, 0x28, 0x10, 0x00, 0x00, 0x00, 0x08, 0x4c, 0x28, 0x42, 0x04, 0x14, 0x40, 0x40, 0x04, 0x24, 0x42, 0x10, 0x10, 0x02, 0x00, 0x40, 0x42, 0x44, 0x42, 0x44, 0x40, 0x42, 0x40, 0x40, 0x40, 0x42, 0x10, 0x04, 0x48, 0x40, 0x63, 0x62, 0x42, 0x42, 0x42, 0x42, 0x40, 0x08, 0x42, 0x42, 0x41, 0x24, 0x44, 0x02, 0x10, 0x20, 0x08, 0x44, 0x00, 0x00, 0x00, 0x40, 0x00, 0x02, 0x00, 0x12, 0x00, 0x40, 0x10, 0x04, 0x20, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x7f, 0x28, 0xa4, 0x10, 0x00, 0x20, 0x08, 0x28, 0x10, 0x00, 0x00, 0x00, 0x08, 0x4c, 0x08, 0x02, 0x18, 0x24, 0x40, 0x40, 0x08, 0x18, 0x42, 0x00, 0x00, 0x0c, 0x7e, 0x30, 0x02, 0x82, 0x42, 0x44, 0x40, 0x42, 0x40, 0x40, 0x40, 0x42, 0x10, 0x04, 0x50, 0x40, 0x55, 0x52, 0x42, 0x42, 0x42, 0x42, 0x20, 0x08, 0x42, 0x42, 0x41, 0x24, 0x44, 0x04, 0x10, 0x20, 0x08, 0x00, 0x00, 0x00, 0x38, 0x40, 0x00, 0x02, 0x00, 0x10, 0x1e, 0x40, 0x00, 0x00, 0x20, 0x10, 0x54, 0x2c, 0x3c, 0x5c, 0x3c, 0x2c, 0x1c, 0x3e, 0x24, 0x22, 0x44, 0x42, 0x24, 0x3e, 0x10, 0x08, 0x08, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x24, 0x18, 0x48, 0x20, 0x00, 0x20, 0x08, 0x00, 0x7c, 0x00, 0x7e, 0x00, 0x10, 0x54, 0x08, 0x02, 0x04, 0x44, 0x7c, 0x5c, 0x08, 0x24, 0x3e, 0x00, 0x00, 0x30, 0x00, 0x0c, 0x04, 0x92, 0x42, 0x78, 0x40, 0x42, 0x7c, 0x7c, 0x40, 0x42, 0x10, 0x04, 0x60, 0x40, 0x55, 0x52, 0x42, 0x7c, 0x42, 0x7c, 0x18, 0x08, 0x42, 0x42, 0x49, 0x18, 0x28, 0x08, 0x10, 0x10, 0x08, 0x00, 0x00, 0x00, 0x04, 0x5c, 0x3c, 0x3a, 0x3c, 0x10, 0x22, 0x40, 0x00, 0x04, 0x22, 0x10, 0x2a, 0x12, 0x42, 0x22, 0x44, 0x12, 0x22, 0x10, 0x24, 0x22, 0x44, 0x22, 0x24, 0x02, 0x20, 0x08, 0x04, 0x32, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x24, 0x0c, 0x10, 0x52, 0x00, 0x20, 0x08, 0x00, 0x10, 0x00, 0x00, 0x00, 0x10, 0x54, 0x08, 0x04, 0x02, 0x44, 0x02, 0x62, 0x10, 0x42, 0x02, 0x00, 0x00, 0x40, 0x00, 0x02, 0x08, 0xaa, 0x7e, 0x44, 0x40, 0x42, 0x40, 0x40, 0x4e, 0x7e, 0x10, 0x04, 0x50, 0x40, 0x49, 0x4a, 0x42, 0x40, 0x42, 0x50, 0x04, 0x08, 0x42, 0x42, 0x49, 0x18, 0x10, 0x10, 0x10, 0x10, 0x08, 0x00, 0x00, 0x00, 0x3c, 0x62, 0x42, 0x46, 0x42, 0x3c, 0x22, 0x5c, 0x10, 0x04, 0x2c, 0x10, 0x2a, 0x12, 0x42, 0x22, 0x44, 0x10, 0x20, 0x10, 0x24, 0x22, 0x54, 0x24, 0x24, 0x04, 0x10, 0x08, 0x08, 0x4c, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0xfe, 0x0a, 0x22, 0x4a, 0x00, 0x20, 0x08, 0x00, 0x10, 0x00, 0x00, 0x00, 0x20, 0x54, 0x08, 0x08, 0x02, 0x7e, 0x02, 0x42, 0x10, 0x42, 0x02, 0x10, 0x10, 0x30, 0x7e, 0x0c, 0x10, 0xaa, 0x42, 0x42, 0x40, 0x42, 0x40, 0x40, 0x42, 0x42, 0x10, 0x44, 0x48, 0x40, 0x49, 0x4a, 0x42, 0x40, 0x42, 0x4c, 0x02, 0x08, 0x42, 0x24, 0x49, 0x24, 0x10, 0x20, 0x10, 0x08, 0x08, 0x00, 0x00, 0x00, 0x44, 0x42, 0x40, 0x42, 0x7e, 0x10, 0x1e, 0x62, 0x10, 0x04, 0x30, 0x10, 0x2a, 0x12, 0x42, 0x32, 0x3c, 0x10, 0x1c, 0x10, 0x24, 0x22, 0x54, 0x18, 0x1c, 0x08, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x0a, 0x45, 0x44, 0x00, 0x20, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x64, 0x08, 0x10, 0x02, 0x04, 0x42, 0x42, 0x10, 0x42, 0x02, 0x10, 0x10, 0x0c, 0x00, 0x30, 0x10, 0x94, 0x42, 0x42, 0x40, 0x42, 0x40, 0x40, 0x42, 0x42, 0x10, 0x44, 0x44, 0x40, 0x41, 0x46, 0x42, 0x40, 0x4a, 0x42, 0x42, 0x08, 0x42, 0x24, 0x49, 0x24, 0x10, 0x40, 0x10, 0x08, 0x08, 0x00, 0x00, 0x00, 0x44, 0x42, 0x40, 0x42, 0x40, 0x10, 0x02, 0x42, 0x10, 0x04, 0x28, 0x10, 0x2a, 0x12, 0x42, 0x2c, 0x04, 0x10, 0x02, 0x10, 0x24, 0x22, 0x54, 0x24, 0x04, 0x10, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x2a, 0x05, 0x3a, 0x00, 0x10, 0x10, 0x00, 0x00, 0x20, 0x00, 0x00, 0x40, 0x64, 0x08, 0x20, 0x44, 0x04, 0x42, 0x42, 0x10, 0x42, 0x04, 0x00, 0x20, 0x02, 0x00, 0x40, 0x00, 0x40, 0x42, 0x42, 0x42, 0x44, 0x40, 0x40, 0x42, 0x42, 0x10, 0x44, 0x42, 0x40, 0x41, 0x46, 0x42, 0x40, 0x44, 0x42, 0x42, 0x08, 0x42, 0x24, 0x49, 0x42, 0x10, 0x40, 0x10, 0x04, 0x08, 0x00, 0x00, 0x00, 0x44, 0x62, 0x42, 0x46, 0x42, 0x10, 0x22, 0x42, 0x10, 0x24, 0x24, 0x10, 0x2a, 0x12, 0x42, 0x20, 0x04, 0x10, 0x22, 0x10, 0x24, 0x14, 0x54, 0x44, 0x04, 0x20, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x1c, 0x02, 0x00, 0x00, 0x10, 0x10, 0x00, 0x00, 0x20, 0x00, 0x00, 0x40, 0x38, 0x08, 0x7e, 0x38, 0x04, 0x3c, 0x3c, 0x10, 0x3c, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x42, 0x7c, 0x3c, 0x78, 0x7e, 0x40, 0x3c, 0x42, 0x7c, 0x38, 0x42, 0x7e, 0x41, 0x42, 0x3c, 0x40, 0x3a, 0x42, 0x3c, 0x08, 0x3c, 0x18, 0x36, 0x42, 0x10, 0x7e, 0x1c, 0x04, 0x38, 0x00, 0x7f, 0x00, 0x3a, 0x5c, 0x3c, 0x3a, 0x3c, 0x10, 0x1c, 0x42, 0x08, 0x18, 0x22, 0x08, 0x2a, 0x12, 0x3c, 0x20, 0x02, 0x10, 0x1c, 0x0e, 0x1a, 0x08, 0x2a, 0x42, 0x38, 0x3e, 0x08, 0x08, 0x10, 0x00, 0x00, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x20, 0x00, 0x00, 0x40, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x60, 0x00, 0x00
-};
-
-// Creates a new List
-List *NewList()
-{
-    // Creates a new List structure
-    List *list = malloc(sizeof(List));
-    list->Count = 0;
-    list->RootNode = (ListNode *)0x0;
-
-    return list;
-}
-
-// Creates a new ListNode
-ListNode *NewListNode(void *Payload)
-{
-    ListNode *node = malloc(sizeof(ListNode));
-    node->Previous = (ListNode *)0x0;
-    node->Next = (ListNode *)0x0;
-    node->Payload = Payload;
-
-    return node;
-}
+#include "Window.h"
+#include "Rectangle.h"
+#include "Desktop.h"
 
 // Creates a new Window
-Window *NewWindow(int X, int Y, int Width, int Height, Context *Context, char *Title)
+Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context)
 {
     // Create a new Window structure
     Window *window = malloc(sizeof(Window));
-    window->X = X;
-    window->Y = Y;
-    window->Width = Width;
-    window->Height = Height;
-    window->Context = Context;
-    window->Title = Title;
+    WindowInit(window, X, Y, Width, Height, Flags, Title, Context);
 
     // Return the newly created Window
     return window;
 }
 
-// Creates a new Desktop
-Desktop *NewDesktop(Context *Context, int Color)
+// Initializes a new Window object
+void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context)
 {
-    // Create a new Desktop structure
-    Desktop *desktop = malloc(sizeof(Desktop));
-    desktop->Children = NewList();
-    desktop->Context = Context;
-    desktop->Color = Color;
-    desktop->LastMouseButtonState = 0;
-
-    return desktop;
+    NewWindow->Children = NewList();
+    NewWindow->X = X;
+    NewWindow->Y = Y;
+    NewWindow->Width = Width;
+    NewWindow->Height = Height;
+    NewWindow->Context = Context;
+    NewWindow->Flags = Flags;
+    NewWindow->Title = Title;
+    NewWindow->Parent = (Window *)0x0;
+    NewWindow->LastMouseButtonState = 0;
+    NewWindow->PaintFunction = WindowPaintHandler;
+    NewWindow->DraggedChild = (Window *)0x0;
+    NewWindow->ActiveChild = (Window *)0x0;
+    NewWindow->DragOffsetX = 0;
+    NewWindow->DragOffsetY = 0;
+    NewWindow->MouseDownFunction = WindowMouseDownHandler;
 }
 
-// Adds a new Window to the Desktop
-Window *NewDesktopWindow(Desktop *Desktop, int X, int Y, int Width, int Height, char *Title)
+// Inserts a Child Window
+void WindowInsertChild(Window *InputWindow, Window *Child)
 {
-    // Create a new Window and add it to the Desktop
-    Window *window = NewWindow(X, Y, Width, Height, Desktop->Context, Title);
-    AddNodeToList(Desktop->Children, (void *)window);
-    
-    return window;
+    Child->Parent = InputWindow;
+    Child->Context = InputWindow->Context;
+
+    AddNodeToList(InputWindow->Children, Child);
 }
 
-// Creates a new Rectangle
-Rectangle *NewRectange(int Top, int Left, int Bottom, int Right)
+// Raises the given Window to the top of the Desktop
+void WindowRaise(Window *InputWindow)
 {
-    Rectangle *rect = (Rectangle *)malloc(sizeof(Rectangle));
-    rect->Top = Top;
-    rect->Left = Left;
-    rect->Bottom = Bottom;
-    rect->Right = Right;
+    Window *parent, *lastActive;
+    int i;
 
-    return rect;
-}
+    // We don't have a parent, we don't have children
+    if (!InputWindow->Parent)
+        return;
 
-// Creates a new Context
-Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, unsigned char *VgaFrameBuffer)
-{
-    Context *context = (Context *)malloc(sizeof(Context));
-    context->Width = Width;
-    context->Height = Height;
-    context->FrameDoubleBuffer = FrameDoubleBuffer;
-    context->VgaFrameBuffer = VgaFrameBuffer;
-}
+    // You can't raise the window that is currently active
+    parent = InputWindow->Parent;
 
-// Adds a new Node to the given List
-void AddNodeToList(List *List, void *Payload)
-{
-    ListNode *newNode = NewListNode(Payload);
+    if (parent->ActiveChild == InputWindow)
+        return;
 
-    if (!List->RootNode)
+    // Get a reference to the active window we are replacing
+    lastActive = parent->ActiveChild;
+
+    // Find the window
+    for (i = 0; i < parent->Children->Count; i++)
     {
-        // Add the first, initial Node to the List
-        List->RootNode = newNode;
-    }
-    else
-    {
-        ListNode *currentNode = List->RootNode;
-        
-        // Move to the end of the List
-        while (currentNode->Next)
-            currentNode = currentNode->Next;
-
-        // Add the new Node to the end of the List
-        currentNode->Next = newNode;
-        newNode->Previous = currentNode;
-    }
-    
-    List->Count++;
-}
-
-// Removes a Node from the given List
-void *RemoveNodeFromList(List *List, int Index)
-{
-    int currentIndex;
-    void *payload;
-
-    if (List->Count == 0 || Index >= List->Count)
-        return (void *)0x0;
-
-    ListNode *currentNode = List->RootNode;
-
-    for (currentIndex = 0; (currentIndex < Index) && currentNode; currentIndex++)
-        currentNode = (ListNode *)currentNode->Next;
-
-    if (!currentNode)
-        return (void *)0x0;
-
-    payload = currentNode->Payload;
-
-    if (currentNode->Previous)
-    {
-        ListNode *previous = (ListNode *)currentNode->Previous;
-        previous->Next = currentNode->Next;
-    }
-    
-    if (currentNode->Next)
-    {
-        ListNode *next = (ListNode *)currentNode->Next;
-        next->Previous = currentNode->Previous;
+        if ((Window *)GetNodeFromList(parent->Children, i) == InputWindow)
+            break;
     }
 
-    if (Index == 0)
-        List->RootNode = (ListNode *)currentNode->Next;
-
-    // free(currentNode);
-
-    List->Count--;
-
-    return payload;
-}
-
-// Returns a Node from the given List
-void *GetNodeFromList(List *List, int Index)
-{
-    if (List->Count == 0 || Index >= List->Count)
-        return (void *)0x0;
-
-    ListNode *currentNode = List->RootNode;
-    int currentIndex;
-
-    // Iterate through the List until we have found the requested Node
-    for (currentIndex = 0; (currentIndex < Index) && currentNode; currentIndex++)
-        currentNode = (ListNode *)currentNode->Next;
-
-    // Return the requested Node if found - otherwise a NULL pointer
-    return currentNode ? currentNode->Payload : (void *)0x0;
-}
-
-// Draws a filled Rectangle
-void Context_FillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color)
-{
-    int currentX;
-    int maxX = X + Width;
-    int maxY = Y + Height;
-
-    // Check the width limit
-    if (maxX > Context->Width)
-        maxX = Context->Width;
-
-    // Check the height limit
-    if (maxY > Context->Height)
-        maxY = Context->Height;
-
-    // Limits the screen on the left side
-    if (X < 0)
-        X = 0;
-
-    // Draw the Rectangle
-    for (; Y < maxY; Y++)
-    {
-        for (currentX = X; currentX < maxX; currentX++)
-        {
-            Context->FrameDoubleBuffer[Y * Context->Width + currentX] = Color;
-        }
-    }
+    // Add the window to the top of the list
+    RemoveNodeFromList(parent->Children, i);
+    AddNodeToList(parent->Children, (void *)InputWindow);
+    parent->ActiveChild = InputWindow;
 }
 
 // Draws a Window
-void WindowPaint(Window *Window)
+void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
 {
-    char str[32] = "";
+    int i, j, screenX, screenY, childScreenX, childScreenY;
+    Window *currentChild;
+    Rectangle *tempRectangle;
 
-    // Draw the Window border
-    ContextDrawRectangle(Window->Context, Window->X, Window->Y, Window->Width, Window->Height, WINDOW_BORDERCOLOR);
-    ContextDrawRectangle(Window->Context, Window->X + 1, Window->Y + 1, Window->Width - 2, Window->Height - 2, WINDOW_BORDERCOLOR);
-    ContextDrawRectangle(Window->Context, Window->X + 2, Window->Y + 2, Window->Width - 4, Window->Height - 4, WINDOW_BORDERCOLOR);
+    screenX = WindowScreenX(InputWindow);
+    screenY = WindowScreenY(InputWindow);
 
-    ContextDrawHorizontalLine(Window->Context, Window->X + 3, Window->Y + 28, Window->Width - 6, WINDOW_BORDERCOLOR);
-    ContextDrawHorizontalLine(Window->Context, Window->X + 3, Window->Y + 29, Window->Width - 6, WINDOW_BORDERCOLOR);
-    ContextDrawHorizontalLine(Window->Context, Window->X + 3, Window->Y + 30, Window->Width - 6, WINDOW_BORDERCOLOR);
-
-    // Draw the Title Bar
-    Context_FillRect(Window->Context, Window->X + 3, Window->Y + 3, Window->Width - 6, 25, WINDOW_TITLE_COLOR_ACTIVE);
-
-    // Draw the Window Title
-    DrawString(Window->Context, Window->Title, Window->X + 10, Window->Y + 10, 0xFFFF);
-
-    // Draw the Window background
-    Context_FillRect(Window->Context, Window->X + 3, Window->Y + 31, Window->Width - 6, Window->Height - 34, WINDOW_BACKGROUND_COLOR);
-
-    // Draw the PID
-    DrawString(Window->Context, "PID: ", Window->X + 10, Window->Y + 38, 0x0000);
-    ltoa(Window->Task->PID, 10, str);
-    DrawString(Window->Context, &str, Window->X + 42, Window->Y + 38, 0x0000);
-
-    // Draw the number of Context Switches
-    DrawString(Window->Context, "Number of Context Switches: ", Window->X + 10, Window->Y + 56, 0x0000);
-	ltoa(Window->Task->ContextSwitches, 10, str);
-    DrawString(Window->Context, &str, Window->X + 234, Window->Y + 56, 0x0000);
-
-    DrawString(Window->Context, "RIP: 0x", Window->X + 10, Window->Y + 74, 0x0000);
-	ltoa(Window->Task->rip, 16, str);
-    DrawString(Window->Context, &str, Window->X + 66, Window->Y + 74, 0x0000);
-}
-
-// Draws the Mouse Pointer Image onto the Desktop
-void MousePointerPaint(Desktop *Desktop)
-{
-    int x, y;
-
-    for (y = 0; y < MOUSE_HEIGHT; y++)
+    if (!(InputWindow->Flags & WINDOW_NODECORATION))
     {
-        for (x = 0; x < MOUSE_WIDTH; x++)
+        // Draw the border
+        WindowDrawBorder(InputWindow);
+        screenX += WINDOW_BORDERWIDTH;
+        screenY += WINDOW_TITLEHEIGHT;
+    }
+
+    // Draw the window
+    InputWindow->Context->TranslateX = screenX;
+    InputWindow->Context->TranslateY = screenY;
+    InputWindow->PaintFunction(InputWindow);
+
+    InputWindow->Context->TranslateX = 0;
+    InputWindow->Context->TranslateY = 0;
+
+    // Draw all child windows
+    /* for (i = 0; i < InputWindow->Children->Count; i++)
+    {
+        currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
+        WindowPaint(currentChild, 1);
+    } */
+
+    // Draw all child windows
+    for (i = 0; i < InputWindow->Children->Count; i++)
+    {
+        currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
+
+        if (DirtyRegions)
         {
-            // Check if we have a transparent pixel
-            if (MouseImage[y * MOUSE_WIDTH + x] != 0xDEAD)
-                Desktop->Context->FrameDoubleBuffer[(y + Desktop->MouseY) * Desktop->Context->Width + (x + Desktop->MouseX)] = MouseImage[y * MOUSE_WIDTH + x];
+            // Iterate over all dirty regions
+            for (j = 0; j < DirtyRegions->Count; j++)
+            {
+                // Get the Rectangle of the dirty region
+                tempRectangle = (Rectangle *)GetNodeFromList(DirtyRegions, j);
+                screenX = WindowScreenX(currentChild);
+                screenY = WindowScreenY(currentChild);
+
+                // Check if the current Window intersects with a dirty region
+                if (tempRectangle->Left <= (screenX + currentChild->Width - 1) &&
+                    tempRectangle->Right >= screenX &&
+                    tempRectangle->Top <= (screenY + currentChild->Height - 1) &&
+                    tempRectangle->Bottom >= screenY)
+                {
+                    break;
+                }
+
+                if (j == DirtyRegions->Count)
+                    continue;
+            }
         }
+
+        WindowPaint(currentChild, DirtyRegions, 1);
+    }
+    
+    // And finally we paint the Mouse Pointer, and copy the Frame Double Buffer to the VGA Buffer
+    if (!InRecursion)
+    {
+        MousePointerPaint((Desktop *)InputWindow);
+        memcpy(InputWindow->Context->VgaFrameBuffer, InputWindow->Context->FrameDoubleBuffer, (InputWindow->Context->Width * InputWindow->Context->Height * WINDOW_BPP / 8) - 1);
     }
 }
 
-// Draws the Desktop
-void DesktopPaint(Desktop *Desktop)
+// Invalidates the given region of the Window and repaints it
+void WindowInvalidate(Window *Window, int Top, int Left, int Bottom, int Right)
 {
-    Window *currentWindow;
-    int i;
+    List *dirtyRegions;
+    Rectangle *dirtyRectangle;
 
-    // Draw the Desktop
-    Context_FillRect(Desktop->Context, 0, 0, Desktop->Context->Width, Desktop->Context->Height, Desktop->Color);
-    DrawString(Desktop->Context, "KAOS x64", 10, 10, 0x0000);
-    DrawString(Desktop->Context, "(c) 2019 by Klaus Aschenbrenner", 10, 26, 0x0000);
+    int originX = WindowScreenX(Window);
+    int originY = WindowScreenY(Window);
+    Top += originY;
+    Bottom += originY;
+    Left += originX;
+    Right += originX;
 
-    // Draw a calculated value on the Desktop
-    int *value = (int *)0xFFFF800000700000;
-    char str[32] = "";
-    itoa(*value, 10, str);
-    DrawString(Desktop->Context, str, 10, 42, 0x0000);
-
-    // Draw each Window on top of the Desktop
-    for (i = 0; (currentWindow = (Window *)GetNodeFromList(Desktop->Children, i)); i++)
-        WindowPaint(currentWindow);
-
-    // And finally we draw the Mouse on top of the Desktop
-    MousePointerPaint(Desktop);
-
-    // Copy the Frame Double Buffer to the VGA Buffer
-    memcpy(Desktop->Context->VgaFrameBuffer, Desktop->Context->FrameDoubleBuffer, (Desktop->Context->Width * Desktop->Context->Height * WINDOW_BPP / 8) - 1);
+    // Repaint the dirty region
+    dirtyRegions = NewList();
+    dirtyRectangle = NewRectange(Top, Left, Bottom, Right);
+    AddNodeToList(dirtyRegions, dirtyRectangle);
+    WindowPaint(Window, dirtyRegions, 0);
 }
 
 // Processes the Mouse on the Desktop
-void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow)
+void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow)
 {
+    int i, innerX1, innerY1, innerX2, innerY2;
     Window *child;
+
+    // Iterate through all Windows backwards
+    for (i = InputWindow->Children->Count - 1; i >= 0; i--)
+    {
+        // Get a reference to the Window
+        child = (Window *)GetNodeFromList(InputWindow->Children, i);
+
+        // Check if the Mouse was not within the current Window
+        if (!(MouseX >= child->X && MouseX < (child->X + child->Width) &&
+            MouseY >= child->Y && MouseY < (child->Y + child->Height)))
+        {
+            continue;
+        }    
+
+        if (MouseClick && !InputWindow->LastMouseButtonState)
+        {
+            // Raise the Window to the top of the Desktop
+            WindowRaise(child);
+
+            // Check if the mouse pointer is within the titlebar
+            if (!(child->Flags & WINDOW_NODECORATION) && MouseY >= child->Y && MouseY < (child->Y + WINDOW_TITLEHEIGHT))
+            {
+                InputWindow->DragOffsetX = MouseX - child->X;
+                InputWindow->DragOffsetY = MouseY - child->Y;
+                InputWindow->DraggedChild = child;
+
+                break;
+            }
+        }
+
+        // Forward the mouse event to the child window
+        WindowProcessMouse(child, MouseX - child->X, MouseY - child->Y, MouseClick, DragWindow);
+        break;
+    }
+
+    if (!MouseClick)
+        InputWindow->DraggedChild = (Window *)0x0;
+
+    if (InputWindow->DraggedChild != 0x0)
+    {
+        // Move the Window to the new position
+        InputWindow->DraggedChild->X = MouseX - InputWindow->DragOffsetX;
+        InputWindow->DraggedChild->Y = MouseY - InputWindow->DragOffsetY;
+    }
+
+    // Call the Mouse Down Function Handler
+    if (InputWindow->MouseDownFunction && MouseClick && InputWindow->LastMouseButtonState)
+        InputWindow->MouseDownFunction(InputWindow, MouseX, MouseY);
+
+    InputWindow->LastMouseButtonState = MouseClick;
+}
+
+// Adds additional characters to the Window Title
+void WindowAppendTitle(Window *Window, char *AdditionalChars)
+{
+    char *newString;
+    int originalLength, additionalLength, i;
+
+    originalLength = strlen(Window->Title);
+    additionalLength = strlen(AdditionalChars);
+
+    newString = (char *)malloc(sizeof(char) * (originalLength + additionalLength + 1));
+
+    // Copy the original string to the new string
+    for (i = 0; Window->Title[i]; i++)
+        newString[i] = Window->Title[i];
+
+    // Add the additional characters to the new string
+    for (i = 0; AdditionalChars[i]; i++)
+        newString[originalLength + i] = AdditionalChars[i];
+
+    // Null terminate the new string
+    newString[originalLength + i] = 0;
+
+    // Set the new Window title
+    Window->Title = newString;
+}
+
+// Draws a border around the Window
+static void WindowDrawBorder(Window *Window)
+{
     int i;
+    int screenX = WindowScreenX(Window);
+    int screenY = WindowScreenY(Window);
 
-    Desktop->MouseX = MouseX;
-    Desktop->MouseY = MouseY;
+    ContextDrawRectangle(Window->Context, screenX, screenY, Window->Width, Window->Height, WINDOW_BORDERCOLOR);
+    ContextDrawRectangle(Window->Context, screenX + 1, screenY + 1, Window->Width - 2, Window->Height - 2, WINDOW_BORDERCOLOR);
+    ContextDrawRectangle(Window->Context, screenX + 2, screenY + 2, Window->Width - 4, Window->Height - 4, WINDOW_BORDERCOLOR);
 
-    if (MouseClick)
+    // Draw a border line under the titlebar
+    for (i = 0; i < WINDOW_BORDERWIDTH; i++)
     {
-        if (!Desktop->LastMouseButtonState)
-        {
-            // Iterate through all Windows backwards
-            for (i = Desktop->Children->Count - 1; i >= 0; i--)
-            {
-                // Get a reference to the Window
-                child = (Window *)GetNodeFromList(Desktop->Children, i);
-
-                // Check if the Mouse was within the current Window
-                if (MouseX >= child->X && MouseX < (child->X + child->Width) &&
-                    MouseY >= child->Y && MouseY < (child->Y + 31))
-                {
-                    // Remove and re-add the Window at the top
-                    RemoveNodeFromList(Desktop->Children, i);
-                    AddNodeToList(Desktop->Children, (void *)child);
-
-                    if (DragWindow)
-                    {
-                        Desktop->DragOffsetX = MouseX - child->X;
-                        Desktop->DragOffsetY = MouseY - child->Y;
-                        Desktop->DraggedChild = child;
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        Desktop->DraggedChild = (Window *)0x0;
-    }
-    
-    if (Desktop->DraggedChild != 0x0)
-    {
-        // Drag the Window to the new position
-        Desktop->DraggedChild->X = MouseX - Desktop->DragOffsetX;
-        Desktop->DraggedChild->Y = MouseY - Desktop->DragOffsetY;
+        ContextDrawHorizontalLine(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + i + WINDOW_TITLEHEIGHT - WINDOW_BORDERWIDTH, Window->Width - (2 * WINDOW_BORDERWIDTH), WINDOW_BORDERCOLOR);
     }
 
-    // Redraw the desktop
-    DesktopPaint(Desktop);
-
-    Desktop->LastMouseButtonState = MouseClick;
+    // Fill the titlebar background
+    ContextFillRect(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + WINDOW_BORDERWIDTH, Window->Width - 6, 25,
+        Window->Parent->ActiveChild == Window ? WINDOW_TITLE_COLOR_ACTIVE : WINDOW_TITLE_COLOR_INACTIVE);
 }
 
-// Draws a Rectangle
-void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color)
+// The default paint method
+static void WindowPaintHandler(Window *Window)
 {
-    ContextDrawHorizontalLine(Context, X, Y, Width, Color);
-    ContextDrawVerticalLine(Context, X, Y + 1, Height - 2, Color);
-    ContextDrawHorizontalLine(Context, X, Y + Height - 1, Width, Color);
-    ContextDrawVerticalLine(Context, X + Width - 1, Y + 1, Height - 2, Color);
+    char str[32] = "";
+
+    // Fill the Window Background
+    ContextFillRect(Window->Context, 0, 0, Window->Width - 6, Window->Height - 34, WINDOW_BACKGROUND_COLOR);
+
+    // Draw the Window Title
+    DrawString(Window->Context, Window->Title, 10, -21, 0xFFFF);
 }
 
-// Draws a horizontal line
-void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color)
+// The default Mouse Handler does nothing
+static void WindowMouseDownHandler(Window *Window, int X, int Y)
 {
-    // Limits the screen on the left side
-    if (X < 0)
-    {
-        Length = Length + X;
-        X = 0;
-    }
-
-    Context_FillRect(Context, X, Y, Length, 1, Color);
+    return;
 }
 
-// Draws a vertical line
-void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color)
+// Returns the absolute X coordinate of the given Window
+static int WindowScreenX(Window *Window)
 {
-    Context_FillRect(Context, X, Y, 1, Length, Color);
+    if (Window->Parent)
+        return Window->X + WindowScreenX(Window->Parent);
+
+    return Window->X;
 }
 
-// Draws a single Character
-static void DrawCharacter(Context *Context, char Character, int X, int Y, int Color)
+// Returns the absolute Y coordinate of the given Window
+static int WindowScreenY(Window *Window)
 {
-    int fontX, fontY;
-    char shiftLine;
+    if (Window->Parent)
+        return Window->Y + WindowScreenY(Window->Parent);
 
-    for (fontY = 0; fontY < FONT_HEIGHT; fontY++)
-    {
-        shiftLine = FontArray[fontY * FONT_CHARACTERS + Character];
-
-        for (fontX = 0; fontX < FONT_WIDTH; fontX ++)
-        {
-            if (shiftLine & 0x80 && ((fontX + X) >= 0 && fontX + X <= Context->Width))
-            {
-                Context->FrameDoubleBuffer[(fontY + Y) * Context->Width + (fontX + X)] = Color;
-            }
-
-            shiftLine <<= 1;
-        }
-    }
-}
-
-// Draws a null-terminated String at the given location
-void DrawString(Context *Context, char *String, int X, int Y, int Color)
-{
-    int i = 0;
-
-    while (*String != '\0')
-	{
-		DrawCharacter(Context, *String, X + (i * FONT_WIDTH), Y, Color);
-		String++;
-        i++;
-	}
+    return Window->Y;
 }

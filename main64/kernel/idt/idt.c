@@ -130,7 +130,7 @@ void DisplayBlueScreen(int Number, RegisterState *Registers)
 
     // Fill the whole display with a blue color
     Context *context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FRAME_BUFFER, WINDOW_FRAME_BUFFER);;
-    Context_FillRect(context, 0, 0, context->Width, context->Height, 0x025B);
+    ContextFillRect(context, 0, 0, context->Width, context->Height, 0x025B);
     DrawString(context, "A fatal has error occured! ", 10, 10, 0xFFFF);
     DrawString(context, "ISR: 0x", 10, 26, 0xFFFF);
     DrawString(context, str, 66, 26, 0xFFFF);
