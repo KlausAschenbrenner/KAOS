@@ -92,9 +92,6 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
 // Processes a Key press
 void WindowProcessKey(Window *InputWindow, char Key);
 
-// Adds additional characters to the Window Title
-void WindowAppendTitle(Window *Window, char *AdditionalChars);
-
 // Draws a border around the Window
 static void WindowDrawBorder(Window *Window);
 

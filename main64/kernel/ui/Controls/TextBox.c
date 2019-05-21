@@ -12,10 +12,10 @@
 #include "../../drivers/keyboard.h"
 
 // Creates a new TextBox
-TextBox* NewTextBox(int X, int Y, int Width, int Height)
+TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context)
 {
     TextBox *textbox = malloc(sizeof(TextBox));
-    WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", (Context *)0x0);
+    WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
     textbox->Window.PaintFunction = TextBoxPaintHandler;
     textbox->Window.KeyPressFunction = TextBoxKeyPressHandler;
     textbox->Window.MouseDownFunction = TextBoxMouseDownHandler;

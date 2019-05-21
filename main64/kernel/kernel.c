@@ -12,6 +12,7 @@
 #include "ui/Controls/Button.h"
 #include "ui/Controls/Label.h"
 #include "ui/Controls/TextBox.h"
+#include "ui/Controls/MultiLineTextBox.h"
 
 void Shell();
 Context *context = 0x0;
@@ -22,6 +23,7 @@ TextBox *textbox1_window2 = 0x0;
 TextBox *textbox2_window2 = 0x0;
 TextBox *textbox1_window3 = 0x0;
 TextBox *textbox2_window3 = 0x0;
+MultiLineTextBox *multiLineTextBox1 = 0x0;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
 int UIMode = 1;
@@ -143,43 +145,67 @@ void DesktopWindow1()
 	window->Task = (Task *)GetTaskState();
 
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35);
+	/* Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
 	button->OnClick = ButtonOnClick;
-	WindowInsertChild(window, (Window *)button);
+	WindowInsertChild(window, (Window *)button); */
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5);
+	Label *label = NewLabel(5, 5, context);
 	label->Window.Title = "PID: ";
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5);
+	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
 	lbl2->Window.Title = str1;
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15);
+	Label *lbl3 = NewLabel(5, 15, context);
 	lbl3->Window.Title = "Number of Context Switches:";
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15);
+	Label *lbl4 = NewLabel(115, 15, context);
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
-	textbox1_window1 = NewTextBox(10, 150, 100, 20);
+	textbox1_window1 = NewTextBox(10, 150, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox1_window1);
 	
 	// Create a new TextBox
-	textbox2_window1 = NewTextBox(10, 180, 100, 20);
+	textbox2_window1 = NewTextBox(10, 180, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox2_window1);
 
 	// Create a new TextBox
-	TextBox *textbox3_window1 = NewTextBox(10, 210, 100, 20);
+	TextBox *textbox3_window1 = NewTextBox(10, 210, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox3_window1);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 240, 200, 100, context);
+	
+	char *line1 = "Test Line 1";
+	char *line2 = "Test Line 2";
+	char *line3 = "Test Line 3";
+	char *line4 = "Test Line 4";
+	char *line5 = "Test Line 5";
+	char *line6 = "Test Line 6";
+	char *line7 = "Test Line 7";
+	char *line8 = "Test Line 8";
+	char *line9 = "Test Line 9";
+	AddNodeToList(multiLineTextBox1->TextLines, line1);
+	AddNodeToList(multiLineTextBox1->TextLines, line2);
+	AddNodeToList(multiLineTextBox1->TextLines, line3);
+	AddNodeToList(multiLineTextBox1->TextLines, line4);
+	AddNodeToList(multiLineTextBox1->TextLines, line5);
+	AddNodeToList(multiLineTextBox1->TextLines, line6);
+	AddNodeToList(multiLineTextBox1->TextLines, line7);
+	AddNodeToList(multiLineTextBox1->TextLines, line8);
+	AddNodeToList(multiLineTextBox1->TextLines, line9);
+
+	WindowInsertChild(window, (Window *)multiLineTextBox1);
 
 	while (1 == 1)
 	{
@@ -201,37 +227,37 @@ void DesktopWindow2()
 	window->Task = (Task *)GetTaskState();
 
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35);
+	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5);
+	Label *label = NewLabel(5, 5, context);
 	label->Window.Title = "PID: ";
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5);
+	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
 	lbl2->Window.Title = str1;
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15);
+	Label *lbl3 = NewLabel(5, 15, context);
 	lbl3->Window.Title = "Number of Context Switches:";
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15);
+	Label *lbl4 = NewLabel(115, 15, context);
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
-	textbox1_window2 = NewTextBox(10, 150, 100, 20);
+	textbox1_window2 = NewTextBox(10, 150, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox1_window2);
 
 	// Create a new TextBox
-	textbox2_window2 = NewTextBox(10, 180, 100, 20);
+	textbox2_window2 = NewTextBox(10, 180, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox2_window2);
 
 	while (1 == 1)
@@ -254,37 +280,37 @@ void DesktopWindow3()
 	window->Task = (Task *)GetTaskState();
 
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35);
+	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5);
+	Label *label = NewLabel(5, 5, context);
 	label->Window.Title = "PID: ";
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5);
+	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
 	lbl2->Window.Title = str1;
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15);
+	Label *lbl3 = NewLabel(5, 15, context);
 	lbl3->Window.Title = "Number of Context Switches:";
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15);
+	Label *lbl4 = NewLabel(115, 15, context);
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
-	textbox1_window3 = NewTextBox(10, 150, 100, 20);
+	textbox1_window3 = NewTextBox(10, 150, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox1_window3);
 
 	// Create a new TextBox
-	textbox2_window3 = NewTextBox(10, 180, 100, 20);
+	textbox2_window3 = NewTextBox(10, 180, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox2_window3);
 
 	while (1 == 1)

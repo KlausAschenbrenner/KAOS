@@ -11,10 +11,10 @@
 #include "Label.h"
 
 // Creates a new Label
-Label* NewLabel(int X, int Y)
+Label* NewLabel(int X, int Y, Context *Context)
 {
     Label *label = malloc(sizeof(Label));
-    WindowInit((Window *)label, X, Y, 0, 0, WINDOW_NODECORATION, "", (Context *)0x0);
+    WindowInit((Window *)label, X, Y, 0, 0, WINDOW_NODECORATION, "", Context);
     label->Window.PaintFunction = LabelPaintHandler;
     label->Window.MouseDownFunction = LabelMouseDownHandler;
 

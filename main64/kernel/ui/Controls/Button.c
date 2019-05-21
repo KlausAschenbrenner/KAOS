@@ -11,10 +11,10 @@
 #include "Button.h"
 
 // Creates a new Button
-Button* NewButton(int X, int Y, int Width, int Height)
+Button* NewButton(int X, int Y, int Width, int Height, Context *Context)
 {
     Button *button = malloc(sizeof(Button));
-    WindowInit((Window *)button, X, Y, Width, Height, WINDOW_NODECORATION, "", (Context *)0x0);
+    WindowInit((Window *)button, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
     button->Window.PaintFunction = ButtonPaintHandler;
     button->Window.MouseDownFunction = ButtonMouseDownHandler;
     button->ColorToggle = 0;
@@ -26,12 +26,12 @@ Button* NewButton(int X, int Y, int Width, int Height)
 void ButtonPaintHandler(Window *ButtonWindow)
 {
     Button *button = (Button *)ButtonWindow;
-    int borderColor;
+    int borderColor = WINDOW_TITLE_COLOR_INACTIVE;
 
-    if (button->ColorToggle)
+    /* if (button->ColorToggle)
         borderColor = WINDOW_TITLE_COLOR_ACTIVE;
     else
-        borderColor = WINDOW_TITLE_COLOR_INACTIVE;
+        borderColor = WINDOW_TITLE_COLOR_INACTIVE; */
 
     ContextFillRect(ButtonWindow->Context, 1, 1, ButtonWindow->Width - 1, ButtonWindow->Height - 1, WINDOW_TITLE_COLOR_INACTIVE);
     ContextDrawRectangle(ButtonWindow->Context, 0, 0, ButtonWindow->Width, ButtonWindow->Height, 0xCEE0);

@@ -22,7 +22,7 @@ typedef struct _TextBox
 } TextBox;
 
 // Creates a new TextBox
-TextBox* NewTextBox(int X, int Y, int Width, int Height);
+TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context);
 
 // Draws the TextBox
 void TextBoxPaintHandler(Window *TextBoxWindow);

@@ -23,7 +23,7 @@ typedef struct _Button
 } Button;
 
 // Creates a new Button
-Button* NewButton(int X, int Y, int Width, int Height);
+Button* NewButton(int X, int Y, int Width, int Height, Context *Context);
 
 // Draws the Button
 void ButtonPaintHandler(Window *ButtonWindow);

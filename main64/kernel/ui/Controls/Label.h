@@ -19,7 +19,7 @@ typedef struct _Label
 } Label;
 
 // Creates a new Label
-Label* NewLabel(int X, int Y);
+Label* NewLabel(int X, int Y, Context *Context);
 
 void LabelPaintHandler(Window *LabelWindow);
 

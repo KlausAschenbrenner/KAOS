@@ -50,8 +50,6 @@ void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flag
 void WindowInsertChild(Window *InputWindow, Window *Child)
 {
     Child->Parent = InputWindow;
-    Child->Context = InputWindow->Context;
-
     AddNodeToList(InputWindow->Children, Child);
 }
 
@@ -203,32 +201,6 @@ void WindowProcessKey(Window *InputWindow, char Key)
     // Call the Key Press Function Handler
     if (InputWindow->KeyPressFunction)
         InputWindow->KeyPressFunction(InputWindow, Key);
-}
-
-// Adds additional characters to the Window Title
-void WindowAppendTitle(Window *Window, char *AdditionalChars)
-{
-    char *newString;
-    int originalLength, additionalLength, i;
-
-    originalLength = strlen(Window->Title);
-    additionalLength = strlen(AdditionalChars);
-
-    newString = (char *)malloc(sizeof(char) * (originalLength + additionalLength + 1));
-
-    // Copy the original string to the new string
-    for (i = 0; Window->Title[i]; i++)
-        newString[i] = Window->Title[i];
-
-    // Add the additional characters to the new string
-    for (i = 0; AdditionalChars[i]; i++)
-        newString[originalLength + i] = AdditionalChars[i];
-
-    // Null terminate the new string
-    newString[originalLength + i] = 0;
-
-    // Set the new Window title
-    Window->Title = newString;
 }
 
 // Draws a border around the Window
