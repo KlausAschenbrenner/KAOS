@@ -54,7 +54,7 @@ void *malloc(int Size)
         HEAP_END_OFFSET += HEAP_GROWTH;
 
         // Merge the last free block with the newly allocated block together
-        // Merge();
+        Merge();
 
         // Try to allocate the requested block after the expansion of the Heap...
         return malloc(Size - HEADER_SIZE);

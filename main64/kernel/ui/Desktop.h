@@ -38,6 +38,9 @@ Window *NewDesktopWindow(Window *InputWindow, int X, int Y, int Width, int Heigh
 // Processes the mouse on the Desktop
 void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow);
 
+// Processes a Key press
+void DesktopProcessKey(Desktop *Desktop, char Key);
+
 // Draws the Mouse Pointer Image onto the Desktop
 void MousePointerPaint(Desktop *Desktop);
 

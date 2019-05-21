@@ -9,6 +9,7 @@
 //
 
 #include "TextBox.h"
+#include "../../drivers/keyboard.h"
 
 // Creates a new TextBox
 TextBox* NewTextBox(int X, int Y, int Width, int Height)
@@ -16,22 +17,93 @@ TextBox* NewTextBox(int X, int Y, int Width, int Height)
     TextBox *textbox = malloc(sizeof(TextBox));
     WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", (Context *)0x0);
     textbox->Window.PaintFunction = TextBoxPaintHandler;
-    
+    textbox->Window.KeyPressFunction = TextBoxKeyPressHandler;
+    textbox->Window.MouseDownFunction = TextBoxMouseDownHandler;
+    textbox->HasFocus = 0;
+    textbox->Pos = 0;
+
     return textbox;
 }
 
 // Draws the TextBox
 void TextBoxPaintHandler(Window *TextBoxWindow)
 {
-    int titleLen = strlen(TextBoxWindow->Title) * 8;
+    TextBox *textbox = (TextBox *)TextBoxWindow;
+    int titleLen = strlen(textbox->Text) * 8;
 
     // White background
     ContextFillRect(TextBoxWindow->Context, 1, 1, TextBoxWindow->Width - 2, TextBoxWindow->Height - 2, 0xFFFF);
 
-    // Black border
-    ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0x0000);
+    if (textbox->HasFocus)
+        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0xF800);
+    else
+        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0x0000);
     
     // Draw the title
     if (TextBoxWindow->Title)
-        DrawString(TextBoxWindow->Context, TextBoxWindow->Title, 6, (TextBoxWindow->Height / 2) - 6, 0x0000);
-}   
+        DrawString(TextBoxWindow->Context, textbox->Text, 6, (TextBoxWindow->Height / 2) - 6, 0x0000);
+}
+
+// Handles the Mouse Down Event
+void TextBoxMouseDownHandler(Window *TextBoxWindow, int X, int Y)
+{
+    TextBox *textbox = (TextBox *)TextBoxWindow;
+    textbox->HasFocus = !textbox->HasFocus;
+
+    if (textbox->HasFocus)
+    {
+        // The old, active TextBox has no focus anymore
+        if (TextBoxWindow->Parent->ActiveTextBox != 0x0)
+            TextBoxWindow->Parent->ActiveTextBox->HasFocus = 0;
+
+        // And we finally set the new, active TextBox that has the focus now
+        TextBoxWindow->Parent->ActiveTextBox = (Window *)TextBoxWindow;
+    }
+    else
+    {
+        TextBoxWindow->Parent->ActiveTextBox = 0x0;
+    }
+}
+
+// Handles the Key Press Event
+void TextBoxKeyPressHandler(Window *TextBoxWindow, char Key)
+{
+    TextBox *textbox = (TextBox *)TextBoxWindow;
+
+    // Checks if the current TextBox is the current active TextBox on the Window
+    if (textbox->HasFocus && TextBoxWindow->Parent->ActiveTextBox == TextBoxWindow)
+    {
+        // Checks if the current Window is the current active Window on the Desktop
+        // TextBoxWindow->Parent->Parent: Reference to the Desktop
+        // TextBoxWindow->Parent: Reference to the current Window
+        if (TextBoxWindow->Parent->Parent->ActiveChild == TextBoxWindow->Parent)
+        {
+            // Currently we can only store up to 100 characters in a TextBox
+            if (textbox->Pos < 100)
+            {
+                int processKey = 1;
+
+                if (Key == KEY_BACKSPACE)
+                {
+                    processKey = 0;
+
+                    // We only process the backspace key, if we have data already entered into the TextBox
+                    if (textbox->Pos > 0)
+                    {
+                        // Clear out the last printed key
+                        textbox->Pos--;
+                        textbox->Text[textbox->Pos] = '\0';
+                    }
+                }
+
+                if (processKey)
+                {
+                    Key = KeyboardKeyToASCII(Key, 0);
+
+                    if (Key != 0)
+                        textbox->Text[textbox->Pos++] = Key;
+                }
+            }
+        }
+    }
+}

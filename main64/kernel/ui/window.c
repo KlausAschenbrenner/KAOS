@@ -43,6 +43,7 @@ void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flag
     NewWindow->DragOffsetX = 0;
     NewWindow->DragOffsetY = 0;
     NewWindow->MouseDownFunction = WindowMouseDownHandler;
+    NewWindow->ActiveTextBox = 0x0;
 }
 
 // Inserts a Child Window
@@ -112,42 +113,9 @@ void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
     InputWindow->Context->TranslateX = 0;
     InputWindow->Context->TranslateY = 0;
 
-    // Draw all child windows
-    /* for (i = 0; i < InputWindow->Children->Count; i++)
-    {
-        currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
-        WindowPaint(currentChild, 1);
-    } */
-
-    // Draw all child windows
     for (i = 0; i < InputWindow->Children->Count; i++)
     {
         currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
-
-        if (DirtyRegions)
-        {
-            // Iterate over all dirty regions
-            for (j = 0; j < DirtyRegions->Count; j++)
-            {
-                // Get the Rectangle of the dirty region
-                tempRectangle = (Rectangle *)GetNodeFromList(DirtyRegions, j);
-                screenX = WindowScreenX(currentChild);
-                screenY = WindowScreenY(currentChild);
-
-                // Check if the current Window intersects with a dirty region
-                if (tempRectangle->Left <= (screenX + currentChild->Width - 1) &&
-                    tempRectangle->Right >= screenX &&
-                    tempRectangle->Top <= (screenY + currentChild->Height - 1) &&
-                    tempRectangle->Bottom >= screenY)
-                {
-                    break;
-                }
-
-                if (j == DirtyRegions->Count)
-                    continue;
-            }
-        }
-
         WindowPaint(currentChild, DirtyRegions, 1);
     }
     
@@ -159,31 +127,11 @@ void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
     }
 }
 
-// Invalidates the given region of the Window and repaints it
-void WindowInvalidate(Window *Window, int Top, int Left, int Bottom, int Right)
-{
-    List *dirtyRegions;
-    Rectangle *dirtyRectangle;
-
-    int originX = WindowScreenX(Window);
-    int originY = WindowScreenY(Window);
-    Top += originY;
-    Bottom += originY;
-    Left += originX;
-    Right += originX;
-
-    // Repaint the dirty region
-    dirtyRegions = NewList();
-    dirtyRectangle = NewRectange(Top, Left, Bottom, Right);
-    AddNodeToList(dirtyRegions, dirtyRectangle);
-    WindowPaint(Window, dirtyRegions, 0);
-}
-
 // Processes the Mouse on the Desktop
 void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow)
 {
-    int i, innerX1, innerY1, innerX2, innerY2;
     Window *child;
+    int i;
 
     // Iterate through all Windows backwards
     for (i = InputWindow->Children->Count - 1; i >= 0; i--)
@@ -234,6 +182,27 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
         InputWindow->MouseDownFunction(InputWindow, MouseX, MouseY);
 
     InputWindow->LastMouseButtonState = MouseClick;
+}
+
+// Processes a Key press
+void WindowProcessKey(Window *InputWindow, char Key)
+{
+    Window *child;
+    int i;
+
+    // Iterate through all Windows backwards
+    for (i = InputWindow->Children->Count - 1; i >= 0; i--)
+    {
+        // Get a reference to the Window
+        child = (Window *)GetNodeFromList(InputWindow->Children, i);
+        
+        // Forward the Key Press event to the child window
+        WindowProcessKey(child, Key);
+    }
+
+    // Call the Key Press Function Handler
+    if (InputWindow->KeyPressFunction)
+        InputWindow->KeyPressFunction(InputWindow, Key);
 }
 
 // Adds additional characters to the Window Title

@@ -190,7 +190,8 @@ static int ScanCodes [] =
 	KEY_UNKNOWN,	//0
 	KEY_ESCAPE,		//1
 	KEY_1,			//2
-	KEY_2,			//3
+	// KEY_2,		//3
+	KEY_LCTRL,		//3
 	KEY_3,			//4
 	KEY_4,			//5
 	KEY_5,			//6
@@ -288,7 +289,7 @@ static void DiscardLastKey();
 static char GetLastKey();
 
 // Converts the pressed keyboard key to the correct ASCII key
-char KeyboardKeyToASCII(char key);
+char KeyboardKeyToASCII(char key, int LeftCtrlPressed);
 
 // Keyboard callback function
 static void KeyboardCallback(int Number);

@@ -66,9 +66,12 @@ void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClic
 
     // Process the mouse
     WindowProcessMouse((Window *)Desktop, MouseX, MouseY, MouseClick, DragWindow);
+}
 
-    // Update the screen
-    WindowPaint((Window *)Desktop, (List *)0x0, 0);
+// Processes a Key press
+void DesktopProcessKey(Desktop *Desktop, char Key)
+{
+    WindowProcessKey((Window*)Desktop, Key);
 }
 
 // Draws the Mouse Pointer Image onto the Desktop

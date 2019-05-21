@@ -16,7 +16,12 @@
 void Shell();
 Context *context = 0x0;
 Desktop *desktop = 0x0;
-TextBox *textbox = 0x0;
+TextBox *textbox1_window1 = 0x0;
+TextBox *textbox2_window1 = 0x0;
+TextBox *textbox1_window2 = 0x0;
+TextBox *textbox2_window2 = 0x0;
+TextBox *textbox1_window3 = 0x0;
+TextBox *textbox2_window3 = 0x0;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
 int UIMode = 1;
@@ -126,7 +131,7 @@ void ButtonOnClick(Window *ButtonWindow, int X, int Y)
 	// textbox->Window.Title = "Klaus";
 
 	// Window *window = NewDesktopWindow((Window *)desktop, 400, 400, 400, 720, "Window Title 4");
-	WindowAppendTitle((Window *)textbox, "1");
+	// WindowAppendTitle((Window *)textbox, "1");
 }
 
 void DesktopWindow1()
@@ -165,10 +170,17 @@ void DesktopWindow1()
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
-	textbox = NewTextBox(10, 150, 100, 20);
-	textbox->Window.Title = "Test";
-	WindowInsertChild(window, (Window *)textbox);
+	textbox1_window1 = NewTextBox(10, 150, 100, 20);
+	WindowInsertChild(window, (Window *)textbox1_window1);
 	
+	// Create a new TextBox
+	textbox2_window1 = NewTextBox(10, 180, 100, 20);
+	WindowInsertChild(window, (Window *)textbox2_window1);
+
+	// Create a new TextBox
+	TextBox *textbox3_window1 = NewTextBox(10, 210, 100, 20);
+	WindowInsertChild(window, (Window *)textbox3_window1);
+
 	while (1 == 1)
 	{
 		cntr++;
@@ -213,6 +225,14 @@ void DesktopWindow2()
 	Label *lbl4 = NewLabel(115, 15);
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
+
+	// Create a new TextBox
+	textbox1_window2 = NewTextBox(10, 150, 100, 20);
+	WindowInsertChild(window, (Window *)textbox1_window2);
+
+	// Create a new TextBox
+	textbox2_window2 = NewTextBox(10, 180, 100, 20);
+	WindowInsertChild(window, (Window *)textbox2_window2);
 
 	while (1 == 1)
 	{
@@ -259,17 +279,24 @@ void DesktopWindow3()
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
+	// Create a new TextBox
+	textbox1_window3 = NewTextBox(10, 150, 100, 20);
+	WindowInsertChild(window, (Window *)textbox1_window3);
+
+	// Create a new TextBox
+	textbox2_window3 = NewTextBox(10, 180, 100, 20);
+	WindowInsertChild(window, (Window *)textbox2_window3);
+
 	while (1 == 1)
 	{
 		cntr++;
 		long *value = (long *)0xFFFF800000700000;
 		*value = cntr;
 
+		// Change something on the Desktop and redraw it
 		ltoa(window->Task->ContextSwitches, 10, str2);
 		lbl4->Window.Title = str2;
-
-		// WindowInvalidate(window, 0, 0, 10, 10);
-		// WindowPaint((Window *)desktop, (List *) 0x0, 0);
+		WindowPaint((Window *)desktop, (List *) 0x0, 0);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -290,109 +317,112 @@ void MouseHandler()
 	while (1 == 1)
 	{
 		// Get the next keystroke that moves the mouse on the Desktop
-		char input = getchar();
-		input = KeyboardKeyToASCII(input);
-
-		// Left + 1
-		if (input == 'a')
+		char originalInput = getchar();
+		char input = KeyboardKeyToASCII(originalInput, 1);
+		
+		if (input != 0)
 		{
-			MouseX--;
-		}
-		// Left + 10
-		else if (input == 'j')
-		{
-			MouseX -= 10;
-		}
-		// Right + 1
-		else if (input == 'f')
-		{
-			MouseX++;
-		}
-		// Right + 10
-		else if (input == 'l')
-		{
-			MouseX += 10;
-		}
-		// Up + 1
-		else if (input == 'e')
-		{
-			MouseY--;
-		}
-		// Up + 10
-		else if (input == 'i')
-		{
-			MouseY -= 10;
-		}
-		// Down + 1
-		else if (input == 'x')
-		{
-			MouseY++;
-		}
-		// Down + 10
-		else if (input == 'm')
-		{
-			MouseY += 10;
-		}
-		// Mouse Click
-		else if (input == ' ')
-		{
-			mouseClick = 1;
-		}
-		// Dragging Left + 1
-		else if (input == 'A')
-		{
-			MouseX -= 1;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Left + 10
-		else if (input == 'J')
-		{
-			MouseX -= 10;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Right + 1
-		else if (input == 'F')
-		{
-			MouseX++;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Right + 10
-		else if (input == 'L')
-		{
-			MouseX += 10;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Up + 1
-		else if (input == 'E')
-		{
-			MouseY--;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Up + 10
-		else if (input == 'I')
-		{
-			MouseY -= 10;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Down + 1
-		else if (input == 'X')
-		{
-			MouseY++;
-			mouseClick = 1;
-			dragWindow = 1;
-		}
-		// Dragging Down + 10
-		else if (input == 'M')
-		{
-			MouseY += 10;
-			mouseClick = 1;
-			dragWindow = 1;
+			// Left + 1
+			if (input == 'a')
+			{
+				MouseX--;
+			}
+			// Left + 10
+			else if (input == 'j')
+			{
+				MouseX -= 10;
+			}
+			// Right + 1
+			else if (input == 'f')
+			{
+				MouseX++;
+			}
+			// Right + 10
+			else if (input == 'l')
+			{
+				MouseX += 10;
+			}
+			// Up + 1
+			else if (input == 'e')
+			{
+				MouseY--;
+			}
+			// Up + 10
+			else if (input == 'i')
+			{
+				MouseY -= 10;
+			}
+			// Down + 1
+			else if (input == 'x')
+			{
+				MouseY++;
+			}
+			// Down + 10
+			else if (input == 'm')
+			{
+				MouseY += 10;
+			}
+			// Mouse Click
+			else if (input == ' ')
+			{
+				mouseClick = 1;
+			}
+			// Dragging Left + 1
+			else if (input == 'A')
+			{
+				MouseX -= 1;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Left + 10
+			else if (input == 'J')
+			{
+				MouseX -= 10;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Right + 1
+			else if (input == 'F')
+			{
+				MouseX++;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Right + 10
+			else if (input == 'L')
+			{
+				MouseX += 10;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Up + 1
+			else if (input == 'E')
+			{
+				MouseY--;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Up + 10
+			else if (input == 'I')
+			{
+				MouseY -= 10;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Down + 1
+			else if (input == 'X')
+			{
+				MouseY++;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
+			// Dragging Down + 10
+			else if (input == 'M')
+			{
+				MouseY += 10;
+				mouseClick = 1;
+				dragWindow = 1;
+			}
 		}
 
 		// Limit the Mouse to the current screen area
@@ -413,6 +443,13 @@ void MouseHandler()
 		mouseClick = 0;
 		dragWindow = 0;
 
+		// Process the Key Press Event
+		DesktopProcessKey(desktop, originalInput);
+
+		// Update the screen
+    	WindowPaint((Window *)desktop, (List *)0x0, 0);
+		
+		// Print the mouse coordinates out to the console
 		printf_int(MouseX, 16);
 		printf(", ");
 		printf_int(MouseY, 16);
@@ -434,8 +471,8 @@ void CreateTasksVGA()
 void CreateTasks()
 {
 	// The Command Shell is running in Ring 0
-	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
-	// CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
+	// CreateKernelTask(Shell, 1, 0xFFFF800001100000);
+	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
 	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);

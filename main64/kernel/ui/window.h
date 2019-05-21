@@ -44,6 +44,9 @@ typedef void (*WindowPaintFunctionHandler)(struct _Window*);
 // The Mouse Handler for a given Window
 typedef void (*WindowMouseDownFunctionHandler)(struct _Window*, int, int);
 
+// The Key Handler for a given Window
+typedef void (*KeyPressFunctionHandler)(struct _Window*, char Key);
+
 // Defines a Window
 typedef struct _Window
 {
@@ -62,8 +65,10 @@ typedef struct _Window
     int LastMouseButtonState;
     WindowPaintFunctionHandler PaintFunction;
     WindowMouseDownFunctionHandler MouseDownFunction;
+    KeyPressFunctionHandler KeyPressFunction;
     char *Title;
     Task *Task;
+    struct _TextBox *ActiveTextBox;
 } Window;
 
 // Creates a new Window
@@ -81,11 +86,11 @@ void WindowRaise(Window *InputWindow);
 // Draws a Window
 void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion);
 
-// Invalidates the given region of the Window and repaints it
-void WindowInvalidate(Window *Window, int Top, int Left, int Bottom, int Right);
-
 // Processes the Mouse on the Window
 void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow);
+
+// Processes a Key press
+void WindowProcessKey(Window *InputWindow, char Key);
 
 // Adds additional characters to the Window Title
 void WindowAppendTitle(Window *Window, char *AdditionalChars);

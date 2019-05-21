@@ -19,6 +19,8 @@ int _shiftKey;
 // Stores if the caps lock key is pressed, or not
 int _capsLock;
 
+int _leftCtrl;
+
 //! invalid scan code. Used to indicate the last scan code is not to be reused
 const char INVALID_SCANCODE = (char)0;
 
@@ -85,7 +87,7 @@ void scanf(char *buffer, int buffer_size)
         if (processKey == 1)
         {
             // Convert the entered key to the correct ASCII code
-            key = KeyboardKeyToASCII(key);
+            key = KeyboardKeyToASCII(key, 0);
         
             // Print out the current entered key stroke
             // If we have pressed a non-printable key, the character is not printed out
@@ -135,7 +137,7 @@ static void DiscardLastKey()
 
 // Converts the pressed keyboard key to the correct ASCII key
 // (e.g. performing an upper case conversion)
-char KeyboardKeyToASCII(char key)
+char KeyboardKeyToASCII(char key, int LeftCtrlPressed)
 {
     if (_shiftKey || _capsLock)
     {
@@ -143,10 +145,22 @@ char KeyboardKeyToASCII(char key)
         key -= 32;
     }
     
-    return key;
+    // Check if the left CTRL key should be pressed
+    if (LeftCtrlPressed)
+    {
+        if (_leftCtrl)
+            return key;
+        else
+            return 0;
+    }
+    else
+    {
+        if (_leftCtrl)
+            return 0;
+        else
+            return key;
+    }
 }
-
-static int start = 16000;
 
 // Keyboard callback function
 static void KeyboardCallback(int Number)
@@ -171,6 +185,12 @@ static void KeyboardCallback(int Number)
             
             switch (key)
             {
+                case KEY_LCTRL:
+                {
+                    _leftCtrl = 0;
+                    _lastReceivedScanCode = 0;
+                    break;
+                }
                 case KEY_LSHIFT:
                 {
                     // The left shift key is released
@@ -194,6 +214,12 @@ static void KeyboardCallback(int Number)
             
             switch (key)
             {
+                case KEY_LCTRL:
+                {
+                    _leftCtrl = 1;
+                    _lastReceivedScanCode = 0;
+                    break;
+                }
                 case KEY_CAPSLOCK:
                 {
                     // The caps lock key is pressed
