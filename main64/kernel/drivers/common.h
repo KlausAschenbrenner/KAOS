@@ -37,4 +37,7 @@ unsigned char inb(unsigned short Port);
 // Reads a single short (16 bytes) from the specific port.
 unsigned short inw(unsigned short Port);
 
+// A simple strcpy implementation
+char *strcpy(char *destination, const char *source);
+
 #endif

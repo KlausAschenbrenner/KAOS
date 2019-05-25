@@ -12,6 +12,7 @@
 #include "Window.h"
 #include "Rectangle.h"
 #include "Desktop.h"
+#include "Controls/Button.h"
 
 // Creates a new Window
 Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context)
@@ -19,6 +20,12 @@ Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, C
     // Create a new Window structure
     Window *window = malloc(sizeof(Window));
     WindowInit(window, X, Y, Width, Height, Flags, Title, Context);
+
+    // Add a Close Button to the TitleBar
+    Button *closeButton = NewButton(Width - WINDOW_CLOSE_BUTTON_WIDTH - WINDOW_BORDERWIDTH, WINDOW_BORDERWIDTH, WINDOW_CLOSE_BUTTON_WIDTH, WINDOW_CLOSE_BUTTON_HEIGHT - (2 * WINDOW_BORDERWIDTH), Context);
+    closeButton->Window.Title = "X";
+    closeButton->OnClick = CloseButtonOnClick;
+    WindowInsertChild(window, (Window *)closeButton);
 
     // Return the newly created Window
     return window;
@@ -203,6 +210,12 @@ void WindowProcessKey(Window *InputWindow, char Key)
         InputWindow->KeyPressFunction(InputWindow, Key);
 }
 
+// Handles the OnClick event of the CloseButton
+void CloseButtonOnClick(Window *CloseButton, int X, int Y)
+{
+    RemoveDesktopWindow(CloseButton->Parent);
+}
+
 // Draws a border around the Window
 static void WindowDrawBorder(Window *Window)
 {
@@ -228,8 +241,6 @@ static void WindowDrawBorder(Window *Window)
 // The default paint method
 static void WindowPaintHandler(Window *Window)
 {
-    char str[32] = "";
-
     // Fill the Window Background
     ContextFillRect(Window->Context, 0, 0, Window->Width - 6, Window->Height - 34, WINDOW_BACKGROUND_COLOR);
 

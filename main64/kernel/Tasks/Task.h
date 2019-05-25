@@ -9,6 +9,8 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include "../ui/List.h"
+
 // The various Task states
 #define TASK_STATUS_CREATED       0x0
 #define TASK_STATUS_RUNNABLE      0x1
@@ -89,6 +91,9 @@ int KillTask(int PID);
 
 // Dumps out the RUNNABLE queue
 void DumpRunnableQueue();
+
+// Returns a String List with the current running Tasks
+List *GetTaskList();
 
 // Dumps out the Task State structure of the current executed Task
 void DumpTaskState();

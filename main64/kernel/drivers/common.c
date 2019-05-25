@@ -62,6 +62,32 @@ int strlen(char *string)
     return len;
 }
 
+// A simple strcpy implementation
+char *strcpy(char *destination, const char *source)
+{
+	// return if no memory is allocated to the destination
+	if (destination == 0x0)
+		return 0x0;
+
+	// take a pointer pointing to the beginning of destination string
+	char *ptr = destination;
+	
+	// copy the C-string pointed by source into the array
+	// pointed by destination
+	while (*source != '\0')
+	{
+		*destination = *source;
+		destination++;
+		source++;
+	}
+
+	// include the terminating null character
+	*destination = '\0';
+
+	// destination is returned by standard strcpy()
+	return ptr;
+}
+
 char tbuf[64];
 char tbuf_long[64];
 char bchars[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};

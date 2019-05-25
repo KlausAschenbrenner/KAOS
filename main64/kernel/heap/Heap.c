@@ -61,7 +61,7 @@ void *malloc(int Size)
     }
 }
 
-long GetHeapEndOffset()
+unsigned long GetHeapEndOffset()
 {
     return HEAP_END_OFFSET;
 }

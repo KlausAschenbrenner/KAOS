@@ -226,6 +226,30 @@ int TerminateTask(int PID)
     // Irq0_ContextSwitching(); // Causes an 0xD fault when executed through the KillTask code path...
 }
 
+// Returns a String List with the current running Tasks
+List *GetTaskList()
+{
+    TaskList *temp = TaskQueue;
+    List *tasks = NewList();
+    char *str = malloc(10);
+
+    itoa(temp->Task->PID, 10, str);
+    AddNodeToList(tasks, str);
+
+    // Iterate through the Task queue, until we find the tail of it
+    while (temp->Next != 0)
+    {
+        // Move to the next Task in the Task queue
+        temp = temp->Next;
+
+        str = malloc(10);
+        itoa(temp->Task->PID, 10, str);
+        AddNodeToList(tasks, str);
+    }
+
+    return tasks;
+}
+
 // Dumps out the Task queue
 void DumpTaskQueue()
 {

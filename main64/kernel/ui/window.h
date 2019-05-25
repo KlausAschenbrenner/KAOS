@@ -34,6 +34,8 @@
 #define WINDOW_BORDERCOLOR 0
 #define WINDOW_TITLEHEIGHT 31
 #define WINDOW_BORDERWIDTH 3
+#define WINDOW_CLOSE_BUTTON_WIDTH 31
+#define WINDOW_CLOSE_BUTTON_HEIGHT 31
 
 // Flags
 #define WINDOW_NODECORATION 0x1
@@ -91,6 +93,9 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
 
 // Processes a Key press
 void WindowProcessKey(Window *InputWindow, char Key);
+
+// Handles the OnClick event of the CloseButton
+void CloseButtonOnClick(Window *CloseButton, int X, int Y);
 
 // Draws a border around the Window
 static void WindowDrawBorder(Window *Window);

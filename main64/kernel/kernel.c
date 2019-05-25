@@ -130,10 +130,10 @@ void Dummy()
 // Handles the OnClick event of the Button
 void ButtonOnClick(Window *ButtonWindow, int X, int Y)
 {
-	// textbox->Window.Title = "Klaus";
-
-	// Window *window = NewDesktopWindow((Window *)desktop, 400, 400, 400, 720, "Window Title 4");
-	// WindowAppendTitle((Window *)textbox, "1");
+	// Make a copy of the entered string and store it in the MultiLineTextBox
+	char *str = malloc(100);
+	strcpy(str, &textbox1_window1->Text);
+	AddNodeToList(multiLineTextBox1->TextLines, str);
 }
 
 void DesktopWindow1()
@@ -145,10 +145,10 @@ void DesktopWindow1()
 	window->Task = (Task *)GetTaskState();
 
 	// Create a new Button
-	/* Button *button = NewButton(10, 100, 100, 35, context);
+	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
 	button->OnClick = ButtonOnClick;
-	WindowInsertChild(window, (Window *)button); */
+	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
 	Label *label = NewLabel(5, 5, context);
@@ -183,28 +183,23 @@ void DesktopWindow1()
 	TextBox *textbox3_window1 = NewTextBox(10, 210, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox3_window1);
 
-	// Create a new MultiLineTextBox
-	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 240, 200, 100, context);
-	
-	char *line1 = "Test Line 1";
-	char *line2 = "Test Line 2";
-	char *line3 = "Test Line 3";
-	char *line4 = "Test Line 4";
-	char *line5 = "Test Line 5";
-	char *line6 = "Test Line 6";
-	char *line7 = "Test Line 7";
-	char *line8 = "Test Line 8";
-	char *line9 = "Test Line 9";
-	AddNodeToList(multiLineTextBox1->TextLines, line1);
-	AddNodeToList(multiLineTextBox1->TextLines, line2);
-	AddNodeToList(multiLineTextBox1->TextLines, line3);
-	AddNodeToList(multiLineTextBox1->TextLines, line4);
-	AddNodeToList(multiLineTextBox1->TextLines, line5);
-	AddNodeToList(multiLineTextBox1->TextLines, line6);
-	AddNodeToList(multiLineTextBox1->TextLines, line7);
-	AddNodeToList(multiLineTextBox1->TextLines, line8);
-	AddNodeToList(multiLineTextBox1->TextLines, line9);
+	// Create a new TextBox
+	TextBox *textbox4_window1 = NewTextBox(10, 240, 100, 20, context);
+	WindowInsertChild(window, (Window *)textbox4_window1);
 
+	/* // Create a new TextBox
+	TextBox *textbox5_window1 = NewTextBox(10, 270, 100, 20, context);
+	WindowInsertChild(window, (Window *)textbox5_window1);
+
+	// Create a new TextBox
+	TextBox *textbox6_window1 = NewTextBox(10, 300, 100, 20, context);
+	WindowInsertChild(window, (Window *)textbox6_window1); */
+
+	// Create a new MultiLineTextBox
+	multiLineTextBox1 = NewMultiLineTextBox(10, 330, 200, 100, context);
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 3");
 	WindowInsertChild(window, (Window *)multiLineTextBox1);
 
 	while (1 == 1)
@@ -259,6 +254,19 @@ void DesktopWindow2()
 	// Create a new TextBox
 	textbox2_window2 = NewTextBox(10, 180, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox2_window2);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 330, 200, 100, context);
+	List *tasks = GetTaskList();
+	int i;
+
+	for (i = 0; i < tasks->Count; i++)
+	{
+		char *str = GetNodeFromList(tasks, i);
+		AddNodeToList(multiLineTextBox1->TextLines, str);
+	}
+	
+	WindowInsertChild(window, (Window *)multiLineTextBox1);
 
 	while (1 == 1)
 	{
@@ -322,7 +330,7 @@ void DesktopWindow3()
 		// Change something on the Desktop and redraw it
 		ltoa(window->Task->ContextSwitches, 10, str2);
 		lbl4->Window.Title = str2;
-		WindowPaint((Window *)desktop, (List *) 0x0, 0);
+		WindowPaint((Window *)desktop, (List *)0x0, 0);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -488,7 +496,7 @@ void CreateTasksVGA()
 	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
 	CreateUserTask(DesktopWindow1, 2, 0xFFFF800001200000, 0xFFFF800000020000);
 	CreateUserTask(DesktopWindow2, 3, 0xFFFF800001300000, 0xFFFF800000030000);
-	CreateUserTask(DesktopWindow3, 4, 0xFFFF800001400000, 0xFFFF800000040000);
+	// CreateUserTask(DesktopWindow3, 4, 0xFFFF800001400000, 0xFFFF800000040000);
 	/* CreateKernelTask(DesktopWindow1, 2, 0xFFFF800001200000);
 	CreateKernelTask(DesktopWindow2, 3, 0xFFFF800001300000);
 	CreateKernelTask(DesktopWindow3, 4, 0xFFFF800001400000); */
@@ -497,8 +505,7 @@ void CreateTasksVGA()
 void CreateTasks()
 {
 	// The Command Shell is running in Ring 0
-	// CreateKernelTask(Shell, 1, 0xFFFF800001100000);
-	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
+	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
 	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);

@@ -10,8 +10,8 @@
 #define HEAP_H
 
 #define HEADER_SIZE 4
-static long HEAP_START_OFFSET = 0xFFFF800000500000;
-static long HEAP_END_OFFSET =   0xFFFF800000510000;
+static unsigned long HEAP_START_OFFSET = 0xFFFF800000500000;
+static unsigned long HEAP_END_OFFSET =   0xFFFF800000510000;
 static int INITIAL_HEAP_SIZE =  0x10000;
 static int HEAP_GROWTH =        0x10000;
 
@@ -56,6 +56,6 @@ static int Merge();
 // Dumps out the status of a Heap Block
 static void PrintHeapBlock(HeapBlock *Block);
 
-long GetHeapEndOffset();
+unsigned long GetHeapEndOffset();
 
 #endif

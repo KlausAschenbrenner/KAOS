@@ -16,6 +16,7 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     MultiLineTextBox *textbox = malloc(sizeof(MultiLineTextBox));
     WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
     textbox->Window.PaintFunction = MultiLineTextBoxPaintHandler;
+    textbox->Window.MouseDownFunction = MultiLineTextBoxMouseDownHandler;
     textbox->TextLines = NewList();
     textbox->Position = 0;
    
@@ -27,7 +28,7 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     // Create a new Button for scrolling down
 	Button *scrollDownButton = NewButton(Width - SCROLL_BUTTON_WIDTH - 1, Height - SCROLL_BUTTON_HEIGHT - 1, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, Context);
     scrollDownButton->OnClick = ScrollDownButtonOnClick;
-	WindowInsertChild((Window *)textbox, (Window *)scrollDownButton);    
+	WindowInsertChild((Window *)textbox, (Window *)scrollDownButton);
 
     return textbox;
 }
@@ -69,8 +70,14 @@ void ScrollUpButtonOnClick(Window *ButtonWindow, int X, int Y)
 void ScrollDownButtonOnClick(Window *ButtonWindow, int X, int Y)
 {
 	MultiLineTextBox *textbox = (MultiLineTextBox *)ButtonWindow->Parent;
-    int numberOfVisibleTextLines = 6;
+    int numberOfVisibleTextLines = 6; // TODO
 
     if (textbox->Position < textbox->TextLines->Count - numberOfVisibleTextLines)
         textbox->Position++;
+}
+
+// Handles the Mouse Down Event
+void MultiLineTextBoxMouseDownHandler(Window *MultiLineTextBoxWindow, int X, int Y)
+{
+    MultiLineTextBox *textbox = (MultiLineTextBox *)MultiLineTextBoxWindow;
 }

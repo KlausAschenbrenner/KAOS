@@ -57,6 +57,34 @@ Window *NewDesktopWindow(Window *InputWindow, int X, int Y, int Width, int Heigh
     return window;
 }
 
+// Removes the Window from the Desktop and terminates the running Task in the Kernel
+void RemoveDesktopWindow(Window *InputWindow)
+{
+    Window *window;
+    int pid = 0;
+    int i;
+
+    // Iterate through all Windows on the Desktop
+    // InputWindow->Parent: Reference to the Desktop
+    for (i = InputWindow->Parent->Children->Count - 1; i >= 0; i--)
+    {
+        // Get the Window from the Desktop
+        window = (Window *)GetNodeFromList(InputWindow->Parent->Children, i);
+
+        // Check if the current Window is the Window to be closed
+        if ((window != 0x0) && (window == InputWindow))
+        {
+            pid = window->Task->PID;
+            RemoveNodeFromList(InputWindow->Parent->Children, i);
+            break;
+        }
+    }
+
+    // Terminate the Task
+    if (pid != 0)
+        TerminateTask(pid);
+}
+
 // Processes the mouse on the Desktop
 void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow)
 {
