@@ -9,6 +9,7 @@
 //
 
 #include "Label.h"
+#include "../../Heap/Heap.h"
 
 // Creates a new Label
 Label* NewLabel(int X, int Y, Context *Context)

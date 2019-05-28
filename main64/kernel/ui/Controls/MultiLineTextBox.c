@@ -9,6 +9,7 @@
 #include "MultiLineTextBox.h"
 #include "Button.h"
 #include "../../drivers/keyboard.h"
+#include "../../Heap/Heap.h"
 
 // Creates a new MultiLineTextBox
 MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Context *Context)
@@ -19,7 +20,7 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     textbox->Window.MouseDownFunction = MultiLineTextBoxMouseDownHandler;
     textbox->TextLines = NewList();
     textbox->Position = 0;
-   
+
     // Create a new Button for scrolling up
 	Button *scrollUpButton = NewButton(Width - SCROLL_BUTTON_WIDTH - 1, 1, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, Context);
     scrollUpButton->OnClick = ScrollUpButtonOnClick;

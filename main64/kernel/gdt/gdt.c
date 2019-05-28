@@ -9,6 +9,7 @@
 #include "gdt.h"
 #include "tss.h"
 #include "../structs/KPCR.h"
+#include "../Heap/Heap.h"
 
 static GdtPointer *gdtPointer;
 static GdtEntry *gdtEntries;
@@ -30,7 +31,7 @@ void InitGdt()
     // Initialize the TSS entry with the Kernel Mode Stack Pointer (RSP) for the first initial Task
     tssEntry = malloc(sizeof(TSSEntry));
     memset(tssEntry, 0, sizeof(TSSEntry));
-    tssEntry->rsp0 = 0xFFFF800000010000;
+    tssEntry->rsp0 = 0xFFFF800001000000;
 
     // The NULL Descriptor
     GdtSetGate(0, 0, 0, 0, 0);

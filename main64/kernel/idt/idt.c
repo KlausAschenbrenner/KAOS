@@ -10,6 +10,7 @@
 #include "../drivers/common.h"
 #include "../irq/irq.h"
 #include "../ui/window.h"
+#include "../Heap/Heap.h"
 
 extern int UIMode;
 
@@ -207,6 +208,11 @@ void DisplayBlueScreen(int Number, RegisterState *Registers)
     DrawString(context, "Heap 0x", 10, 314, 0xFFFF);
     DrawString(context, str, 66, 314, 0xFFFF);
 
+    long *value = (long *)0xFFFF800000700000;
+    ltoa(*value, 10, str);
+    DrawString(context, "Cntr:  ", 10, 330, 0xFFFF);
+    DrawString(context, str, 50, 330, 0xFFFF);
+
     // Produce a Stack Trace
     StackTrace(context);
 }
@@ -216,7 +222,7 @@ void StackTrace(Context *context)
 {
     char str[32] = "";
     StackFrame *frame;
-    int pos = 346;
+    int pos = 362;
 
     // Get the current RBP value
     asm volatile("mov %%rbp, %0" : "=r" (frame));

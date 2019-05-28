@@ -17,12 +17,7 @@
 void Shell();
 Context *context = 0x0;
 Desktop *desktop = 0x0;
-TextBox *textbox1_window1 = 0x0;
-TextBox *textbox2_window1 = 0x0;
-TextBox *textbox1_window2 = 0x0;
-TextBox *textbox2_window2 = 0x0;
-TextBox *textbox1_window3 = 0x0;
-TextBox *textbox2_window3 = 0x0;
+TextBox *textbox = 0x0;
 MultiLineTextBox *multiLineTextBox1 = 0x0;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
@@ -94,7 +89,7 @@ void k_main()
 void InitWindowSystem()
 {
 	// Create a new Drawing Context
-	context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_DOUBLE_BUFFER, WINDOW_FRAME_BUFFER);
+	context = (Context *)NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_DOUBLE_BUFFER, WINDOW_FRAME_BUFFER);
 	
 	// Create a new Desktop and set the intial mouse position
 	desktop = (Desktop *)NewDesktop(context, 0x05FF);
@@ -112,27 +107,12 @@ void InitKPCR()
 	MoveKPCRToRegister(kpcr);
 }
 
-void Dummy()
-{
-	int cntr = 0;
-
-	while (1 == 1)
-	{
-		cntr++;
-		long *value = (long *)0xFFFF800000700000;
-		*value = cntr;
-
-		// Introduce some delay in the calculation...
-		Sleep(99999999);
-	}
-}
-
 // Handles the OnClick event of the Button
 void ButtonOnClick(Window *ButtonWindow, int X, int Y)
 {
 	// Make a copy of the entered string and store it in the MultiLineTextBox
 	char *str = malloc(100);
-	strcpy(str, &textbox1_window1->Text);
+	strcpy(str, &textbox->Text);
 	AddNodeToList(multiLineTextBox1->TextLines, str);
 }
 
@@ -141,9 +121,10 @@ void DesktopWindow1()
 	char str1[32] = "";
 	char str2[32] = "";
 	int cntr = 0;
+	int i;
 	Window *window = NewDesktopWindow((Window *)desktop, 50, 50, 400, 720, "Window Title 1");
 	window->Task = (Task *)GetTaskState();
-
+	
 	// Create a new Button
 	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
@@ -171,40 +152,30 @@ void DesktopWindow1()
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
-	// Create a new TextBox
-	textbox1_window1 = NewTextBox(10, 150, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox1_window1);
-	
-	// Create a new TextBox
-	textbox2_window1 = NewTextBox(10, 180, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox2_window1);
-
-	// Create a new TextBox
-	TextBox *textbox3_window1 = NewTextBox(10, 210, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox3_window1);
-
-	// Create a new TextBox
-	TextBox *textbox4_window1 = NewTextBox(10, 240, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox4_window1);
-
-	/* // Create a new TextBox
-	TextBox *textbox5_window1 = NewTextBox(10, 270, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox5_window1);
-
-	// Create a new TextBox
-	TextBox *textbox6_window1 = NewTextBox(10, 300, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox6_window1); */
+	for (i = 0; i < 15; i++)
+	{
+		// Create a new TextBox
+		TextBox *textbox = NewTextBox(10, 150 + (i * 30), 100, 20, context);
+		WindowInsertChild(window, (Window *)textbox);
+	}
 
 	// Create a new MultiLineTextBox
-	multiLineTextBox1 = NewMultiLineTextBox(10, 330, 200, 100, context);
+	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 330, 200, 100, context);
 	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 1");
 	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 2");
 	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 3");
 	WindowInsertChild(window, (Window *)multiLineTextBox1);
 
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox2 = NewMultiLineTextBox(10, 450, 200, 100, context);
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 3");
+	WindowInsertChild(window, (Window *)multiLineTextBox2);
+
 	while (1 == 1)
 	{
-		cntr++;
+		// cntr++;
 		ltoa(window->Task->ContextSwitches, 10, str2);
 		lbl4->Window.Title = str2;
 
@@ -217,10 +188,10 @@ void DesktopWindow2()
 {
 	char str1[32] = "";
 	char str2[32] = "";
-	int cntr = 0;
+	int i;
 	Window *window = NewDesktopWindow((Window *)desktop, 200, 200, 400, 720, "Window Title 2");
 	window->Task = (Task *)GetTaskState();
-
+	
 	// Create a new Button
 	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
@@ -247,30 +218,22 @@ void DesktopWindow2()
 	lbl4->Window.Title = "0";
 	WindowInsertChild(window, (Window *)lbl4);
 
-	// Create a new TextBox
-	textbox1_window2 = NewTextBox(10, 150, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox1_window2);
-
-	// Create a new TextBox
-	textbox2_window2 = NewTextBox(10, 180, 100, 20, context);
-	WindowInsertChild(window, (Window *)textbox2_window2);
+	for (i = 0; i < 6; i++)
+	{
+		// Create a new TextBox
+		TextBox *textbox = NewTextBox(10, 150 + (i * 30), 100, 20, context);
+		WindowInsertChild(window, (Window *)textbox);
+	}
 
 	// Create a new MultiLineTextBox
 	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 330, 200, 100, context);
-	List *tasks = GetTaskList();
-	int i;
-
-	for (i = 0; i < tasks->Count; i++)
-	{
-		char *str = GetNodeFromList(tasks, i);
-		AddNodeToList(multiLineTextBox1->TextLines, str);
-	}
-	
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 3");
 	WindowInsertChild(window, (Window *)multiLineTextBox1);
 
 	while (1 == 1)
 	{
-		cntr++;
 		ltoa(window->Task->ContextSwitches, 10, str2);
 		lbl4->Window.Title = str2;
 
@@ -286,7 +249,7 @@ void DesktopWindow3()
 	int cntr = 0;
 	Window *window = NewDesktopWindow((Window *)desktop, 300, 300, 400, 720, "Window Title 3");
 	window->Task = (Task *)GetTaskState();
-
+	
 	// Create a new Button
 	Button *button = NewButton(10, 100, 100, 35, context);
 	button->Window.Title = "Button 1";
@@ -314,28 +277,101 @@ void DesktopWindow3()
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
-	textbox1_window3 = NewTextBox(10, 150, 100, 20, context);
+	TextBox *textbox1_window3 = NewTextBox(10, 150, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox1_window3);
 
 	// Create a new TextBox
-	textbox2_window3 = NewTextBox(10, 180, 100, 20, context);
+	TextBox *textbox2_window3 = NewTextBox(10, 180, 100, 20, context);
 	WindowInsertChild(window, (Window *)textbox2_window3);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox1 = NewMultiLineTextBox(10, 210, 200, 100, context);
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 3");
+	WindowInsertChild(window, (Window *)multiLineTextBox1);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox2 = NewMultiLineTextBox(10, 330, 200, 100, context);
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 3");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 4");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 5");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 6");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 7");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 8");
+	AddNodeToList(multiLineTextBox2->TextLines, "Test Line 9");
+	WindowInsertChild(window, (Window *)multiLineTextBox2);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox3 = NewMultiLineTextBox(10, 450, 200, 100, context);
+	AddNodeToList(multiLineTextBox3->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox3->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox3->TextLines, "Test Line 3");
+	WindowInsertChild(window, (Window *)multiLineTextBox3);
+
+	// Create a new MultiLineTextBox
+	MultiLineTextBox *multiLineTextBox4 = NewMultiLineTextBox(10, 570, 200, 100, context);
+	AddNodeToList(multiLineTextBox4->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox4->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox4->TextLines, "Test Line 3");
+	WindowInsertChild(window, (Window *)multiLineTextBox4);
 
 	while (1 == 1)
 	{
-		cntr++;
-		long *value = (long *)0xFFFF800000700000;
-		*value = cntr;
-
 		// Change something on the Desktop and redraw it
 		ltoa(window->Task->ContextSwitches, 10, str2);
 		lbl4->Window.Title = str2;
-		WindowPaint((Window *)desktop, (List *)0x0, 0);
+		// WindowPaint((Window *)desktop, 0);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
 	}
 }
+
+void DesktopWindow4()
+{
+	char str1[32] = "";
+	char str2[32] = "";
+	int cntr = 0;
+	Window *window = NewDesktopWindow((Window *)desktop, 750, 200, 400, 720, "Window Title 4");
+	window->Task = (Task *)GetTaskState();
+
+	// Create a new Label
+	Label *label = NewLabel(5, 5, context);
+	label->Window.Title = "PID: ";
+	WindowInsertChild(window, (Window *)label);
+
+	// Create a new Label
+	Label *lbl2 = NewLabel(25, 5, context);
+	ltoa(window->Task->PID, 10, str1);
+	lbl2->Window.Title = str1;
+	WindowInsertChild(window, (Window *)lbl2);
+
+	// Create a new Button
+	Button *button = NewButton(10, 80, 100, 35, context);
+	button->Window.Title = "Add Item";
+	button->OnClick = ButtonOnClick;
+	WindowInsertChild(window, (Window *)button);
+
+	// Create a new TextBox
+	textbox = NewTextBox(10, 130, 100, 20, context);
+	WindowInsertChild(window, (Window *)textbox);
+
+	// Create a new MultiLineTextBox
+	multiLineTextBox1 = NewMultiLineTextBox(10, 160, 200, 100, context);
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 1");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 2");
+	AddNodeToList(multiLineTextBox1->TextLines, "Test Line 3");
+	WindowInsertChild(window, (Window *)multiLineTextBox1);
+
+	while (1 == 1)
+	{
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
+}	
 
 // Simulates a simple Mouse through various keystrokes
 void MouseHandler()
@@ -346,7 +382,7 @@ void MouseHandler()
 	int dragWindow = 0;
 
 	// Draw initially the Desktop
-	WindowPaint((Window *)desktop, (List *) 0x0, 0);
+	WindowPaint((Window *)desktop, 0);
 
 	while (1 == 1)
 	{
@@ -481,7 +517,7 @@ void MouseHandler()
 		DesktopProcessKey(desktop, originalInput);
 
 		// Update the screen
-    	WindowPaint((Window *)desktop, (List *)0x0, 0);
+    	WindowPaint((Window *)desktop, 0);
 		
 		// Print the mouse coordinates out to the console
 		printf_int(MouseX, 16);
@@ -491,15 +527,38 @@ void MouseHandler()
 	}
 }
 
+void Dummy()
+{
+	int cntr = 0;
+
+	while (1 == 1)
+	{
+		cntr++;
+		long *value = (long *)0xFFFF800000700000;
+		*value = cntr;
+
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
+}
+
 void CreateTasksVGA()
 {
 	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
-	CreateUserTask(DesktopWindow1, 2, 0xFFFF800001200000, 0xFFFF800000020000);
-	CreateUserTask(DesktopWindow2, 3, 0xFFFF800001300000, 0xFFFF800000030000);
-	// CreateUserTask(DesktopWindow3, 4, 0xFFFF800001400000, 0xFFFF800000040000);
-	/* CreateKernelTask(DesktopWindow1, 2, 0xFFFF800001200000);
-	CreateKernelTask(DesktopWindow2, 3, 0xFFFF800001300000);
-	CreateKernelTask(DesktopWindow3, 4, 0xFFFF800001400000); */
+	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+
+	// CreateUserTask(DesktopWindow1, 3, 0xFFFF800001300000, 0xFFFF800001310000);
+	// CreateUserTask(DesktopWindow2, 4, 0xFFFF800001400000, 0xFFFF800001410000);
+	// CreateUserTask(DesktopWindow3, 5, 0xFFFF800001500000, 0xFFFF800001510000);
+	
+	/* CreateUserTask(DesktopWindow1, 3, 0xFFFF800001300000, 0xFFFF800000030000);
+	CreateUserTask(DesktopWindow2, 4, 0xFFFF800001400000, 0xFFFF800000040000);
+	CreateUserTask(DesktopWindow3, 5, 0xFFFF800001500000, 0xFFFF800000050000); */
+
+	CreateKernelTask(DesktopWindow1, 3, 0xFFFF800001300000);
+	CreateKernelTask(DesktopWindow2, 4, 0xFFFF800001400000);
+	CreateKernelTask(DesktopWindow3, 5, 0xFFFF800001500000);
+	CreateKernelTask(DesktopWindow4, 6, 0xFFFF800001600000);
 }
 
 void CreateTasks()
@@ -508,7 +567,15 @@ void CreateTasks()
 	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
-	CreateUserTask(Dummy, 2, 0xFFFF800001200000, 0xFFFF800000020000);
+	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+
+	/* CreateKernelTask(DesktopWindow1, 3, 0xFFFF800001300000);
+	CreateKernelTask(DesktopWindow2, 4, 0xFFFF800001400000);
+	CreateKernelTask(DesktopWindow3, 5, 0xFFFF800001500000); */
+
+	/* CreateUserTask(DesktopWindow1, 4, 0xFFFF800001400000, 0xFFFF800000040000);
+	CreateUserTask(DesktopWindow2, 5, 0xFFFF800001500000, 0xFFFF800000050000);
+	CreateUserTask(DesktopWindow3, 6, 0xFFFF800001600000, 0xFFFF800000060000); */
 }
 
 /* void TestScheduler()

@@ -10,10 +10,6 @@
 #define HEAP_H
 
 #define HEADER_SIZE 4
-static unsigned long HEAP_START_OFFSET = 0xFFFF800000500000;
-static unsigned long HEAP_END_OFFSET =   0xFFFF800000510000;
-static int INITIAL_HEAP_SIZE =  0x10000;
-static int HEAP_GROWTH =        0x10000;
 
 typedef struct _HeapBlock
 {
@@ -22,7 +18,7 @@ typedef struct _HeapBlock
     int Size : 31;
 
     // Payload
-    char Payload[0];
+    unsigned char Payload[0];
 } HeapBlock;
 
 // Initializes the Heap Manager
@@ -38,7 +34,7 @@ void free(void *ptr);
 void DumpHeap();
 
 // Returns the last Heap Block
-static HeapBlock *GetLastHeapBlock();
+HeapBlock *GetLastHeapBlock();
 
 // Finds a free block of the requested size on the Heap
 static HeapBlock *Find(int Size);

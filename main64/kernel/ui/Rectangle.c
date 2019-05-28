@@ -9,6 +9,7 @@
 //
 
 #include "Rectangle.h"
+#include "../Heap/Heap.h"
 
 // Creates a new Rectangle
 Rectangle *NewRectange(int Top, int Left, int Bottom, int Right)

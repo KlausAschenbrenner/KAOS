@@ -30,6 +30,12 @@ extern void Irq13();
 extern void Irq14();
 extern void Irq15();
 
+// Disables all interrupts
+extern void DisableInterrupts();
+
+// Enables all interrupts
+extern void EnableInterrupts();
+
 // IRQ handler that is called as soon as an IRQ is raised
 void IrqHandler(int Number);
 

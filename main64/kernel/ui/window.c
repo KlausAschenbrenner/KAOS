@@ -8,7 +8,7 @@
 //  This code is based on http://www.trackze.ro
 //
 
-#include "../heap/Heap.h"
+#include "../Heap/Heap.h"
 #include "Window.h"
 #include "Rectangle.h"
 #include "Desktop.h"
@@ -56,8 +56,8 @@ void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flag
 // Inserts a Child Window
 void WindowInsertChild(Window *InputWindow, Window *Child)
 {
-    Child->Parent = InputWindow;
     AddNodeToList(InputWindow->Children, Child);
+    Child->Parent = InputWindow;
 }
 
 // Raises the given Window to the top of the Desktop
@@ -93,7 +93,7 @@ void WindowRaise(Window *InputWindow)
 }
 
 // Draws a Window
-void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
+void WindowPaint(Window *InputWindow, int InRecursion)
 {
     int i, j, screenX, screenY, childScreenX, childScreenY;
     Window *currentChild;
@@ -101,7 +101,7 @@ void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
 
     screenX = WindowScreenX(InputWindow);
     screenY = WindowScreenY(InputWindow);
-
+    
     if (!(InputWindow->Flags & WINDOW_NODECORATION))
     {
         // Draw the border
@@ -121,7 +121,7 @@ void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion)
     for (i = 0; i < InputWindow->Children->Count; i++)
     {
         currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
-        WindowPaint(currentChild, DirtyRegions, 1);
+        WindowPaint(currentChild, 1);
     }
     
     // And finally we paint the Mouse Pointer, and copy the Frame Double Buffer to the VGA Buffer

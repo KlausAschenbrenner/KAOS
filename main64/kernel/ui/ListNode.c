@@ -10,6 +10,7 @@
 
 #include "List.h"
 #include "ListNode.h"
+#include "../Heap/Heap.h"
 
 // Creates a new ListNode
 ListNode *NewListNode(void *Payload)

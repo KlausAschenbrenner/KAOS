@@ -8,6 +8,15 @@
 
 #include "Heap.h"
 #include "../drivers/screen.h"
+#include "../Tasks/Task.h"
+#include "../irq/irq.h"
+
+unsigned long HEAP_START_OFFSET = 0xFFFF810000500000;
+unsigned long HEAP_END_OFFSET =   0xFFFF810000500000;
+unsigned long INITIAL_HEAP_SIZE = 0x10000;
+unsigned long HEAP_GROWTH =       0x10000;
+
+unsigned long spinlock;
 
 // Initializes the Heap Manager
 int InitHeap()
@@ -24,7 +33,7 @@ int InitHeap()
 }
 
 // Allocates the specific amount of memory on the Heap
-void *malloc(int Size)
+void *malloc_internal(int Size)
 {
     // Add the size of the Header to the requested size
     Size = Size + HEADER_SIZE;
@@ -42,7 +51,7 @@ void *malloc(int Size)
         Allocate(block, Size);
 
         // Return the address of the payload of the found Heap Block
-        return block->Payload;
+        return (void *)block->Payload;
     }
     else
     {
@@ -54,11 +63,21 @@ void *malloc(int Size)
         HEAP_END_OFFSET += HEAP_GROWTH;
 
         // Merge the last free block with the newly allocated block together
-        Merge();
+        // Merge();
 
         // Try to allocate the requested block after the expansion of the Heap...
         return malloc(Size - HEADER_SIZE);
     }
+}
+
+void *malloc(int Size)
+{
+    // Interrupts are disable before we call malloc(), so that no Context Switching happens during the call
+    DisableInterrupts();
+    void *ptr = malloc_internal(Size);
+    EnableInterrupts();
+
+    return ptr;
 }
 
 unsigned long GetHeapEndOffset()
@@ -153,7 +172,7 @@ static HeapBlock *Find(int Size)
 }
 
 // Returns the last Heap Block
-static HeapBlock *GetLastHeapBlock()
+HeapBlock *GetLastHeapBlock()
 {
     HeapBlock *block = (HeapBlock *)HEAP_START_OFFSET;
 
@@ -168,16 +187,19 @@ static HeapBlock *GetLastHeapBlock()
 static HeapBlock *NextHeapBlock(HeapBlock *Block)
 {
     // Return a pointer to the next Heap Block
-    return (char *)Block + Block->Size;
+    return (unsigned char *)Block + Block->Size;
 }
 
 // Dumps out the status of each Heap Block
 void DumpHeap()
 {
     HeapBlock *block;
+    char str[32] = "";
+    int size = 0;
     
     for (block = HEAP_START_OFFSET; block->Size > 0; block = NextHeapBlock(block))
     {
+        size += block->Size;
         PrintHeapBlock(block);
     }
 
@@ -186,6 +208,10 @@ void DumpHeap()
     printf("\n");
     printf("Heap End Offset:   0x");
     printf_long(HEAP_END_OFFSET, 16);
+    printf("\n");
+    printf("Whole Heap Size: ");
+    itoa(size, 10, str);
+    printf(str);
     printf("\n");
 }
 

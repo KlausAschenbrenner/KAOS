@@ -9,6 +9,7 @@
 //
 
 #include "Context.h"
+#include "../Heap/Heap.h"
 
 // This array represents our font.
 // 128 characters with 8 bits wide and 12 bits height.

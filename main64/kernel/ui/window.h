@@ -86,7 +86,7 @@ void WindowInsertChild(Window *InputWindow, Window *Child);
 void WindowRaise(Window *InputWindow);
 
 // Draws a Window
-void WindowPaint(Window *InputWindow, List *DirtyRegions, int InRecursion);
+void WindowPaint(Window *InputWindow, int InRecursion);
 
 // Processes the Mouse on the Window
 void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow);

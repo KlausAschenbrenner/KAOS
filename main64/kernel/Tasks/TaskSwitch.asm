@@ -194,4 +194,6 @@ AcquireLock:
 ; Releases a Spinlock
 ReleaseLock:
     mov dword [rdi], 0
+    ; mov rsi, 0
+    ; lock bts [rdi], rsi 
     ret

@@ -6,8 +6,10 @@
 //  Copyright (c) 2019 Klaus Aschenbrenner. All rights reserved.
 //
 
+#include "Heap/Heap.h"
+
 // The number of available commands
-#define COMMAND_COUNT 9
+#define COMMAND_COUNT 10
 
 void shell_cls(char *param);
 void shell_dir(char *param);
@@ -18,6 +20,7 @@ void shell_kpcr(char *param);
 void shell_kill(char *param);
 void shell_status(char *param);
 void shell_help(char *param);
+void shell_dummy(char *param);
 
 // The available Shell commands
 char *commands[] =
@@ -30,7 +33,8 @@ char *commands[] =
 	"kpcr",
 	"kill",
 	"status",
-	"help"
+	"help",
+	"dummy"
 };
 
 int (*command_functions[]) (char *param) =
@@ -43,16 +47,19 @@ int (*command_functions[]) (char *param) =
 	&shell_kpcr,
 	&shell_kill,
 	&shell_status,
-	&shell_help
+	&shell_help,
+	&shell_dummy
 };
 
 void Shell()
 {
 	// ClearScreen();
     int i;
-
+	
     while (1 == 1)
 	{
+		// AcquireLock(&spinlock);
+
 		char input[100] = "";
 		int commandFound = 0;
 		printf("A:\>");
@@ -150,4 +157,9 @@ void shell_help(char *param)
 		printf(commands[i]);
 		printf("\n");
 	}
+}
+
+void shell_dummy(char *param)
+{
+	printf("Dummy called");
 }

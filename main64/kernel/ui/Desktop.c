@@ -9,6 +9,7 @@
 //
 
 #include "Desktop.h"
+#include "../Heap/Heap.h"
 
 // This array represents the definition of the Mouse Pointer Image
 unsigned int MouseImage[MOUSE_BUFFER_SIZE] = 
@@ -53,6 +54,9 @@ Window *NewDesktopWindow(Window *InputWindow, int X, int Y, int Width, int Heigh
     Window *window = NewWindow(X, Y, Width, Height, 0x0, Title, InputWindow->Context);
     AddNodeToList(InputWindow->Children, (void *)window);
     window->Parent = InputWindow;
+
+    // The newly added Window is the current Window
+    InputWindow->ActiveChild = window;
     
     return window;
 }

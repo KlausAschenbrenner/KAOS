@@ -15,7 +15,7 @@
 TaskList *TaskQueue = 0x0;
 
 // Creates a new Kernel Task
-Task* CreateKernelTask(void *TaskCode, int PID, long *KernelModeStack)
+Task* CreateKernelTask(void *TaskCode, int PID, unsigned long KernelModeStack)
 {
     Task *newTask = malloc(sizeof(Task));
     newTask->rax = 0;
@@ -61,7 +61,7 @@ Task* CreateKernelTask(void *TaskCode, int PID, long *KernelModeStack)
 }
 
 // Creates a new User Task
-Task* CreateUserTask(void *TaskCode, int PID, long *UserModeStack, long *KernelModeStack)
+Task* CreateUserTask(void *TaskCode, int PID, unsigned long UserModeStack, unsigned long KernelModeStack)
 {
     Task *newTask = malloc(sizeof(Task));
     newTask->rax = 0;

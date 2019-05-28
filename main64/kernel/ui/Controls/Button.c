@@ -9,6 +9,7 @@
 //
 
 #include "Button.h"
+#include "../../Heap/Heap.h"
 
 // Creates a new Button
 Button* NewButton(int X, int Y, int Width, int Height, Context *Context)
