@@ -26,7 +26,7 @@ typedef struct _Button
 Button* NewButton(int X, int Y, int Width, int Height, Context *Context);
 
 // Draws the Button
-void ButtonPaintHandler(Window *ButtonWindow);
+void ButtonPaintHandler(Window *ButtonWindow, Rectangle *DirtyRegion);
 
 // Handles the Mouse Down Event
 void ButtonMouseDownHandler(Window *ButtonWindow, int X, int Y);

@@ -11,9 +11,10 @@
 
 #include "../Window.h"
 
-#define SCROLL_BUTTON_WIDTH 20
-#define SCROLL_BUTTON_HEIGHT 20
-#define LINE_HEIGHT 15
+#define MULTILINEBOX_SCROLL_BUTTON_WIDTH 20
+#define MULTILINEBOX_SCROLL_BUTTON_HEIGHT 20
+#define MULTILINEBOX_LINE_HEIGHT 15
+#define MULTILINEBOX_PADDING 5
 
 typedef struct _MultiLineTextBox
 {
@@ -26,7 +27,7 @@ typedef struct _MultiLineTextBox
 MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Context *Context);
 
 // Draws the MultiLineTextBox
-void MultiLineTextBoxPaintHandler(Window *MultiLineTextBoxWindow);
+void MultiLineTextBoxPaintHandler(Window *MultiLineTextBoxWindow, Rectangle *DirtyRegion);
 
 // Handles the OnClick event of the SrollUpButton
 void ScrollUpButtonOnClick(Window *ButtonWindow, int X, int Y);

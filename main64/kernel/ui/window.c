@@ -93,9 +93,9 @@ void WindowRaise(Window *InputWindow)
 }
 
 // Draws a Window
-void WindowPaint(Window *InputWindow, int InRecursion)
+void WindowPaint(Window *InputWindow, Rectangle *DirtyRegion, int InRecursion)
 {
-    int i, j, screenX, screenY, childScreenX, childScreenY;
+    int i, j, screenX, screenY;
     Window *currentChild;
     Rectangle *tempRectangle;
 
@@ -105,7 +105,7 @@ void WindowPaint(Window *InputWindow, int InRecursion)
     if (!(InputWindow->Flags & WINDOW_NODECORATION))
     {
         // Draw the border
-        WindowDrawBorder(InputWindow);
+        WindowDrawBorder(InputWindow, DirtyRegion);
         screenX += WINDOW_BORDERWIDTH;
         screenY += WINDOW_TITLEHEIGHT;
     }
@@ -113,7 +113,7 @@ void WindowPaint(Window *InputWindow, int InRecursion)
     // Draw the window
     InputWindow->Context->TranslateX = screenX;
     InputWindow->Context->TranslateY = screenY;
-    InputWindow->PaintFunction(InputWindow);
+    InputWindow->PaintFunction(InputWindow, DirtyRegion);
 
     InputWindow->Context->TranslateX = 0;
     InputWindow->Context->TranslateY = 0;
@@ -121,14 +121,32 @@ void WindowPaint(Window *InputWindow, int InRecursion)
     for (i = 0; i < InputWindow->Children->Count; i++)
     {
         currentChild = (Window *)GetNodeFromList(InputWindow->Children, i);
-        WindowPaint(currentChild, 1);
+        WindowPaint(currentChild, DirtyRegion, 1);
     }
     
     // And finally we paint the Mouse Pointer, and copy the Frame Double Buffer to the VGA Buffer
     if (!InRecursion)
     {
         MousePointerPaint((Desktop *)InputWindow);
-        memcpy(InputWindow->Context->VgaFrameBuffer, InputWindow->Context->FrameDoubleBuffer, (InputWindow->Context->Width * InputWindow->Context->Height * WINDOW_BPP / 8) - 1);
+
+        if (DirtyRegion == 0x0)
+        {
+            // If no dirty region is provided, we copy the whole Double Buffer to the VGA Frame Buffer
+            memcpy(InputWindow->Context->VgaFrameBuffer, InputWindow->Context->FrameDoubleBuffer, (InputWindow->Context->Width * InputWindow->Context->Height * WINDOW_BPP / 8) - 1);
+        }
+        else
+        {
+            int x, y;
+
+            // A dirty region was provided, therefore we only copy the relevant part from the Double Buffer to the VGA Frame Buffer
+            for (y = DirtyRegion->Top; y < DirtyRegion->Bottom; y++)
+            {
+                for (x = DirtyRegion->Left; x < DirtyRegion->Right; x++)
+                {
+                    InputWindow->Context->VgaFrameBuffer[y * InputWindow->Context->Width + x] = InputWindow->Context->FrameDoubleBuffer[y * InputWindow->Context->Width + x];
+                }
+            }
+        }
     }
 }
 
@@ -149,7 +167,7 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
             MouseY >= child->Y && MouseY < (child->Y + child->Height)))
         {
             continue;
-        }    
+        }
 
         if (MouseClick && !InputWindow->LastMouseButtonState)
         {
@@ -213,49 +231,31 @@ void WindowProcessKey(Window *InputWindow, char Key)
 // Handles the OnClick event of the CloseButton
 void CloseButtonOnClick(Window *CloseButton, int X, int Y)
 {
+    Window *desktop = CloseButton->Parent->Parent;
+
+    // Close the Window
     RemoveDesktopWindow(CloseButton->Parent);
+
+    // Set the new active Child on the Desktop
+    if (desktop->Children->Count > 0)
+        desktop->ActiveChild = GetNodeFromList(desktop->Children, desktop->Children->Count - 1);
 }
 
-// Draws a border around the Window
-static void WindowDrawBorder(Window *Window)
+// Invalidates the provided Window on the Desktop
+void WindowInvalidate(Window *InputDesktop, Window *InputWindow)
 {
-    int i;
-    int screenX = WindowScreenX(Window);
-    int screenY = WindowScreenY(Window);
+    int x = WindowScreenX((Window *)InputWindow) + InputWindow->X;
+    int y = WindowScreenY((Window *)InputWindow) + InputWindow->Y + WINDOW_TITLEHEIGHT;
+    Rectangle *dirtyRect = NewRectangle(x, y, x + InputWindow->Width, y + InputWindow->Height);
 
-    ContextDrawRectangle(Window->Context, screenX, screenY, Window->Width, Window->Height, WINDOW_BORDERCOLOR);
-    ContextDrawRectangle(Window->Context, screenX + 1, screenY + 1, Window->Width - 2, Window->Height - 2, WINDOW_BORDERCOLOR);
-    ContextDrawRectangle(Window->Context, screenX + 2, screenY + 2, Window->Width - 4, Window->Height - 4, WINDOW_BORDERCOLOR);
-
-    // Draw a border line under the titlebar
-    for (i = 0; i < WINDOW_BORDERWIDTH; i++)
-    {
-        ContextDrawHorizontalLine(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + i + WINDOW_TITLEHEIGHT - WINDOW_BORDERWIDTH, Window->Width - (2 * WINDOW_BORDERWIDTH), WINDOW_BORDERCOLOR);
-    }
-
-    // Fill the titlebar background
-    ContextFillRect(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + WINDOW_BORDERWIDTH, Window->Width - 6, 25,
-        Window->Parent->ActiveChild == Window ? WINDOW_TITLE_COLOR_ACTIVE : WINDOW_TITLE_COLOR_INACTIVE);
-}
-
-// The default paint method
-static void WindowPaintHandler(Window *Window)
-{
-    // Fill the Window Background
-    ContextFillRect(Window->Context, 0, 0, Window->Width - 6, Window->Height - 34, WINDOW_BACKGROUND_COLOR);
-
-    // Draw the Window Title
-    DrawString(Window->Context, Window->Title, 10, -21, 0xFFFF);
-}
-
-// The default Mouse Handler does nothing
-static void WindowMouseDownHandler(Window *Window, int X, int Y)
-{
-    return;
+    // Redraw the dirty Window Region
+    DisableInterrupts();
+    WindowPaint(InputDesktop, dirtyRect, 0);
+    EnableInterrupts();
 }
 
 // Returns the absolute X coordinate of the given Window
-static int WindowScreenX(Window *Window)
+int WindowScreenX(Window *Window)
 {
     if (Window->Parent)
         return Window->X + WindowScreenX(Window->Parent);
@@ -264,10 +264,48 @@ static int WindowScreenX(Window *Window)
 }
 
 // Returns the absolute Y coordinate of the given Window
-static int WindowScreenY(Window *Window)
+int WindowScreenY(Window *Window)
 {
     if (Window->Parent)
         return Window->Y + WindowScreenY(Window->Parent);
 
     return Window->Y;
+}
+
+// Draws a border around the Window
+static void WindowDrawBorder(Window *Window, Rectangle *DirtyRegion)
+{
+    int i;
+    int screenX = WindowScreenX(Window);
+    int screenY = WindowScreenY(Window);
+
+    ContextDrawRectangle(Window->Context, screenX, screenY, Window->Width, Window->Height, WINDOW_BORDERCOLOR, DirtyRegion);
+    ContextDrawRectangle(Window->Context, screenX + 1, screenY + 1, Window->Width - 2, Window->Height - 2, WINDOW_BORDERCOLOR, DirtyRegion);
+    ContextDrawRectangle(Window->Context, screenX + 2, screenY + 2, Window->Width - 4, Window->Height - 4, WINDOW_BORDERCOLOR, DirtyRegion);
+
+    // Draw a border line under the titlebar
+    for (i = 0; i < WINDOW_BORDERWIDTH; i++)
+    {
+        ContextDrawHorizontalLine(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + i + WINDOW_TITLEHEIGHT - WINDOW_BORDERWIDTH, Window->Width - (2 * WINDOW_BORDERWIDTH), WINDOW_BORDERCOLOR, DirtyRegion);
+    }
+
+    // Fill the titlebar background
+    ContextFillRect(Window->Context, screenX + WINDOW_BORDERWIDTH, screenY + WINDOW_BORDERWIDTH, Window->Width - 6, 25,
+        Window->Parent->ActiveChild == Window ? WINDOW_TITLE_COLOR_ACTIVE : WINDOW_TITLE_COLOR_INACTIVE, DirtyRegion);
+}
+
+// The default paint method
+static void WindowPaintHandler(Window *Window, Rectangle *DirtyRegion)
+{
+    // Fill the Window Background
+    ContextFillRect(Window->Context, 0, 0, Window->Width - 6, Window->Height - 34, WINDOW_BACKGROUND_COLOR, DirtyRegion);
+
+    // Draw the Window Title
+    ContextDrawString(Window->Context, Window->Title, 10, -21, 0xFFFF, DirtyRegion);
+}
+
+// The default Mouse Handler does nothing
+static void WindowMouseDownHandler(Window *Window, int X, int Y)
+{
+    return;
 }

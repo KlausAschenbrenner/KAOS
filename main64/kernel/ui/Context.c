@@ -9,6 +9,7 @@
 //
 
 #include "Context.h"
+#include "Rectangle.h"
 #include "../Heap/Heap.h"
 
 // This array represents our font.
@@ -41,7 +42,7 @@ Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, uns
 }
 
 // Draws a filled Rectangle
-void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color)
+void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color, Rectangle *DirtyRegion)
 {
     int currentX;
     int maxX = X + Width;
@@ -69,22 +70,37 @@ void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigne
     {
         for (currentX = X; currentX < maxX; currentX++)
         {
-            Context->FrameDoubleBuffer[Y * Context->Width + currentX] = Color;
+            if (DirtyRegion == 0x0)
+            {
+                // No dirty region was supplied, so we just draw the pixel
+                Context->FrameDoubleBuffer[Y * Context->Width + currentX] = Color;
+            }
+            else
+            {
+                // Check if the current pixel to be drawn is within the provided dirty region
+                if (currentX >= DirtyRegion->Left &&
+                    currentX <= DirtyRegion->Right &&
+                    Y >= DirtyRegion->Top &&
+                    Y <= DirtyRegion->Bottom)
+                {
+                    Context->FrameDoubleBuffer[Y * Context->Width + currentX] = Color;
+                }
+            }
         }
     }
 }
 
 // Draws a Rectangle
-void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color)
+void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color, Rectangle *DirtyRegion)
 {
-    ContextDrawHorizontalLine(Context, X, Y, Width, Color);
-    ContextDrawVerticalLine(Context, X, Y + 1, Height - 2, Color);
-    ContextDrawHorizontalLine(Context, X, Y + Height - 1, Width, Color);
-    ContextDrawVerticalLine(Context, X + Width - 1, Y + 1, Height - 2, Color);
+    ContextDrawHorizontalLine(Context, X, Y, Width, Color, DirtyRegion);
+    ContextDrawVerticalLine(Context, X, Y + 1, Height - 2, Color, DirtyRegion);
+    ContextDrawHorizontalLine(Context, X, Y + Height - 1, Width, Color, DirtyRegion);
+    ContextDrawVerticalLine(Context, X + Width - 1, Y + 1, Height - 2, Color, DirtyRegion);
 }
 
 // Draws a horizontal line
-void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color)
+void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color, Rectangle *DirtyRegion)
 {
     // Limits the screen on the left side
     if (X < 0)
@@ -93,30 +109,30 @@ void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int C
         X = 0;
     }
 
-    ContextFillRect(Context, X, Y, Length, 1, Color);
+    ContextFillRect(Context, X, Y, Length, 1, Color, DirtyRegion);
 }
 
 // Draws a vertical line
-void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color)
+void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color, Rectangle *DirtyRegion)
 {
-    ContextFillRect(Context, X, Y, 1, Length, Color);
+    ContextFillRect(Context, X, Y, 1, Length, Color, DirtyRegion);
 }
 
 // Draws a null-terminated String at the given location
-void DrawString(Context *Context, char *String, int X, int Y, int Color)
+void ContextDrawString(Context *Context, char *String, int X, int Y, int Color, Rectangle *DirtyRegion)
 {
     int i = 0;
 
     while (*String != '\0')
 	{
-		DrawCharacter(Context, *String, X + (i * FONT_WIDTH), Y, Color);
+		ContextDrawCharacter(Context, *String, X + (i * FONT_WIDTH), Y, Color, DirtyRegion);
 		String++;
         i++;
 	}
 }
 
 // Draws a single Character
-static void DrawCharacter(Context *Context, char Character, int X, int Y, int Color)
+static void ContextDrawCharacter(Context *Context, char Character, int X, int Y, int Color, Rectangle *DirtyRegion)
 {
     int fontX, fontY;
     char shiftLine;
@@ -132,7 +148,22 @@ static void DrawCharacter(Context *Context, char Character, int X, int Y, int Co
         {
             if (shiftLine & 0x80 && ((fontX + X) >= 0 && fontX + X <= Context->Width))
             {
-                Context->FrameDoubleBuffer[(fontY + Y) * Context->Width + (fontX + X)] = Color;
+                if (DirtyRegion == 0x0)
+                {
+                    // No dirty region was supplied, so we just draw the pixel
+                    Context->FrameDoubleBuffer[(fontY + Y) * Context->Width + (fontX + X)] = Color;
+                }
+                else
+                {
+                    // Check if the current pixel to be drawn is within the provided dirty region
+                    if ((fontX + X) >= DirtyRegion->Left &&
+                        (fontX + X) <= DirtyRegion->Right &&
+                        (fontY + Y) >= DirtyRegion->Top &&
+                        (fontY + Y) <= DirtyRegion->Bottom)
+                    {
+                        Context->FrameDoubleBuffer[(fontY + Y) * Context->Width + (fontX + X)] = Color;
+                    }
+                }
             }
 
             shiftLine <<= 1;

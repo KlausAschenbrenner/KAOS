@@ -12,13 +12,13 @@
 #include "../Heap/Heap.h"
 
 // Creates a new Rectangle
-Rectangle *NewRectange(int Top, int Left, int Bottom, int Right)
+Rectangle *NewRectangle(int Left, int Top, int Right, int Bottom)
 {
     Rectangle *rect = (Rectangle *)malloc(sizeof(Rectangle));
-    rect->Top = Top;
     rect->Left = Left;
-    rect->Bottom = Bottom;
+    rect->Top = Top;
     rect->Right = Right;
+    rect->Bottom = Bottom;
 
     return rect;
 }

@@ -19,6 +19,7 @@ Context *context = 0x0;
 Desktop *desktop = 0x0;
 TextBox *textbox = 0x0;
 MultiLineTextBox *multiLineTextBox1 = 0x0;
+Label *desktopLabel = 0x0;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
 int UIMode = 1;
@@ -95,6 +96,10 @@ void InitWindowSystem()
 	desktop = (Desktop *)NewDesktop(context, 0x05FF);
 	desktop->MouseX = 50;
 	desktop->MouseY = 50;
+
+	// Create a Label on the Desktop
+	desktopLabel = NewLabel(5, 5, "0", context);
+	WindowInsertChild((Window *)desktop, (Window *)desktopLabel);
 }
 
 // Initializes the KPCR Data Structure
@@ -132,24 +137,20 @@ void DesktopWindow1()
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5, context);
-	label->Window.Title = "PID: ";
+	Label *label = NewLabel(5, 5, "PID: ", context);
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
-	lbl2->Window.Title = str1;
+	Label *lbl2 = NewLabel(25, 5, str1, context);
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15, context);
-	lbl3->Window.Title = "Number of Context Switches:";
+	Label *lbl3 = NewLabel(5, 15, "Number of Context Switches:", context);
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15, context);
-	lbl4->Window.Title = "0";
+	Label *lbl4 = NewLabel(115, 15, "0", context);
 	WindowInsertChild(window, (Window *)lbl4);
 
 	for (i = 0; i < 15; i++)
@@ -175,9 +176,10 @@ void DesktopWindow1()
 
 	while (1 == 1)
 	{
-		// cntr++;
+		// Change a Control content and invalidate the Control
 		ltoa(window->Task->ContextSwitches, 10, str2);
-		lbl4->Window.Title = str2;
+		LabelSetTitle(lbl4, str2);
+		WindowInvalidate((Window *)desktop, (Window *)lbl4);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -198,24 +200,20 @@ void DesktopWindow2()
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5, context);
-	label->Window.Title = "PID: ";
+	Label *label = NewLabel(5, 5, "PID: ", context);
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
-	lbl2->Window.Title = str1;
+	Label *lbl2 = NewLabel(25, 5, str1, context);
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15, context);
-	lbl3->Window.Title = "Number of Context Switches:";
+	Label *lbl3 = NewLabel(5, 15, "Number of Context Switches:", context);
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15, context);
-	lbl4->Window.Title = "0";
+	Label *lbl4 = NewLabel(115, 15, "0", context);
 	WindowInsertChild(window, (Window *)lbl4);
 
 	for (i = 0; i < 6; i++)
@@ -234,8 +232,10 @@ void DesktopWindow2()
 
 	while (1 == 1)
 	{
+		// Change a Control content and invalidate the Control
 		ltoa(window->Task->ContextSwitches, 10, str2);
-		lbl4->Window.Title = str2;
+		LabelSetTitle(lbl4, str2);
+		WindowInvalidate((Window *)desktop, (Window *)lbl4);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -256,24 +256,20 @@ void DesktopWindow3()
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5, context);
-	label->Window.Title = "PID: ";
+	Label *label = NewLabel(5, 5, "PID: ", context);
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
-	lbl2->Window.Title = str1;
+	Label *lbl2 = NewLabel(25, 5, str1, context);
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Label
-	Label *lbl3 = NewLabel(5, 15, context);
-	lbl3->Window.Title = "Number of Context Switches:";
+	Label *lbl3 = NewLabel(5, 15, "Number of Context Switches:", context);
 	WindowInsertChild(window, (Window *)lbl3);
 
 	// Create a new Label
-	Label *lbl4 = NewLabel(115, 15, context);
-	lbl4->Window.Title = "0";
+	Label *lbl4 = NewLabel(115, 15, "0", context);
 	WindowInsertChild(window, (Window *)lbl4);
 
 	// Create a new TextBox
@@ -320,10 +316,10 @@ void DesktopWindow3()
 
 	while (1 == 1)
 	{
-		// Change something on the Desktop and redraw it
+		// Change a Control content and invalidate the Control
 		ltoa(window->Task->ContextSwitches, 10, str2);
-		lbl4->Window.Title = str2;
-		// WindowPaint((Window *)desktop, 0);
+		LabelSetTitle(lbl4, str2);
+		WindowInvalidate((Window *)desktop, (Window *)lbl4);
 
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
@@ -339,14 +335,12 @@ void DesktopWindow4()
 	window->Task = (Task *)GetTaskState();
 
 	// Create a new Label
-	Label *label = NewLabel(5, 5, context);
-	label->Window.Title = "PID: ";
+	Label *label = NewLabel(5, 5, "PID: ", context);
 	WindowInsertChild(window, (Window *)label);
 
 	// Create a new Label
-	Label *lbl2 = NewLabel(25, 5, context);
 	ltoa(window->Task->PID, 10, str1);
-	lbl2->Window.Title = str1;
+	Label *lbl2 = NewLabel(25, 5, str1, context);
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Button
@@ -371,7 +365,29 @@ void DesktopWindow4()
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
 	}
-}	
+}
+
+void CalculateSomething()
+{
+	char str[32] = "";
+	int cntr = 0;
+
+	while (1 == 1)
+	{
+		// Increment the calculated value
+		cntr++;
+		long *value = (long *)0xFFFF800000700000;
+		*value = cntr;
+
+		// Display the value on the Desktop
+		itoa(*value, 10, str);
+		LabelSetTitle(desktopLabel, str);
+		WindowInvalidate((Window *)desktop, (Window *)desktopLabel);
+
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
+}
 
 // Simulates a simple Mouse through various keystrokes
 void MouseHandler()
@@ -381,8 +397,10 @@ void MouseHandler()
 	int mouseClick = 0;
 	int dragWindow = 0;
 
-	// Draw initially the Desktop
-	WindowPaint((Window *)desktop, 0);
+	// Draw initially the whole Desktop
+	DisableInterrupts();
+	WindowPaint((Window *)desktop, 0x0, 0);
+	EnableInterrupts();
 
 	while (1 == 1)
 	{
@@ -509,6 +527,7 @@ void MouseHandler()
 			MouseY = WINDOW_HEIGHT - 5;
 		
 		// Process the Mouse Event
+		DisableInterrupts();
 		DesktopProcessMouse(desktop, MouseX, MouseY, mouseClick, dragWindow);
 		mouseClick = 0;
 		dragWindow = 0;
@@ -516,8 +535,9 @@ void MouseHandler()
 		// Process the Key Press Event
 		DesktopProcessKey(desktop, originalInput);
 
-		// Update the screen
-    	WindowPaint((Window *)desktop, 0);
+		// Update the whole screen
+    	WindowPaint((Window *)desktop, 0x0, 0);
+		EnableInterrupts();
 		
 		// Print the mouse coordinates out to the console
 		printf_int(MouseX, 16);
@@ -527,25 +547,10 @@ void MouseHandler()
 	}
 }
 
-void Dummy()
-{
-	int cntr = 0;
-
-	while (1 == 1)
-	{
-		cntr++;
-		long *value = (long *)0xFFFF800000700000;
-		*value = cntr;
-
-		// Introduce some delay in the calculation...
-		Sleep(99999999);
-	}
-}
-
 void CreateTasksVGA()
 {
 	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
-	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+	CreateKernelTask(CalculateSomething, 2, 0xFFFF800001200000);
 
 	// CreateUserTask(DesktopWindow1, 3, 0xFFFF800001300000, 0xFFFF800001310000);
 	// CreateUserTask(DesktopWindow2, 4, 0xFFFF800001400000, 0xFFFF800001410000);
@@ -567,7 +572,7 @@ void CreateTasks()
 	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
-	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
+	CreateKernelTask(CalculateSomething, 2, 0xFFFF800001200000);
 
 	/* CreateKernelTask(DesktopWindow1, 3, 0xFFFF800001300000);
 	CreateKernelTask(DesktopWindow2, 4, 0xFFFF800001400000);

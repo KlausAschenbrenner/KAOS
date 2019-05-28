@@ -22,12 +22,12 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     textbox->Position = 0;
 
     // Create a new Button for scrolling up
-	Button *scrollUpButton = NewButton(Width - SCROLL_BUTTON_WIDTH - 1, 1, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, Context);
+	Button *scrollUpButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH, MULTILINEBOX_SCROLL_BUTTON_HEIGHT, Context);
     scrollUpButton->OnClick = ScrollUpButtonOnClick;
 	WindowInsertChild((Window *)textbox, (Window *)scrollUpButton);
 
     // Create a new Button for scrolling down
-	Button *scrollDownButton = NewButton(Width - SCROLL_BUTTON_WIDTH - 1, Height - SCROLL_BUTTON_HEIGHT - 1, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, Context);
+	Button *scrollDownButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, Height - MULTILINEBOX_SCROLL_BUTTON_HEIGHT - 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH, MULTILINEBOX_SCROLL_BUTTON_HEIGHT, Context);
     scrollDownButton->OnClick = ScrollDownButtonOnClick;
 	WindowInsertChild((Window *)textbox, (Window *)scrollDownButton);
 
@@ -35,25 +35,25 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
 }
 
 // Draws the MultiLineTextBox
-void MultiLineTextBoxPaintHandler(Window *MultiLineTextBoxWindow)
+void MultiLineTextBoxPaintHandler(Window *MultiLineTextBoxWindow, Rectangle *DirtyRegion)
 {
     MultiLineTextBox *textbox = (MultiLineTextBox *)MultiLineTextBoxWindow;
-    int i, y = 5;
+    int i, y = MULTILINEBOX_PADDING;
 
     // White background & black border
-    ContextFillRect(MultiLineTextBoxWindow->Context, 1, 1, MultiLineTextBoxWindow->Width - 2, MultiLineTextBoxWindow->Height - 2, 0xFFFF);
-    ContextDrawRectangle(MultiLineTextBoxWindow->Context, 0, 0, MultiLineTextBoxWindow->Width, MultiLineTextBoxWindow->Height, 0x0000);
+    ContextFillRect(MultiLineTextBoxWindow->Context, 1, 1, MultiLineTextBoxWindow->Width - 2, MultiLineTextBoxWindow->Height - 2, 0xFFFF, DirtyRegion);
+    ContextDrawRectangle(MultiLineTextBoxWindow->Context, 0, 0, MultiLineTextBoxWindow->Width, MultiLineTextBoxWindow->Height, 0x0000, DirtyRegion);
 
     // Draw a vertical line for the ScrollBar
-    ContextDrawVerticalLine(MultiLineTextBoxWindow->Context, MultiLineTextBoxWindow->Width - SCROLL_BUTTON_WIDTH - 2, 0, MultiLineTextBoxWindow->Height, 0x0000);
+    ContextDrawVerticalLine(MultiLineTextBoxWindow->Context, MultiLineTextBoxWindow->Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 2, 0, MultiLineTextBoxWindow->Height, 0x0000, DirtyRegion);
 
     // Draw the various text lines
     for (i = 0; i < textbox->TextLines->Count; i++)
     {
-        if (y <= textbox->Window.Height - LINE_HEIGHT)
+        if (y <= textbox->Window.Height - MULTILINEBOX_LINE_HEIGHT)
         {
-            DrawString(MultiLineTextBoxWindow->Context, GetNodeFromList(textbox->TextLines, i + textbox->Position), 5, y, 0x0000);
-            y+= LINE_HEIGHT;
+            ContextDrawString(MultiLineTextBoxWindow->Context, GetNodeFromList(textbox->TextLines, i + textbox->Position), MULTILINEBOX_PADDING, y, 0x0000, DirtyRegion);
+            y+= MULTILINEBOX_LINE_HEIGHT;
         }
     }
 }
@@ -71,7 +71,7 @@ void ScrollUpButtonOnClick(Window *ButtonWindow, int X, int Y)
 void ScrollDownButtonOnClick(Window *ButtonWindow, int X, int Y)
 {
 	MultiLineTextBox *textbox = (MultiLineTextBox *)ButtonWindow->Parent;
-    int numberOfVisibleTextLines = 6; // TODO
+    int numberOfVisibleTextLines = (textbox->Window.Height - (2 * MULTILINEBOX_PADDING)) / MULTILINEBOX_LINE_HEIGHT;
 
     if (textbox->Position < textbox->TextLines->Count - numberOfVisibleTextLines)
         textbox->Position++;

@@ -24,7 +24,7 @@ Button* NewButton(int X, int Y, int Width, int Height, Context *Context)
 }
 
 // Draws the Button
-void ButtonPaintHandler(Window *ButtonWindow)
+void ButtonPaintHandler(Window *ButtonWindow, Rectangle *DirtyRegion)
 {
     Button *button = (Button *)ButtonWindow;
     int borderColor = WINDOW_TITLE_COLOR_INACTIVE;
@@ -34,14 +34,14 @@ void ButtonPaintHandler(Window *ButtonWindow)
     else
         borderColor = WINDOW_TITLE_COLOR_INACTIVE; */
 
-    ContextFillRect(ButtonWindow->Context, 1, 1, ButtonWindow->Width - 1, ButtonWindow->Height - 1, WINDOW_TITLE_COLOR_INACTIVE);
-    ContextDrawRectangle(ButtonWindow->Context, 0, 0, ButtonWindow->Width, ButtonWindow->Height, 0xCEE0);
+    ContextFillRect(ButtonWindow->Context, 1, 1, ButtonWindow->Width - 1, ButtonWindow->Height - 1, WINDOW_TITLE_COLOR_INACTIVE, DirtyRegion);
+    ContextDrawRectangle(ButtonWindow->Context, 0, 0, ButtonWindow->Width, ButtonWindow->Height, 0xCEE0, DirtyRegion);
 
-    ContextDrawRectangle(ButtonWindow->Context, 3, 3, ButtonWindow->Width - 6, ButtonWindow->Height - 6, borderColor);
-    ContextDrawRectangle(ButtonWindow->Context, 4, 4, ButtonWindow->Width - 8, ButtonWindow->Height - 8, borderColor);
+    ContextDrawRectangle(ButtonWindow->Context, 3, 3, ButtonWindow->Width - 6, ButtonWindow->Height - 6, borderColor, DirtyRegion);
+    ContextDrawRectangle(ButtonWindow->Context, 4, 4, ButtonWindow->Width - 8, ButtonWindow->Height - 8, borderColor, DirtyRegion);
 
     // Draw the Button Label
-    DrawString(ButtonWindow->Context, ButtonWindow->Title, 10, 10, WINDOW_BORDERCOLOR);
+    ContextDrawString(ButtonWindow->Context, ButtonWindow->Title, 10, 10, WINDOW_BORDERCOLOR, DirtyRegion);
 }
 
 // Handles the Mouse Down Event

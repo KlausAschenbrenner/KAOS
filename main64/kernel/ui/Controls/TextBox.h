@@ -25,7 +25,7 @@ typedef struct _TextBox
 TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context);
 
 // Draws the TextBox
-void TextBoxPaintHandler(Window *TextBoxWindow);
+void TextBoxPaintHandler(Window *TextBoxWindow, Rectangle *DirtyRegion);
 
 // Handles the Mouse Down Event
 void TextBoxMouseDownHandler(Window *TextBoxWindow, int X, int Y);

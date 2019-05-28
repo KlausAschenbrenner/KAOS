@@ -40,4 +40,6 @@ unsigned short inw(unsigned short Port);
 // A simple strcpy implementation
 char *strcpy(char *destination, const char *source);
 
+int strlen(char *string);
+
 #endif

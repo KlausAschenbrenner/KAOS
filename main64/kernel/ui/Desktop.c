@@ -123,16 +123,10 @@ void MousePointerPaint(Desktop *Desktop)
 }
 
 // Draws the Desktop
-static void DesktopPaintHandler(Window *DesktopWindow)
+static void DesktopPaintHandler(Window *DesktopWindow, Rectangle *DirtyRegion)
 {
     // Fill the Desktop
-    ContextFillRect(DesktopWindow->Context, 0, 0, DesktopWindow->Width, DesktopWindow->Height, 0x05FF);
-    DrawString(DesktopWindow->Context, "KAOS x64", 10, 10, 0x0000);
-    DrawString(DesktopWindow->Context, "(c) 2019 by Klaus Aschenbrenner", 10, 26, 0x0000);
-
-    // Draw a calculated value on the Desktop
-    int *value = (int *)0xFFFF800000700000;
-    char str[32] = "";
-    itoa(*value, 10, str);
-    DrawString(DesktopWindow->Context, str, 10, 42, 0x0000);
+    ContextFillRect(DesktopWindow->Context, 0, 0, DesktopWindow->Width, DesktopWindow->Height, 0x05FF, DirtyRegion);
+    ContextDrawString(DesktopWindow->Context, "KAOS x64", 10, 10, 0x0000, DirtyRegion);
+    ContextDrawString(DesktopWindow->Context, "(c) 2019 by Klaus Aschenbrenner", 10, 26, 0x0000, DirtyRegion);
 }

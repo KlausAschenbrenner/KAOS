@@ -14,13 +14,13 @@
 // Defines a simple Rectangle
 typedef struct _Rectangle
 {
-    int Top;
     int Left;
-    int Bottom;
+    int Top;
     int Right;
+    int Bottom;
 } Rectangle;
 
 // Creates a new Rectangle
-Rectangle *NewRectange(int Top, int Left, int Bottom, int Right);
+Rectangle *NewRectangle(int Left, int Top, int Right, int Bottom);
 
 #endif

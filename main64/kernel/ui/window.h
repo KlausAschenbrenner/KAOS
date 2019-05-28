@@ -41,7 +41,7 @@
 #define WINDOW_NODECORATION 0x1
 
 // The Paint Handler for a given Window
-typedef void (*WindowPaintFunctionHandler)(struct _Window*);
+typedef void (*WindowPaintFunctionHandler)(struct _Window*, Rectangle *DirtyRegion);
 
 // The Mouse Handler for a given Window
 typedef void (*WindowMouseDownFunctionHandler)(struct _Window*, int, int);
@@ -86,7 +86,7 @@ void WindowInsertChild(Window *InputWindow, Window *Child);
 void WindowRaise(Window *InputWindow);
 
 // Draws a Window
-void WindowPaint(Window *InputWindow, int InRecursion);
+void WindowPaint(Window *InputWindow, Rectangle *DirtyRegion, int InRecursion);
 
 // Processes the Mouse on the Window
 void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow);
@@ -97,19 +97,22 @@ void WindowProcessKey(Window *InputWindow, char Key);
 // Handles the OnClick event of the CloseButton
 void CloseButtonOnClick(Window *CloseButton, int X, int Y);
 
+// Invalidates the provided Window on the Desktop
+void WindowInvalidate(Window *InputDesktop, Window *InputWindow);
+
+// Returns the absolute X coordinate of the given Window
+int WindowScreenX(Window *Window);
+
+// Returns the absolute Y coordinate of the given Window
+int WindowScreenY(Window *Window);
+
 // Draws a border around the Window
-static void WindowDrawBorder(Window *Window);
+static void WindowDrawBorder(Window *Window, Rectangle *DirtyRegion);
 
 // The default paint method
-static void WindowPaintHandler(Window *Window);
+static void WindowPaintHandler(Window *Window, Rectangle *DirtyRegion);
 
 // The default Mouse Handler does nothing
 static void WindowMouseDownHandler(Window *Window, int X, int Y);
-
-// Returns the absolute X coordinate of the given Window
-static int WindowScreenX(Window *Window);
-
-// Returns the absolute Y coordinate of the given Window
-static int WindowScreenY(Window *Window);
 
 #endif

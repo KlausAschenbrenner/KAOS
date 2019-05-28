@@ -27,22 +27,22 @@ TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context)
 }
 
 // Draws the TextBox
-void TextBoxPaintHandler(Window *TextBoxWindow)
+void TextBoxPaintHandler(Window *TextBoxWindow, Rectangle *DirtyRegion)
 {
     TextBox *textbox = (TextBox *)TextBoxWindow;
     int titleLen = strlen(textbox->Text) * 8;
 
     // White background
-    ContextFillRect(TextBoxWindow->Context, 1, 1, TextBoxWindow->Width - 2, TextBoxWindow->Height - 2, 0xFFFF);
+    ContextFillRect(TextBoxWindow->Context, 1, 1, TextBoxWindow->Width - 2, TextBoxWindow->Height - 2, 0xFFFF, DirtyRegion);
 
     if (textbox->HasFocus)
-        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0xF800);
+        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0xF800, DirtyRegion);
     else
-        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0x0000);
+        ContextDrawRectangle(TextBoxWindow->Context, 0, 0, TextBoxWindow->Width, TextBoxWindow->Height, 0x0000, DirtyRegion);
     
     // Draw the title
     if (TextBoxWindow->Title)
-        DrawString(TextBoxWindow->Context, textbox->Text, 6, (TextBoxWindow->Height / 2) - 6, 0x0000);
+        ContextDrawString(TextBoxWindow->Context, textbox->Text, 6, (TextBoxWindow->Height / 2) - 6, 0x0000, DirtyRegion);
 }
 
 // Handles the Mouse Down Event

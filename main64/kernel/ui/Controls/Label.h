@@ -19,10 +19,13 @@ typedef struct _Label
 } Label;
 
 // Creates a new Label
-Label* NewLabel(int X, int Y, Context *Context);
+Label* NewLabel(int X, int Y, char *Title, Context *Context);
 
-void LabelPaintHandler(Window *LabelWindow);
+void LabelPaintHandler(Window *LabelWindow, Rectangle *DirtyRegion);
 
 void LabelMouseDownHandler(Window *LabelWindow, int X, int Y);
+
+// Sets the title of the Label
+void LabelSetTitle(Label *InputLabel, char *Title);
 
 #endif

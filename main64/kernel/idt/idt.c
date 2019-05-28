@@ -131,87 +131,87 @@ void DisplayBlueScreen(int Number, RegisterState *Registers)
 
     // Fill the whole display with a blue color
     Context *context = NewContext(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FRAME_BUFFER, WINDOW_FRAME_BUFFER);;
-    ContextFillRect(context, 0, 0, context->Width, context->Height, 0x025B);
-    DrawString(context, "A fatal has error occured! ", 10, 10, 0xFFFF);
-    DrawString(context, "ISR: 0x", 10, 26, 0xFFFF);
-    DrawString(context, str, 66, 26, 0xFFFF);
+    ContextFillRect(context, 0, 0, context->Width, context->Height, 0x025B, 0x0);
+    ContextDrawString(context, "A fatal has error occured! ", 10, 10, 0xFFFF, 0x0);
+    ContextDrawString(context, "ISR: 0x", 10, 26, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 26, 0xFFFF, 0x0);
 
     ltoa(Registers->RIP, 16, str);
-    DrawString(context, "RIP: 0x", 10, 42, 0xFFFF);
-    DrawString(context, str, 66, 42, 0xFFFF);
+    ContextDrawString(context, "RIP: 0x", 10, 42, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 42, 0xFFFF, 0x0);
 
     ltoa(Registers->RDI, 16, str);
-    DrawString(context, "RDI: 0x", 10, 58, 0xFFFF);
-    DrawString(context, str, 66, 58, 0xFFFF);
+    ContextDrawString(context, "RDI: 0x", 10, 58, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 58, 0xFFFF, 0x0);
 
     ltoa(Registers->RSI, 16, str);
-    DrawString(context, "RSI: 0x", 10, 74, 0xFFFF);
-    DrawString(context, str, 66, 74, 0xFFFF);
+    ContextDrawString(context, "RSI: 0x", 10, 74, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 74, 0xFFFF, 0x0);
 
     ltoa(Registers->RBP, 16, str);
-    DrawString(context, "RBP: 0x", 10, 90, 0xFFFF);
-    DrawString(context, str, 66, 90, 0xFFFF);
+    ContextDrawString(context, "RBP: 0x", 10, 90, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 90, 0xFFFF, 0x0);
 
     ltoa(Registers->RSP, 16, str);
-    DrawString(context, "RSP: 0x", 10, 106, 0xFFFF);
-    DrawString(context, str, 66, 106, 0xFFFF);
+    ContextDrawString(context, "RSP: 0x", 10, 106, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 106, 0xFFFF, 0x0);
 
     ltoa(Registers->RAX, 16, str);
-    DrawString(context, "RAX: 0x", 10, 122, 0xFFFF);
-    DrawString(context, str, 66, 122, 0xFFFF);
+    ContextDrawString(context, "RAX: 0x", 10, 122, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 122, 0xFFFF, 0x0);
 
     ltoa(Registers->RBX, 16, str);
-    DrawString(context, "RBX: 0x", 10, 138, 0xFFFF);
-    DrawString(context, str, 66, 138, 0xFFFF);
+    ContextDrawString(context, "RBX: 0x", 10, 138, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 138, 0xFFFF, 0x0);
 
     ltoa(Registers->RCX, 16, str);
-    DrawString(context, "RCX: 0x", 10, 154, 0xFFFF);
-    DrawString(context, str, 66, 154, 0xFFFF);
+    ContextDrawString(context, "RCX: 0x", 10, 154, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 154, 0xFFFF, 0x0);
 
     ltoa(Registers->RDX, 16, str);
-    DrawString(context, "RDX: 0x", 10, 170, 0xFFFF);
-    DrawString(context, str, 66, 170, 0xFFFF);
+    ContextDrawString(context, "RDX: 0x", 10, 170, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 170, 0xFFFF, 0x0);
 
     ltoa(Registers->R8, 16, str);
-    DrawString(context, "R8:  0x", 10, 186, 0xFFFF);
-    DrawString(context, str, 66, 186, 0xFFFF);
+    ContextDrawString(context, "R8:  0x", 10, 186, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 186, 0xFFFF, 0x0);
 
     ltoa(Registers->R9, 16, str);
-    DrawString(context, "R9:  0x", 10, 202, 0xFFFF);
-    DrawString(context, str, 66, 202, 0xFFFF);
+    ContextDrawString(context, "R9:  0x", 10, 202, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 202, 0xFFFF, 0x0);
 
     ltoa(Registers->R10, 16, str);
-    DrawString(context, "R10: 0x", 10, 218, 0xFFFF);
-    DrawString(context, str, 66, 218, 0xFFFF);
+    ContextDrawString(context, "R10: 0x", 10, 218, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 218, 0xFFFF, 0x0);
 
     ltoa(Registers->R11, 16, str);
-    DrawString(context, "R11: 0x", 10, 234, 0xFFFF);
-    DrawString(context, str, 66, 234, 0xFFFF);
+    ContextDrawString(context, "R11: 0x", 10, 234, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 234, 0xFFFF, 0x0);
 
     ltoa(Registers->R12, 16, str);
-    DrawString(context, "R12: 0x", 10, 250, 0xFFFF);
-    DrawString(context, str, 66, 250, 0xFFFF);
+    ContextDrawString(context, "R12: 0x", 10, 250, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 250, 0xFFFF, 0x0);
 
     ltoa(Registers->R13, 16, str);
-    DrawString(context, "R13: 0x", 10, 266, 0xFFFF);
-    DrawString(context, str, 66, 266, 0xFFFF);
+    ContextDrawString(context, "R13: 0x", 10, 266, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 266, 0xFFFF, 0x0);
 
     ltoa(Registers->R14, 16, str);
-    DrawString(context, "R14: 0x", 10, 282, 0xFFFF);
-    DrawString(context, str, 66, 282, 0xFFFF);
+    ContextDrawString(context, "R14: 0x", 10, 282, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 282, 0xFFFF, 0x0);
 
     ltoa(Registers->R15, 16, str);
-    DrawString(context, "R15: 0x", 10, 298, 0xFFFF);
-    DrawString(context, str, 66, 298, 0xFFFF);
+    ContextDrawString(context, "R15: 0x", 10, 298, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 298, 0xFFFF, 0x0);
 
     ltoa(GetHeapEndOffset(), 16, str);
-    DrawString(context, "Heap 0x", 10, 314, 0xFFFF);
-    DrawString(context, str, 66, 314, 0xFFFF);
+    ContextDrawString(context, "Heap 0x", 10, 314, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 66, 314, 0xFFFF, 0x0);
 
     long *value = (long *)0xFFFF800000700000;
     ltoa(*value, 10, str);
-    DrawString(context, "Cntr:  ", 10, 330, 0xFFFF);
-    DrawString(context, str, 50, 330, 0xFFFF);
+    ContextDrawString(context, "Cntr:  ", 10, 330, 0xFFFF, 0x0);
+    ContextDrawString(context, str, 50, 330, 0xFFFF, 0x0);
 
     // Produce a Stack Trace
     StackTrace(context);
@@ -226,15 +226,15 @@ void StackTrace(Context *context)
 
     // Get the current RBP value
     asm volatile("mov %%rbp, %0" : "=r" (frame));
-    DrawString(context, "Stack Trace:", 10, pos, 0xFFFF);
+    ContextDrawString(context, "Stack Trace:", 10, pos, 0xFFFF, 0x0);
     pos += 16;
 
     // Walk the Stack
     while (frame != 0x0)
     {
         ltoa(frame->rip, 16, str);
-        DrawString(context, "RIP: 0x", 10, pos, 0xFFFF);
-        DrawString(context, str, 66, pos, 0xFFFF);
+        ContextDrawString(context, "RIP: 0x", 10, pos, 0xFFFF, 0x0);
+        ContextDrawString(context, str, 66, pos, 0xFFFF, 0x0);
         frame = frame->rbp;
         pos += 16;
     }

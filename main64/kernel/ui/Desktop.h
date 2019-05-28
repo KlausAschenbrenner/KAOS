@@ -45,6 +45,6 @@ void DesktopProcessKey(Desktop *Desktop, char Key);
 void MousePointerPaint(Desktop *Desktop);
 
 // Draws the Desktop
-static void DesktopPaintHandler(Window *DesktopWindow);
+static void DesktopPaintHandler(Window *DesktopWindow, Rectangle *DirtyRegion);
 
 #endif

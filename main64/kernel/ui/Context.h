@@ -11,6 +11,8 @@
 #ifndef KAOS_Context_h
 #define KAOS_Context_h
 
+#include "Rectangle.h"
+
 // Font properties
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 12
@@ -31,21 +33,21 @@ typedef struct _Context
 Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, unsigned char *VgaFrameBuffer);
 
 // Draws a filled Rectangle
-void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color);
+void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color, Rectangle *DirtyRegion);
 
 // Draws a Rectangle
-void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color);
+void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color, Rectangle *DirtyRegion);
 
 // Draws a horizontal line
-void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color);
+void ContextDrawHorizontalLine(Context *Context, int X, int Y, int Length, int Color, Rectangle *DirtyRegion);
 
 // Draws a vertical line
-void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color);
+void ContextDrawVerticalLine(Context *Context, int X, int Y, int Length, int Color, Rectangle *DirtyRegion);
 
 // Draws a null-terminated String at the given location
-void DrawString(Context *Context, char *String, int X, int Y, int Color);
+void ContextDrawString(Context *Context, char *String, int X, int Y, int Color, Rectangle *DirtyRegion);
 
 // Draws a single Character
-static void DrawCharacter(Context *Context, char Character, int X, int Y, int Color);
+static void ContextDrawCharacter(Context *Context, char Character, int X, int Y, int Color, Rectangle *DirtyRegion);
 
 #endif
