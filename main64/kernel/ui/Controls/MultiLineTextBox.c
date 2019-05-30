@@ -17,7 +17,7 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     MultiLineTextBox *textbox = malloc(sizeof(MultiLineTextBox));
     WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
     textbox->Window.PaintFunction = MultiLineTextBoxPaintHandler;
-    textbox->Window.MouseDownFunction = MultiLineTextBoxMouseDownHandler;
+    textbox->Window.LeftMouseButtonDownFunction = MultiLineTextBoxLeftMouseButtonDownHandler;
     textbox->TextLines = NewList();
     textbox->Position = 0;
 
@@ -80,7 +80,7 @@ void ScrollDownButtonOnClick(Window *ButtonWindow, int X, int Y)
 }
 
 // Handles the Mouse Down Event
-void MultiLineTextBoxMouseDownHandler(Window *MultiLineTextBoxWindow, int X, int Y)
+void MultiLineTextBoxLeftMouseButtonDownHandler(Window *MultiLineTextBoxWindow, int X, int Y)
 {
     MultiLineTextBox *textbox = (MultiLineTextBox *)MultiLineTextBoxWindow;
 }

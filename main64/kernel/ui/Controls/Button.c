@@ -18,8 +18,9 @@ Button* NewButton(int X, int Y, int Width, int Height, char *Title, char *Bitmap
     Button *button = malloc(sizeof(Button));
     WindowInit((Window *)button, X, Y, Width, Height, WINDOW_NODECORATION, Title, Context);
     button->Window.PaintFunction = ButtonPaintHandler;
-    button->Window.MouseDownFunction = ButtonMouseDownHandler;
-    button->ColorToggle = 0;
+    button->Window.LeftMouseButtonDownFunction = LeftMouseButtonDownHandler;
+    button->Window.LeftMouseButtonUpFunction = LeftMouseButtonUpHandler;
+    button->IsPressed = 0;
     
     // Check if we should display a Bitmap on the Button
     if (strcmp(BitmapFile, "", 0) != 0)
@@ -37,10 +38,9 @@ void ButtonPaintHandler(Window *ButtonWindow, Rectangle *DirtyRegion)
     Button *button = (Button *)ButtonWindow;
     int borderColor = WINDOW_TITLE_COLOR_INACTIVE;
 
-    /* if (button->ColorToggle)
+    // Change the Button appearance according to its pressed state
+    if (button->IsPressed)
         borderColor = WINDOW_TITLE_COLOR_ACTIVE;
-    else
-        borderColor = WINDOW_TITLE_COLOR_INACTIVE; */
 
     ContextFillRect(ButtonWindow->Context, 1, 1, ButtonWindow->Width - 1, ButtonWindow->Height - 1, WINDOW_TITLE_COLOR_INACTIVE, DirtyRegion);
     ContextDrawRectangle(ButtonWindow->Context, 0, 0, ButtonWindow->Width, ButtonWindow->Height, 0xCEE0, DirtyRegion);
@@ -52,11 +52,18 @@ void ButtonPaintHandler(Window *ButtonWindow, Rectangle *DirtyRegion)
     ContextDrawString(ButtonWindow->Context, ButtonWindow->Title, 10, 10, WINDOW_BORDERCOLOR, DirtyRegion);
 }
 
-// Handles the Mouse Down Event
-void ButtonMouseDownHandler(Window *ButtonWindow, int X, int Y)
+// Handles the Left Mouse Down Event
+void LeftMouseButtonDownHandler(Window *ButtonWindow, int X, int Y)
 {
     Button *button = (Button *)ButtonWindow;
-    button->ColorToggle = !button->ColorToggle;
+    button->IsPressed = 1;
+}
+
+// Handles the Left Mouse Button Up Event
+void LeftMouseButtonUpHandler(Window *ButtonWindow, int X, int Y)
+{
+    Button *button = (Button *)ButtonWindow;
+    button->IsPressed = 0;
 
     // Call the OnClick function
     if (button->OnClick)

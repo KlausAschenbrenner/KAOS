@@ -43,13 +43,13 @@ void WindowInit(Window *NewWindow, int X, int Y, int Width, int Height, int Flag
     NewWindow->Flags = Flags;
     NewWindow->Title = Title;
     NewWindow->Parent = (Window *)0x0;
-    NewWindow->LastMouseButtonState = 0;
+    NewWindow->LastLeftMouseButtonDownState = 0;
+    NewWindow->LastLeftMouseButtonUpState = 0;
     NewWindow->PaintFunction = WindowPaintHandler;
     NewWindow->DraggedChild = (Window *)0x0;
     NewWindow->ActiveChild = (Window *)0x0;
     NewWindow->DragOffsetX = 0;
     NewWindow->DragOffsetY = 0;
-    NewWindow->MouseDownFunction = WindowMouseDownHandler;
     NewWindow->ActiveTextBox = 0x0;
 }
 
@@ -151,7 +151,7 @@ void WindowPaint(Window *InputWindow, Rectangle *DirtyRegion, int InRecursion)
 }
 
 // Processes the Mouse on the Desktop
-void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow)
+void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int LeftMouseButtonDown, int LeftMouseButtonUp, int DragWindow)
 {
     Window *child;
     int i;
@@ -169,7 +169,7 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
             continue;
         }
 
-        if (MouseClick && !InputWindow->LastMouseButtonState)
+        if (LeftMouseButtonDown && !InputWindow->LastLeftMouseButtonDownState)
         {
             // Raise the Window to the top of the Desktop
             WindowRaise(child);
@@ -186,11 +186,11 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
         }
 
         // Forward the mouse event to the child window
-        WindowProcessMouse(child, MouseX - child->X, MouseY - child->Y, MouseClick, DragWindow);
+        WindowProcessMouse(child, MouseX - child->X, MouseY - child->Y, LeftMouseButtonDown, LeftMouseButtonUp, DragWindow);
         break;
     }
 
-    if (!MouseClick)
+    if (!LeftMouseButtonDown)
         InputWindow->DraggedChild = (Window *)0x0;
 
     if (InputWindow->DraggedChild != 0x0)
@@ -200,11 +200,16 @@ void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseCl
         InputWindow->DraggedChild->Y = MouseY - InputWindow->DragOffsetY;
     }
 
-    // Call the Mouse Down Function Handler
-    if (InputWindow->MouseDownFunction && MouseClick && InputWindow->LastMouseButtonState)
-        InputWindow->MouseDownFunction(InputWindow, MouseX, MouseY);
+    // Call the Mouse Down Function Handler of the current Window
+    if (InputWindow->LeftMouseButtonDownFunction && LeftMouseButtonDown && InputWindow->LastLeftMouseButtonUpState)
+        InputWindow->LeftMouseButtonDownFunction(InputWindow, MouseX, MouseY);
 
-    InputWindow->LastMouseButtonState = MouseClick;
+    // Call the Mouse Up Function Handler of the current Window
+    if (InputWindow->LeftMouseButtonUpFunction && !LeftMouseButtonDown && LeftMouseButtonUp && InputWindow->LastLeftMouseButtonDownState)
+        InputWindow->LeftMouseButtonUpFunction(InputWindow, MouseX, MouseY);
+
+    InputWindow->LastLeftMouseButtonDownState = LeftMouseButtonDown;
+    InputWindow->LastLeftMouseButtonUpState = LeftMouseButtonUp;
 }
 
 // Processes a Key press
@@ -302,10 +307,4 @@ static void WindowPaintHandler(Window *Window, Rectangle *DirtyRegion)
 
     // Draw the Window Title
     ContextDrawString(Window->Context, Window->Title, 10, -21, 0xFFFF, DirtyRegion);
-}
-
-// The default Mouse Handler does nothing
-static void WindowMouseDownHandler(Window *Window, int X, int Y)
-{
-    return;
 }

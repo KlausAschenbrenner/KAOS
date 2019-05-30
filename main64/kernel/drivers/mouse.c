@@ -7,10 +7,27 @@
 //
 
 #include "common.h"
+#include "screen.h"
+#include "../ui/Desktop.h"
+#include "../ui/window.h"
 
-void MouseWait(unsigned char a_type) //unsigned char
+static char mouseData[3];
+
+// Stores the current X mouse coordinate
+int MouseX = 0;
+
+// Stores the current Y mouse coordinate
+int MouseY = 0;
+
+// Stores if the left mouse button is pressed
+int LeftMouseButtonDown = 0;
+
+// Stores if the left mouse button was released
+int LeftMouseButtonUp = 0;
+
+static void MouseWait(unsigned char a_type) //unsigned char
 {
-  unsigned int _time_out=1000; //unsigned int
+  unsigned int _time_out=100000; //unsigned int
 
   if(a_type==0)
   {
@@ -36,7 +53,7 @@ void MouseWait(unsigned char a_type) //unsigned char
   }
 }
 
-inline void MouseWrite(unsigned char a_write) //unsigned char
+static void MouseWrite(unsigned char a_write) //unsigned char
 {
   //Wait to be able to send a command
   MouseWait(1);
@@ -48,24 +65,75 @@ inline void MouseWrite(unsigned char a_write) //unsigned char
   outb(0x60, a_write);
 }
 
-unsigned char MouseRead()
+static unsigned char MouseRead()
 {
   //Get's response from mouse
   MouseWait(0); 
   return inb(0x60);
 }
 
-void MouseHandler1(int Number)
+static void MouseIRQHandler(int Number)
 {
-  /* unsigned char *p = (unsigned char *)0xFFFF8000000A0000;
-	int start = 16000;
-	int i = 0;
+    signed int x, y;
 
-  // Draw the new line
-  for (i = start; i < start + 320; i++)
-    p[i] = 1; // red pixel */
+    mouseData[0] = inb(0x60);
+    mouseData[1] = inb(0x60);
+    mouseData[2] = inb(0x60);
+    x = mouseData[1];
+    y = mouseData[2];
+    
+    /* printf_int(mouseData[0], 16);
+    printf("\n");
+    printf_int(mouseData[1], 16);
+    printf("\n");
+    printf_int(mouseData[2], 16);
+    printf("\n");
+    printf("\n"); */
 
-    printf("MouseHandler called!");
+    if (mouseData[0] == 0x8 && LeftMouseButtonDown == 1)
+    {
+        printf("Left Mouse Button up!");
+        printf("\n");
+        LeftMouseButtonDown = 0;
+        LeftMouseButtonUp = 1;
+        return;
+    }
+
+    if (mouseData[0] == 0x9 && LeftMouseButtonDown == 0)
+    {
+        printf("Left Mouse Button down!");
+        printf("\n");
+        LeftMouseButtonDown = 1;
+    }
+
+    if (mouseData[0] == 0x8 || mouseData[0] == 0x18 || mouseData[0] == 0x28 || mouseData[0] == 0x38 ||
+        mouseData[0] == 0x9 || mouseData[0] == 0x19 || mouseData[0] == 0x29 || mouseData[0] == 0x39)
+    {
+      if (x != y)
+      {
+        MouseX += x;
+        MouseY -= y;
+
+        printf_int(MouseX, 10);
+        printf(", ");
+        printf_int(MouseY, 10);
+        printf("\n");
+        return;
+      }
+    }
+
+    // Limit the Mouse to the current screen area
+		if (MouseX < 0)
+			MouseX = 0;
+
+		if (MouseY < 0)
+			MouseY = 0;
+
+		if (MouseX > WINDOW_WIDTH - MOUSE_WIDTH)
+			MouseX = WINDOW_WIDTH - MOUSE_WIDTH;
+
+		if (MouseY > WINDOW_HEIGHT - 5)
+			MouseY = WINDOW_HEIGHT - 5;
 }
 
 void MouseInstall()
@@ -95,5 +163,5 @@ void MouseInstall()
   MouseRead();  //Acknowledge
 
   // Setup the mouse handler
-  // RegisterIRQHandler(12, &MouseHandler1);
+  RegisterIRQHandler(44, &MouseIRQHandler);
 }

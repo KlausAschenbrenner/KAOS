@@ -45,4 +45,7 @@ int strlen(char *string);
 // Converts a long value to a string value for a specific base (base 10 => decimal, base 16 => hex)
 void ltoa(unsigned long i, unsigned base, char *buf);
 
+// Converts an ASCII string to its integer value
+int atoi(char *str);
+
 #endif

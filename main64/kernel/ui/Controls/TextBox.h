@@ -27,8 +27,8 @@ TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context);
 // Draws the TextBox
 void TextBoxPaintHandler(Window *TextBoxWindow, Rectangle *DirtyRegion);
 
-// Handles the Mouse Down Event
-void TextBoxMouseDownHandler(Window *TextBoxWindow, int X, int Y);
+// Handles the Left Mouse Button Up Event
+void TextBoxLeftMouseButtonUpHandler(Window *TextBoxWindow, int X, int Y);
 
 // Handles the Key Press Event
 void TextBoxKeyPressHandler(Window *TextBoxWindow, char Key);

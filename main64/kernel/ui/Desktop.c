@@ -91,14 +91,15 @@ void RemoveDesktopWindow(Window *InputWindow)
 }
 
 // Processes the mouse on the Desktop
-void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow)
+void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int LeftMouseButtonDown, int LeftMouseButtonUp, int DragWindow)
 {
     // Capture the mouse location
     Desktop->MouseX = MouseX;
     Desktop->MouseY = MouseY;
 
     // Process the mouse
-    WindowProcessMouse((Window *)Desktop, MouseX, MouseY, MouseClick, DragWindow);
+    WindowProcessMouse((Window *)Desktop, MouseX, MouseY, LeftMouseButtonDown, LeftMouseButtonUp, DragWindow);
+    LeftMouseButtonUp = 0;
 }
 
 // Processes a Key press

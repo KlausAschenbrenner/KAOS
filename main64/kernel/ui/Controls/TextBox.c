@@ -19,7 +19,7 @@ TextBox* NewTextBox(int X, int Y, int Width, int Height, Context *Context)
     WindowInit((Window *)textbox, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
     textbox->Window.PaintFunction = TextBoxPaintHandler;
     textbox->Window.KeyPressFunction = TextBoxKeyPressHandler;
-    textbox->Window.MouseDownFunction = TextBoxMouseDownHandler;
+    textbox->Window.LeftMouseButtonUpFunction = TextBoxLeftMouseButtonUpHandler;
     textbox->HasFocus = 0;
     textbox->Pos = 0;
 
@@ -45,8 +45,8 @@ void TextBoxPaintHandler(Window *TextBoxWindow, Rectangle *DirtyRegion)
         ContextDrawString(TextBoxWindow->Context, textbox->Text, 6, (TextBoxWindow->Height / 2) - 6, 0x0000, DirtyRegion);
 }
 
-// Handles the Mouse Down Event
-void TextBoxMouseDownHandler(Window *TextBoxWindow, int X, int Y)
+// Handles the Left Mouse Button Up Event
+void TextBoxLeftMouseButtonUpHandler(Window *TextBoxWindow, int X, int Y)
 {
     TextBox *textbox = (TextBox *)TextBoxWindow;
     textbox->HasFocus = !textbox->HasFocus;

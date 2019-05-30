@@ -18,7 +18,6 @@ Label* NewLabel(int X, int Y, char *Title, Context *Context)
     Label *label = malloc(sizeof(Label));
     WindowInit((Window *)label, X, Y, strlen(Title) * FONT_WIDTH, FONT_HEIGHT, WINDOW_NODECORATION, Title, Context);
     label->Window.PaintFunction = LabelPaintHandler;
-    label->Window.MouseDownFunction = LabelMouseDownHandler;
 
     return label;
 }
@@ -29,10 +28,6 @@ void LabelPaintHandler(Window *LabelWindow, Rectangle *DirtyRegion)
 
     // Draw the Label
     ContextDrawString(LabelWindow->Context, LabelWindow->Title, LabelWindow->X, LabelWindow->Y + WINDOW_TITLEHEIGHT, WINDOW_BORDERCOLOR, DirtyRegion);
-}
-
-void LabelMouseDownHandler(Window *LabelWindow, int X, int Y)
-{
 }
 
 // Sets the title of the Label

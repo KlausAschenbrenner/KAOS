@@ -22,6 +22,18 @@ TextBox *textbox = 0x0;
 MultiLineTextBox *multiLineTextBox1 = 0x0;
 Label *desktopLabel = 0x0;
 
+// Stores the current X mouse coordinate
+extern int MouseX;
+
+// Stores the current Y mouse coordinate
+extern int MouseY;
+
+// Stores if the left mouse button is pressed
+extern int LeftMouseButtonDown;
+
+// Stores if the left mouse button was released
+extern int LeftMouseButtonUp;
+
 // Indicates if KAOS is executed with a GUI or in Text Mode
 int UIMode = 1;
 
@@ -44,6 +56,8 @@ void k_main()
 
 	// Initialize the keyboard
     InitKeyboard();
+
+	MouseInstall();
 
 	// Enable the hardware interrupts again
     EnableInterrupts();
@@ -136,7 +150,6 @@ void DesktopWindow1()
 	
 	// Create a new Button
 	Button *button = NewButton(10, 100, 100, 35, "Button 1", "", 0, 0, 0, 0x0000, context);
-	button->OnClick = ButtonOnClick;
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
@@ -393,21 +406,36 @@ void Dummy()
 {
 	while (1 == 1)
 	{
-		// Bitmap *bitmap = ReadBitmap("Delete");
-
 		// Introduce some delay in the calculation...
 		Sleep(99999999);
+	}
+}
+
+void KeyboardHandler()
+{
+	while (1 == 1)
+	{
+		// Wait for the next keystroke
+		char originalInput = getchar();
+
+		// Prior making updates to the screen, we disable the Interrupts, so that no Context Switching happens in the mean time.
+		// This makes everything more smoother...
+		DisableInterrupts();
+		
+		// Process the Key Press Event
+		DesktopProcessKey(desktop, originalInput);
+
+		// Update the whole screen
+		WindowPaint((Window *)desktop, 0x0, 0);
+
+		// Enable the Interrupts again
+		EnableInterrupts();
 	}
 }
 
 // Simulates a simple Mouse through various keystrokes
 void MouseHandler()
 {
-	int MouseX = 50;
-	int MouseY = 50;
-	int mouseClick = 0;
-	int dragWindow = 0;
-
 	// Prior making updates to the screen, we disable the Interrupts, so that no Context Switching happens in the mean time.
 	// This makes everything more smoother...
 	DisableInterrupts();
@@ -420,146 +448,19 @@ void MouseHandler()
 
 	while (1 == 1)
 	{
-		// Get the next keystroke that moves the mouse on the Desktop
-		char originalInput = getchar();
-		char input = KeyboardKeyToASCII(originalInput, 1);
-		
-		if (input != 0)
-		{
-			// Left + 1
-			if (input == 'a')
-			{
-				MouseX--;
-			}
-			// Left + 10
-			else if (input == 'j')
-			{
-				MouseX -= 10;
-			}
-			// Right + 1
-			else if (input == 'f')
-			{
-				MouseX++;
-			}
-			// Right + 10
-			else if (input == 'l')
-			{
-				MouseX += 10;
-			}
-			// Up + 1
-			else if (input == 'e')
-			{
-				MouseY--;
-			}
-			// Up + 10
-			else if (input == 'i')
-			{
-				MouseY -= 10;
-			}
-			// Down + 1
-			else if (input == 'x')
-			{
-				MouseY++;
-			}
-			// Down + 10
-			else if (input == 'm')
-			{
-				MouseY += 10;
-			}
-			// Mouse Click
-			else if (input == ' ')
-			{
-				mouseClick = 1;
-			}
-			// Dragging Left + 1
-			else if (input == 'A')
-			{
-				MouseX -= 1;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Left + 10
-			else if (input == 'J')
-			{
-				MouseX -= 10;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Right + 1
-			else if (input == 'F')
-			{
-				MouseX++;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Right + 10
-			else if (input == 'L')
-			{
-				MouseX += 10;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Up + 1
-			else if (input == 'E')
-			{
-				MouseY--;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Up + 10
-			else if (input == 'I')
-			{
-				MouseY -= 10;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Down + 1
-			else if (input == 'X')
-			{
-				MouseY++;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-			// Dragging Down + 10
-			else if (input == 'M')
-			{
-				MouseY += 10;
-				mouseClick = 1;
-				dragWindow = 1;
-			}
-		}
-
-		// Limit the Mouse to the current screen area
-		if (MouseX < 0)
-			MouseX = 0;
-
-		if (MouseY < 0)
-			MouseY = 0;
-
-		if (MouseX > WINDOW_WIDTH - MOUSE_WIDTH)
-			MouseX = WINDOW_WIDTH - MOUSE_WIDTH;
-
-		if (MouseY > WINDOW_HEIGHT - 5)
-			MouseY = WINDOW_HEIGHT - 5;
-
 		// Prior making updates to the screen, we disable the Interrupts, so that no Context Switching happens in the mean time.
 		// This makes everything more smoother...
 		DisableInterrupts();
 		
 		// Process the Mouse Event
-		DesktopProcessMouse(desktop, MouseX, MouseY, mouseClick, dragWindow);
-		mouseClick = 0;
-		dragWindow = 0;
-
-		// Process the Key Press Event
-		DesktopProcessKey(desktop, originalInput);
-
+		DesktopProcessMouse(desktop, MouseX, MouseY, LeftMouseButtonDown, LeftMouseButtonUp, LeftMouseButtonDown);
+		
 		// Update the whole screen
-    	WindowPaint((Window *)desktop, 0x0, 0);
+		WindowPaint((Window *)desktop, 0x0, 0);
 
 		// Enable the Interrupts again
 		EnableInterrupts();
-		
+
 		// Print the mouse coordinates out to the console
 		printf_int(MouseX, 16);
 		printf(", ");
@@ -571,7 +472,8 @@ void MouseHandler()
 void CreateTasksVGA()
 {
 	CreateKernelTask(MouseHandler, 1, 0xFFFF800001100000);
-	CreateKernelTask(CalculateSomething, 2, 0xFFFF800001200000);
+	CreateKernelTask(KeyboardHandler, 2, 0xFFFF800001200000);
+	CreateKernelTask(CalculateSomething, 3, 0xFFFF800001300000);
 
 	// CreateUserTask(DesktopWindow1, 3, 0xFFFF800001300000, 0xFFFF800001310000);
 	// CreateUserTask(DesktopWindow2, 4, 0xFFFF800001400000, 0xFFFF800001410000);
@@ -581,10 +483,10 @@ void CreateTasksVGA()
 	CreateUserTask(DesktopWindow2, 4, 0xFFFF800001400000, 0xFFFF800000040000);
 	CreateUserTask(DesktopWindow3, 5, 0xFFFF800001500000, 0xFFFF800000050000); */
 
-	CreateKernelTask(DesktopWindow1, 3, 0xFFFF800001300000);
-	CreateKernelTask(DesktopWindow2, 4, 0xFFFF800001400000);
-	CreateKernelTask(DesktopWindow3, 5, 0xFFFF800001500000);
-	CreateKernelTask(DesktopWindow4, 6, 0xFFFF800001600000);
+	CreateKernelTask(DesktopWindow1, 4, 0xFFFF800001400000);
+	CreateKernelTask(DesktopWindow2, 5, 0xFFFF800001500000);
+	CreateKernelTask(DesktopWindow3, 6, 0xFFFF800001600000);
+	CreateKernelTask(DesktopWindow4, 7, 0xFFFF800001700000);
 }
 
 void CreateTasks()

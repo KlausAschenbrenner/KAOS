@@ -36,6 +36,6 @@ void ScrollUpButtonOnClick(Window *ButtonWindow, int X, int Y);
 void ScrollDownButtonOnClick(Window *ButtonWindow, int X, int Y);
 
 // Handles the Mouse Down Event
-void MultiLineTextBoxMouseDownHandler(Window *MultiLineTextBoxWindow, int X, int Y);
+void MultiLineTextBoxLeftMouseButtonDownHandler(Window *MultiLineTextBoxWindow, int X, int Y);
 
 #endif

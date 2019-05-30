@@ -36,7 +36,7 @@ Desktop *NewDesktop(Context *Context, int Color);
 Window *NewDesktopWindow(Window *InputWindow, int X, int Y, int Width, int Height, char *Title);
 
 // Processes the mouse on the Desktop
-void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int MouseClick, int DragWindow);
+void DesktopProcessMouse(Desktop *Desktop, int MouseX, int MouseY, int LeftMouseButtonDown, int LeftMouseButtonUp, int DragWindow);
 
 // Processes a Key press
 void DesktopProcessKey(Desktop *Desktop, char Key);

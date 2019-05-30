@@ -13,13 +13,13 @@
 
 #include "../Window.h"
 
-typedef void (*ButtonMouseDownFunctionHandler)(struct _Button*, int, int);
+typedef void (*ButtonOnClickFunctionHandler)(struct _Button*, int, int);
 
 typedef struct _Button
 {
     Window Window;
-    int ColorToggle;
-    ButtonMouseDownFunctionHandler OnClick;
+    int IsPressed;
+    ButtonOnClickFunctionHandler OnClick;
 } Button;
 
 // Creates a new Button
@@ -28,7 +28,10 @@ Button* NewButton(int X, int Y, int Width, int Height, char *Title, char *Bitmap
 // Draws the Button
 void ButtonPaintHandler(Window *ButtonWindow, Rectangle *DirtyRegion);
 
-// Handles the Mouse Down Event
-void ButtonMouseDownHandler(Window *ButtonWindow, int X, int Y);
+// Handles the Left Mouse Button Down Event
+void LeftMouseButtonDownHandler(Window *ButtonWindow, int X, int Y);
+
+// Handles the Left Mouse Button Up Event
+void LeftMouseButtonUpHandler(Window *ButtonWindow, int X, int Y);
 
 #endif

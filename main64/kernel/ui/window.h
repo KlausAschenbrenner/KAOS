@@ -43,8 +43,11 @@
 // The Paint Handler for a given Window
 typedef void (*WindowPaintFunctionHandler)(struct _Window*, Rectangle *DirtyRegion);
 
-// The Mouse Handler for a given Window
-typedef void (*WindowMouseDownFunctionHandler)(struct _Window*, int, int);
+// The Left Mouse Button Down Handler for a given Window
+typedef void (*WindowLeftMouseButtonDownFunctionHandler)(struct _Window*, int, int);
+
+// The Left Mouse Button Up Handler for a given Window
+typedef void (*WindowLeftMouseButtonUpFunctionHandler)(struct _Window*, int, int);
 
 // The Key Handler for a given Window
 typedef void (*KeyPressFunctionHandler)(struct _Window*, char Key);
@@ -64,9 +67,11 @@ typedef struct _Window
     List *Children;
     int DragOffsetX;
     int DragOffsetY;
-    int LastMouseButtonState;
+    int LastLeftMouseButtonDownState;
+    int LastLeftMouseButtonUpState;
     WindowPaintFunctionHandler PaintFunction;
-    WindowMouseDownFunctionHandler MouseDownFunction;
+    WindowLeftMouseButtonDownFunctionHandler LeftMouseButtonDownFunction;
+    WindowLeftMouseButtonUpFunctionHandler LeftMouseButtonUpFunction;
     KeyPressFunctionHandler KeyPressFunction;
     char *Title;
     Task *Task;
@@ -89,7 +94,7 @@ void WindowRaise(Window *InputWindow);
 void WindowPaint(Window *InputWindow, Rectangle *DirtyRegion, int InRecursion);
 
 // Processes the Mouse on the Window
-void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int MouseClick, int DragWindow);
+void WindowProcessMouse(Window *InputWindow, int MouseX, int MouseY, int LeftMouseButtonDown, int LeftMouseButtonUp, int DragWindow);
 
 // Processes a Key press
 void WindowProcessKey(Window *InputWindow, char Key);
@@ -111,8 +116,5 @@ static void WindowDrawBorder(Window *Window, Rectangle *DirtyRegion);
 
 // The default paint method
 static void WindowPaintHandler(Window *Window, Rectangle *DirtyRegion);
-
-// The default Mouse Handler does nothing
-static void WindowMouseDownHandler(Window *Window, int X, int Y);
 
 #endif
