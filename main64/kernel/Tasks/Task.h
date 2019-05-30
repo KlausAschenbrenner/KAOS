@@ -101,8 +101,4 @@ void DumpTaskState();
 // Returns a reference to the current Task State structure by returning the value from the register R15
 extern long GetTaskState();
 
-extern void AcquireLock(unsigned long Spinlock);
-
-extern void ReleaseLock(unsigned long Spinlock);
-
 #endif

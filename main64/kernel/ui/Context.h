@@ -33,7 +33,7 @@ typedef struct _Context
 Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, unsigned char *VgaFrameBuffer);
 
 // Draws a filled Rectangle
-void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color, Rectangle *DirtyRegion);
+void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, unsigned short Color, Rectangle *DirtyRegion);
 
 // Draws a Rectangle
 void ContextDrawRectangle(Context *Context, int X, int Y, int Width, int Height, int Color, Rectangle *DirtyRegion);

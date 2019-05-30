@@ -7,6 +7,8 @@
 //
 
 #include "Heap/Heap.h"
+#include "fat12/fat12.h"
+#include "ui/Controls/Bitmap.h"
 
 // The number of available commands
 #define COMMAND_COUNT 10
@@ -161,5 +163,6 @@ void shell_help(char *param)
 
 void shell_dummy(char *param)
 {
-	printf("Dummy called");
+	Bitmap *bitmap = ReadBitmap("logo");
+	BitmapPaintHandler((Window *)bitmap, 0x0);
 }

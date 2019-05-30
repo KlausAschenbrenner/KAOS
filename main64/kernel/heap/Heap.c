@@ -8,7 +8,7 @@
 
 #include "Heap.h"
 #include "../drivers/screen.h"
-#include "../Tasks/Task.h"
+#include "../Tasks/Spinlock.h"
 #include "../irq/irq.h"
 
 unsigned long HEAP_START_OFFSET = 0xFFFF810000500000;
@@ -63,20 +63,27 @@ void *malloc_internal(int Size)
         HEAP_END_OFFSET += HEAP_GROWTH;
 
         // Merge the last free block with the newly allocated block together
-        // Merge();
+        Merge();
 
         // Try to allocate the requested block after the expansion of the Heap...
-        return malloc(Size - HEADER_SIZE);
+        return malloc_internal(Size - HEADER_SIZE);
     }
 }
 
+// Performs an allocation on the Heap.
+// The memory allocation must happen single threaded, because otherwise we could corrupt the Heap Data Structure...
 void *malloc(int Size)
 {
-    // Interrupts are disable before we call malloc(), so that no Context Switching happens during the call
-    DisableInterrupts();
-    void *ptr = malloc_internal(Size);
-    EnableInterrupts();
+    // Acquire a Spinlock prior making the memory allocation
+    AcquireSpinlock(SPINLOCK_MALLOC);
 
+    // Perform the memory allocation
+    void *ptr = malloc_internal(Size);
+
+    // Release the Spinlock
+    ReleaseSpinlock(SPINLOCK_MALLOC);
+
+    // Return a pointer to the newly allocated memory block on the Heap
     return ptr;
 }
 

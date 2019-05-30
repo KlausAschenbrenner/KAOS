@@ -13,6 +13,7 @@
 #include "ui/Controls/Label.h"
 #include "ui/Controls/TextBox.h"
 #include "ui/Controls/MultiLineTextBox.h"
+#include "ui/Controls/Bitmap.h"
 
 void Shell();
 Context *context = 0x0;
@@ -98,8 +99,11 @@ void InitWindowSystem()
 	desktop->MouseY = 50;
 
 	// Create a Label on the Desktop
-	desktopLabel = NewLabel(5, 5, "0", context);
+	desktopLabel = NewLabel(5, 15, "0", context);
 	WindowInsertChild((Window *)desktop, (Window *)desktopLabel);
+
+	Bitmap *bitmap = NewBitmap("logo", 480, 5, 0, 0x0000, context);
+	WindowInsertChild((Window *)desktop, (Window *)bitmap);
 }
 
 // Initializes the KPCR Data Structure
@@ -131,8 +135,7 @@ void DesktopWindow1()
 	window->Task = (Task *)GetTaskState();
 	
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35, context);
-	button->Window.Title = "Button 1";
+	Button *button = NewButton(10, 100, 100, 35, "Button 1", "", 0, 0, 0, 0x0000, context);
 	button->OnClick = ButtonOnClick;
 	WindowInsertChild(window, (Window *)button);
 
@@ -195,8 +198,7 @@ void DesktopWindow2()
 	window->Task = (Task *)GetTaskState();
 	
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35, context);
-	button->Window.Title = "Button 1";
+	Button *button = NewButton(10, 100, 100, 35, "Button 1", "", 0, 0, 0, 0x0000, context);
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
@@ -251,8 +253,7 @@ void DesktopWindow3()
 	window->Task = (Task *)GetTaskState();
 	
 	// Create a new Button
-	Button *button = NewButton(10, 100, 100, 35, context);
-	button->Window.Title = "Button 1";
+	Button *button = NewButton(10, 100, 100, 35, "Button 1", "", 0, 0, 0, 0x0000, context);
 	WindowInsertChild(window, (Window *)button);
 
 	// Create a new Label
@@ -330,7 +331,7 @@ void DesktopWindow4()
 {
 	char str1[32] = "";
 	char str2[32] = "";
-	int cntr = 0;
+	int i;
 	Window *window = NewDesktopWindow((Window *)desktop, 750, 200, 400, 720, "Window Title 4");
 	window->Task = (Task *)GetTaskState();
 
@@ -344,8 +345,7 @@ void DesktopWindow4()
 	WindowInsertChild(window, (Window *)lbl2);
 
 	// Create a new Button
-	Button *button = NewButton(10, 80, 100, 35, context);
-	button->Window.Title = "Add Item";
+	Button *button = NewButton(10, 80, 100, 35, "Add Item", "", 0, 0, 0, 0x0000, context);
 	button->OnClick = ButtonOnClick;
 	WindowInsertChild(window, (Window *)button);
 
@@ -389,6 +389,17 @@ void CalculateSomething()
 	}
 }
 
+void Dummy()
+{
+	while (1 == 1)
+	{
+		// Bitmap *bitmap = ReadBitmap("Delete");
+
+		// Introduce some delay in the calculation...
+		Sleep(99999999);
+	}
+}
+
 // Simulates a simple Mouse through various keystrokes
 void MouseHandler()
 {
@@ -397,9 +408,14 @@ void MouseHandler()
 	int mouseClick = 0;
 	int dragWindow = 0;
 
-	// Draw initially the whole Desktop
+	// Prior making updates to the screen, we disable the Interrupts, so that no Context Switching happens in the mean time.
+	// This makes everything more smoother...
 	DisableInterrupts();
+
+	// Draw initially the whole Desktop
 	WindowPaint((Window *)desktop, 0x0, 0);
+
+	// Enable the Interrupts again
 	EnableInterrupts();
 
 	while (1 == 1)
@@ -525,9 +541,12 @@ void MouseHandler()
 
 		if (MouseY > WINDOW_HEIGHT - 5)
 			MouseY = WINDOW_HEIGHT - 5;
+
+		// Prior making updates to the screen, we disable the Interrupts, so that no Context Switching happens in the mean time.
+		// This makes everything more smoother...
+		DisableInterrupts();
 		
 		// Process the Mouse Event
-		DisableInterrupts();
 		DesktopProcessMouse(desktop, MouseX, MouseY, mouseClick, dragWindow);
 		mouseClick = 0;
 		dragWindow = 0;
@@ -537,6 +556,8 @@ void MouseHandler()
 
 		// Update the whole screen
     	WindowPaint((Window *)desktop, 0x0, 0);
+
+		// Enable the Interrupts again
 		EnableInterrupts();
 		
 		// Print the mouse coordinates out to the console
@@ -572,7 +593,7 @@ void CreateTasks()
 	CreateKernelTask(Shell, 1, 0xFFFF800001100000);
 
 	// All the remaining Tasks are running in Ring 3
-	CreateKernelTask(CalculateSomething, 2, 0xFFFF800001200000);
+	CreateKernelTask(Dummy, 2, 0xFFFF800001200000);
 
 	/* CreateKernelTask(DesktopWindow1, 3, 0xFFFF800001300000);
 	CreateKernelTask(DesktopWindow2, 4, 0xFFFF800001400000);

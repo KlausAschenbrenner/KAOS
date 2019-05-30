@@ -9,16 +9,24 @@
 //
 
 #include "Button.h"
+#include "Bitmap.h"
 #include "../../Heap/Heap.h"
 
 // Creates a new Button
-Button* NewButton(int X, int Y, int Width, int Height, Context *Context)
+Button* NewButton(int X, int Y, int Width, int Height, char *Title, char *BitmapFile, int BitmapFileX, int BitmapFileY, int UseTransparentPixel, unsigned short TransparentPixel, Context *Context)
 {
     Button *button = malloc(sizeof(Button));
-    WindowInit((Window *)button, X, Y, Width, Height, WINDOW_NODECORATION, "", Context);
+    WindowInit((Window *)button, X, Y, Width, Height, WINDOW_NODECORATION, Title, Context);
     button->Window.PaintFunction = ButtonPaintHandler;
     button->Window.MouseDownFunction = ButtonMouseDownHandler;
     button->ColorToggle = 0;
+    
+    // Check if we should display a Bitmap on the Button
+    if (strcmp(BitmapFile, "", 0) != 0)
+    {
+        Bitmap *bitmap = NewBitmap(BitmapFile, BitmapFileX, BitmapFileY, UseTransparentPixel, TransparentPixel, Context);
+        WindowInsertChild((Window *)button, (Window *)bitmap);
+    }
 
     return button;
 }

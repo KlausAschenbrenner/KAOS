@@ -1,8 +1,6 @@
 [BITS 64]
 [GLOBAL Irq0_ContextSwitching]
 [GLOBAL GetTaskState]
-[GLOBAL AcquireLock]
-[GLOBAL ReleaseLock]
 [EXTERN IrqHandler]
 [EXTERN MoveToNextTask]
 
@@ -177,23 +175,4 @@ Continue:
 ; This function returns a pointer to the Task structure of the current executing Task
 GetTaskState:
     mov rax, r15
-    ret
-
-; Acquires a Spinlock
-AcquireLock:
-    mov rsi, 0
-    lock bts [rdi], rsi
-    jc .spin_wait
-    ret
-
-.spin_wait:
-    test dword [rdi], 1
-    jnz .spin_wait
-    jmp AcquireLock
-
-; Releases a Spinlock
-ReleaseLock:
-    mov dword [rdi], 0
-    ; mov rsi, 0
-    ; lock bts [rdi], rsi 
     ret

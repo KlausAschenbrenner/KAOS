@@ -42,7 +42,7 @@ Context *NewContext(int Width, int Height, unsigned char *FrameDoubleBuffer, uns
 }
 
 // Draws a filled Rectangle
-void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, int Color, Rectangle *DirtyRegion)
+void ContextFillRect(Context *Context, int X, int Y, unsigned int Width, unsigned int Height, unsigned short Color, Rectangle *DirtyRegion)
 {
     int currentX;
     int maxX = X + Width;

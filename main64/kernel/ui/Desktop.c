@@ -10,6 +10,7 @@
 
 #include "Desktop.h"
 #include "../Heap/Heap.h"
+#include "../drivers/common.h"
 
 // This array represents the definition of the Mouse Pointer Image
 unsigned int MouseImage[MOUSE_BUFFER_SIZE] = 
@@ -129,4 +130,9 @@ static void DesktopPaintHandler(Window *DesktopWindow, Rectangle *DirtyRegion)
     ContextFillRect(DesktopWindow->Context, 0, 0, DesktopWindow->Width, DesktopWindow->Height, 0x05FF, DirtyRegion);
     ContextDrawString(DesktopWindow->Context, "KAOS x64", 10, 10, 0x0000, DirtyRegion);
     ContextDrawString(DesktopWindow->Context, "(c) 2019 by Klaus Aschenbrenner", 10, 26, 0x0000, DirtyRegion);
+
+    char str[32] = "";
+    unsigned long endOffset = GetHeapEndOffset();
+    ltoa(endOffset, 16, str);
+    ContextDrawString(DesktopWindow->Context, str, 10, 42, 0x0000, DirtyRegion);
 }

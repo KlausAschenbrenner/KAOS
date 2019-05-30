@@ -13,6 +13,7 @@
 #include "Rectangle.h"
 #include "Desktop.h"
 #include "Controls/Button.h"
+#include "Controls/Bitmap.h"
 
 // Creates a new Window
 Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, Context *Context)
@@ -22,8 +23,7 @@ Window *NewWindow(int X, int Y, int Width, int Height, int Flags, char *Title, C
     WindowInit(window, X, Y, Width, Height, Flags, Title, Context);
 
     // Add a Close Button to the TitleBar
-    Button *closeButton = NewButton(Width - WINDOW_CLOSE_BUTTON_WIDTH - WINDOW_BORDERWIDTH, WINDOW_BORDERWIDTH, WINDOW_CLOSE_BUTTON_WIDTH, WINDOW_CLOSE_BUTTON_HEIGHT - (2 * WINDOW_BORDERWIDTH), Context);
-    closeButton->Window.Title = "X";
+    Button *closeButton = NewButton(Width - WINDOW_CLOSE_BUTTON_WIDTH - WINDOW_BORDERWIDTH, WINDOW_BORDERWIDTH, WINDOW_CLOSE_BUTTON_WIDTH, WINDOW_CLOSE_BUTTON_HEIGHT - (2 * WINDOW_BORDERWIDTH), "", "close", 4, 2, 1, 0xFFFF, Context);
     closeButton->OnClick = CloseButtonOnClick;
     WindowInsertChild(window, (Window *)closeButton);
 

@@ -22,12 +22,14 @@ MultiLineTextBox* NewMultiLineTextBox(int X, int Y, int Width, int Height, Conte
     textbox->Position = 0;
 
     // Create a new Button for scrolling up
-	Button *scrollUpButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH, MULTILINEBOX_SCROLL_BUTTON_HEIGHT, Context);
+	Button *scrollUpButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH, MULTILINEBOX_SCROLL_BUTTON_HEIGHT, 
+        "", "up", 1, 1, 1, 0xFFFF, Context);
     scrollUpButton->OnClick = ScrollUpButtonOnClick;
 	WindowInsertChild((Window *)textbox, (Window *)scrollUpButton);
 
     // Create a new Button for scrolling down
-	Button *scrollDownButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, Height - MULTILINEBOX_SCROLL_BUTTON_HEIGHT - 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH, MULTILINEBOX_SCROLL_BUTTON_HEIGHT, Context);
+	Button *scrollDownButton = NewButton(Width - MULTILINEBOX_SCROLL_BUTTON_WIDTH - 1, Height - MULTILINEBOX_SCROLL_BUTTON_HEIGHT - 1, MULTILINEBOX_SCROLL_BUTTON_WIDTH,
+        MULTILINEBOX_SCROLL_BUTTON_HEIGHT, "", "down", 1, 1, 1, 0xFFFF, Context);
     scrollDownButton->OnClick = ScrollDownButtonOnClick;
 	WindowInsertChild((Window *)textbox, (Window *)scrollDownButton);
 

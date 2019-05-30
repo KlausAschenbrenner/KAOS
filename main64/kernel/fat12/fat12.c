@@ -7,7 +7,20 @@
 //
 
 #include "fat12.h"
+#include "../Tasks/Spinlock.h"
 #include "../heap/Heap.h"
+
+const int NumberOfFATs = 2;
+const int SectorsPerFAT = 9;
+const int SectorsPerCluster = 1;
+const int ReservedSectors = 1;
+const int RootDirectoryEntries = 224;
+const int BytesPerSector = 512;
+unsigned char *PROGRAM_BUFFER = 0xFFFF8000FFFF0000;
+unsigned char *ROOT_DIRECTORY_BUFFER;
+unsigned char *FAT_BUFFER;
+const int EOF = 0x0FF0;
+int RootDirectoryLoaded = 0;
 
 // Prints the Root Directory
 void PrintRootDirectory()
@@ -76,6 +89,53 @@ void PrintRootDirectory()
     printf("\n");
 }
 
+// Reads the given file, and returns a pointer to the data in memory
+unsigned char *ReadFile(unsigned char *FileName)
+{
+    // Check, if the Root Directory is already loaded into memory
+    if (RootDirectoryLoaded == 0)
+    {
+        LoadRootDirectory();
+        RootDirectoryLoaded = 1;
+    }
+    
+    // Find the Root Directory Entry for the given program name
+    RootDirectoryEntry *entry = FindRootDirectoryEntry(FileName);
+
+    if (entry != 0)
+    {
+        return LoadFileIntoMemory(entry);
+    }
+    else
+    {
+        return 0x0;
+    }
+}
+
+// Load all Clusters for the given Root Directory Entry into memory
+static unsigned char *LoadFileIntoMemory(RootDirectoryEntry *Entry)
+{
+    // We add a whole sector size (512 bytes) to the allocated memory, because we only read whole sectors
+    unsigned char *ptr = malloc(Entry->FileSize + BytesPerSector);
+    unsigned char *beginning = ptr;
+    
+    // Read the first cluster of the file into memory
+    ReadSectors(Entry->FirstCluster + 33 - 2, 1, (unsigned char *)ptr);
+    unsigned short nextCluster = FATRead(Entry->FirstCluster);
+
+    // Read the whole file into memory until we reach the EOF mark
+    while (nextCluster < EOF)
+    {
+        ptr = ptr + BytesPerSector;
+        ReadSectors(nextCluster + 33 - 2, 1, (unsigned char *)ptr);
+        
+        // Read the next Cluster from the FAT table
+        nextCluster = FATRead(nextCluster);
+    }
+
+    return beginning;
+}
+
 // Load the given program into memory
 int LoadProgram(unsigned char *Filename)
 {
@@ -112,7 +172,7 @@ static void LoadProgramIntoMemory(RootDirectoryEntry *Entry)
     while (nextCluster < EOF)
     {
         program_buffer = program_buffer + BytesPerSector;
-        ReadSectors(nextCluster + 33 - 21, 1, (unsigned char *)program_buffer);
+        ReadSectors(nextCluster + 33 - 2, 1, (unsigned char *)program_buffer);
         
         // Read the next Cluster from the FAT table
         nextCluster = FATRead(nextCluster);
@@ -164,12 +224,18 @@ static void LoadRootDirectory()
 static void ReadSectors(int StartSector, int Sectors, unsigned char *Buffer)
 {
     int i = 0;
-
+    
     for (i = StartSector; i < StartSector + Sectors; i++)
     {
+        // Acquire the Spinlock for accessing the Floppy Drive
+        AcquireSpinlock(SPINLOCK_FLOPPYDRIVE);
+
         // Load the requested sector from the Floppy Disk
-        unsigned char *dmaBuffer = (unsigned char *)flpydsk_read_sector(StartSector);
+        unsigned char *dmaBuffer = (unsigned char *)flpydsk_read_sector(i);
         flpydsk_reset();
+
+        // Release the Spinlock for accessing the Floppy Drive
+        ReleaseSpinlock(SPINLOCK_FLOPPYDRIVE);
 
         // Copy the loaded sector into the destination memory area
         memcpy(Buffer, dmaBuffer, BytesPerSector);
@@ -214,6 +280,8 @@ static RootDirectoryEntry* FindRootDirectoryEntry(unsigned char *Filename)
         // Move to the next Root Directory Entry
         entry = entry + 1;
     }
+
+    // while (1 == 1);
 
     // The requested Root Directory Entry was not found
     return 0;
