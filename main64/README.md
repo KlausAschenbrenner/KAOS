@@ -26,8 +26,8 @@ docker run --rm -it -v $HOME/Documents/GitHub/KAOS:/src sqlpassion/kaos-buildenv
 As you can see, the Docker container just mounts the local source code, and builds everything within the container. The container then exists and is also deleted.
 The result of the build is the file `KAOS64.img` in the `main64` folder, which is a FAT12 formatted flopyy disk that you can mount into your Hypervisor as a bootable floppy disk to run the OS.
 
-!!!CAUTION!!!:
-Currently the OS only works on VMware Fusion/VMWare Workstation!
+!!!CAUTION!!!
+Currently the OS only works on VMware Fusion/VMware Workstation!
 Hyper-V, and all the other Hypervisors are currently NOT working, don't ask me why...
 
 ## How to use the GUI
