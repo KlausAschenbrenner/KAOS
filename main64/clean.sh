@@ -1,3 +1,6 @@
+# Change CRLF to LF in case when Windows has changed it...
+find . -type f \( -name "*.sh" \) -exec sed -i 's/\r$//' {} \;
+
 cd /src/main64/kaosldr
 make clean
 cd ..
