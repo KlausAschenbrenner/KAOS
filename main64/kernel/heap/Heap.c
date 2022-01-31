@@ -18,6 +18,9 @@ unsigned long HEAP_GROWTH =       0x10000;
 
 unsigned long spinlock;
 
+// A Spinlock for making heap allocations single threaded
+DECLARE_SPINLOCK(SPINLOCK_MALLOC);
+
 // Initializes the Heap Manager
 int InitHeap()
 {

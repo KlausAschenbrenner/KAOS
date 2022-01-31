@@ -10,19 +10,19 @@ Linker script and memory map
 
 .text           0xffff8000ffff0000     0x1000 load address 0x00000000ffff0000
  *(.text .text.*)
- .text          0xffff8000ffff0000      0x14f main.o
+ .text          0xffff8000ffff0000      0x15e main.o
                 0xffff8000ffff0000                main
-                0xffff8000ffff0114                Sleep
- .text          0xffff8000ffff014f       0x64 syscalls/syscall.o
-                0xffff8000ffff014f                RaiseSysCall
- *fill*         0xffff8000ffff01b3        0xd 
- .text          0xffff8000ffff01c0        0x9 syscalls/syscall_asm.o
-                0xffff8000ffff01c0                RaiseSysCallAsm
+                0xffff8000ffff0121                Sleep
+ .text          0xffff8000ffff015e       0x67 syscalls/syscall.o
+                0xffff8000ffff015e                RaiseSysCall
+ *fill*         0xffff8000ffff01c5        0xb 
+ .text          0xffff8000ffff01d0        0x9 syscalls/syscall_asm.o
+                0xffff8000ffff01d0                RaiseSysCallAsm
  *(.rodata .rodata.*)
- .rodata        0xffff8000ffff01c9       0x16 main.o
- .rodata        0xffff8000ffff01df       0x1d syscalls/syscall.o
+ .rodata        0xffff8000ffff01d9       0x16 main.o
+ .rodata        0xffff8000ffff01ef       0x1d syscalls/syscall.o
                 0xffff8000ffff1000                . = ALIGN (0x1000)
- *fill*         0xffff8000ffff01fc      0xe04 
+ *fill*         0xffff8000ffff020c      0xdf4 
 
 .eh_frame       0xffff8000ffff1000       0x90 load address 0x00000000ffff1000
  .eh_frame      0xffff8000ffff1000       0x58 main.o
@@ -42,6 +42,6 @@ LOAD syscalls/syscall.o
 LOAD syscalls/syscall_asm.o
 OUTPUT(prog2.bin binary)
 
-.comment        0x0000000000000000       0x24
- .comment       0x0000000000000000       0x12 main.o
- .comment       0x0000000000000012       0x12 syscalls/syscall.o
+.comment        0x0000000000000000       0x26
+ .comment       0x0000000000000000       0x13 main.o
+ .comment       0x0000000000000013       0x13 syscalls/syscall.o

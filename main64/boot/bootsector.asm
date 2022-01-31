@@ -43,9 +43,9 @@ Main:
 	mov sp, bp
 
 	; Set the graphics mode to SVGA (1280 x 1024 - 64K Colors)
-	mov ax, 4F02h
-	mov bx, 0x411A
-	int 0x10
+	; mov ax, 4F02h
+	; mov bx, 0x411A
+	; int 0x10
 
 	call EnableA20
     call LoadRootDirectory
@@ -124,7 +124,7 @@ SecondStageError		            db '', 0
 Cluster			                    dw 0x0000
 
 welcome_message:                    db '', 0
-disk_read_error_message:            db 'd', 0
+disk_read_error_message:            db 'f', 0
 DataSectorBeginning:                dw 0x0000
 
 ;=============================================

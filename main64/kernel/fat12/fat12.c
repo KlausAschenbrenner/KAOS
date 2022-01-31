@@ -22,6 +22,9 @@ unsigned char *FAT_BUFFER;
 const int EOF = 0x0FF0;
 int RootDirectoryLoaded = 0;
 
+// A Spinlock for accessing the Floppy Drive single threaded
+DECLARE_SPINLOCK(SPINLOCK_FLOPPYDRIVE);
+
 // Prints the Root Directory
 void PrintRootDirectory()
 {

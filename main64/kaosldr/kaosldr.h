@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Klaus Aschenbrenner. All rights reserved.
 //
 
-#ifndef KAOS_kernel_h
-#define KAOS_kernel_h
+#ifndef KAOS_KAOSLDR_H
+#define KAOS_KAOSLDR_H
 
 // Outputs formatted tabular data
 void TestTabs();

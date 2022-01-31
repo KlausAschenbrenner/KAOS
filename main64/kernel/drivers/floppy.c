@@ -250,7 +250,7 @@ void flpydsk_write_dor (uint8_t val ) {
 */
 
 //! wait for irq to fire
-inline void flpydsk_wait_irq () {
+void flpydsk_wait_irq () {
 
 	//! wait for irq to fire
 	while ( _FloppyDiskIRQ == 0)

@@ -1,0 +1,226 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0x0000000000020000                . = 0x20000
+
+.text           0x0000000000020000     0x3000
+ *(.text .text.*)
+ .text          0x0000000000020000        0x7 kaosldr_entry.o
+ *fill*         0x0000000000020007        0x9 
+ .text          0x0000000000020010      0x13d idt/idt_asm.o
+                0x0000000000020010                Isr0
+                0x000000000002001a                Isr1
+                0x0000000000020024                Isr2
+                0x000000000002002e                Isr3
+                0x0000000000020038                Isr4
+                0x0000000000020042                Isr5
+                0x000000000002004c                Isr6
+                0x0000000000020056                Isr7
+                0x0000000000020060                Isr8
+                0x000000000002006a                Isr9
+                0x0000000000020074                Isr10
+                0x000000000002007e                Isr11
+                0x0000000000020088                Isr12
+                0x0000000000020092                Isr13
+                0x0000000000020099                Isr14
+                0x00000000000200a0                Isr15
+                0x00000000000200a7                Isr16
+                0x00000000000200ae                Isr17
+                0x00000000000200b5                Isr18
+                0x00000000000200bc                Isr19
+                0x00000000000200c3                Isr20
+                0x00000000000200ca                Isr21
+                0x00000000000200d1                Isr22
+                0x00000000000200d8                Isr23
+                0x00000000000200df                Isr24
+                0x00000000000200e6                Isr25
+                0x00000000000200ed                Isr26
+                0x00000000000200f4                Isr27
+                0x00000000000200fb                Isr28
+                0x0000000000020102                Isr29
+                0x0000000000020109                Isr30
+                0x0000000000020110                Isr31
+                0x000000000002013c                IdtFlush
+                0x0000000000020144                RaiseInterrupt
+ *fill*         0x000000000002014d        0x3 
+ .text          0x0000000000020150       0x99 irq/irq_asm.o
+                0x0000000000020150                Irq0
+                0x0000000000020157                Irq1
+                0x000000000002015e                Irq2
+                0x0000000000020165                Irq3
+                0x000000000002016c                Irq4
+                0x0000000000020173                Irq5
+                0x000000000002017a                Irq6
+                0x0000000000020181                Irq7
+                0x0000000000020188                Irq8
+                0x000000000002018f                Irq9
+                0x0000000000020196                Irq10
+                0x000000000002019d                Irq11
+                0x00000000000201a4                Irq12
+                0x00000000000201ab                Irq13
+                0x00000000000201b2                Irq14
+                0x00000000000201b9                Irq15
+                0x00000000000201e5                DisableInterrupts
+                0x00000000000201e7                EnableInterrupts
+ *fill*         0x00000000000201e9        0x7 
+ .text          0x00000000000201f0      0x1a7 EnterLongMode.o
+                0x00000000000201f6                SwitchToLongMode
+ .text          0x0000000000020397      0x406 drivers/common.o
+                0x0000000000020397                outb
+                0x00000000000203b8                inb
+                0x00000000000203d5                inw
+                0x00000000000203f5                memset
+                0x0000000000020425                memcpy
+                0x0000000000020465                strcmp
+                0x00000000000204b7                strcpy
+                0x0000000000020505                Sleep
+                0x0000000000020525                atoi
+                0x0000000000020576                atoi_len
+                0x00000000000205c1                itoa
+                0x000000000002077c                ltoa
+ .text          0x000000000002079d      0x7a2 drivers/floppy.o
+                0x000000000002079d                flpydsk_initialize_dma
+                0x000000000002083e                flpydsk_dma_read
+                0x0000000000020876                flpydsk_dma_write
+                0x00000000000208ae                flpydsk_read_status
+                0x00000000000208c8                flpydsk_write_dor
+                0x00000000000208f2                flpydsk_wait_irq
+                0x0000000000020909                flpydsk_send_command
+                0x000000000002093d                flpydsk_read_data
+                0x0000000000020960                flpydsk_write_ccr
+                0x000000000002098a                flpydsk_check_int
+                0x00000000000209be                flpydsk_control_motor
+                0x0000000000020a60                flpydsk_drive_data
+                0x0000000000020ae0                flpydsk_calibrate
+                0x0000000000020b7f                flpydsk_disable_controller
+                0x0000000000020b97                flpydsk_enable_controller
+                0x0000000000020baf                flpydsk_reset
+                0x0000000000020c24                flpydsk_read_sector_imp
+                0x0000000000020d35                flpydsk_seek
+                0x0000000000020db7                flpydsk_lba_to_chs
+                0x0000000000020e16                i86_flpy_irq
+                0x0000000000020e23                flpydsk_install
+                0x0000000000020e5a                flpydsk_set_working_drive
+                0x0000000000020e79                flpydsk_get_working_drive
+                0x0000000000020e83                flpydsk_read_sector
+ .text          0x0000000000020f3f      0x311 drivers/keyboard.o
+                0x0000000000020f3f                InitKeyboard
+                0x0000000000020f6b                scanf
+ .text          0x0000000000021250      0x36b drivers/screen.o
+                0x0000000000021250                InitializeScreen
+                0x000000000002127e                GetCursorPosition
+                0x000000000002129a                SetCursorPosition
+                0x00000000000212ba                MoveCursor
+                0x0000000000021341                Scroll
+                0x00000000000213df                print_char
+                0x0000000000021485                printf
+                0x00000000000214b3                printf_len
+                0x00000000000214ea                printf_long
+                0x0000000000021535                ClearScreen
+ .text          0x00000000000215bb       0x42 kaosldr.o
+                0x00000000000215bb                k_main
+ .text          0x00000000000215fd      0x19a pic/pic.o
+                0x00000000000216ce                PICInitialize
+ .text          0x0000000000021797      0x5ce idt/idt.o
+                0x0000000000021797                IsrHandler
+                0x0000000000021850                InitIdt
+ .text          0x0000000000021d65       0x88 irq/irq.o
+                0x0000000000021d65                IrqHandler
+                0x0000000000021dda                RegisterIRQHandler
+ .text          0x0000000000021ded      0x258 fat12/fat12.o
+                0x0000000000021ded                LoadKernelIntoMemory
+                0x0000000000021f2f                FATRead
+                0x0000000000021f92                FindRootDirectoryEntry
+                0x0000000000021fe5                ReadSectors
+                0x0000000000023000                . = ALIGN (0x1000)
+ *fill*         0x0000000000022045      0xfbb 
+
+.rodata         0x0000000000023000       0x87
+ .rodata        0x0000000000023000       0x13 drivers/floppy.o
+                0x0000000000023000                FLOPPY_IRQ
+                0x0000000000023004                FLPY_SECTORS_PER_TRACK
+                0x0000000000023008                DMA_BUFFER
+ *fill*         0x0000000000023013        0x1 
+ .rodata        0x0000000000023014        0x4 drivers/keyboard.o
+                0x0000000000023014                INVALID_SCANCODE
+ .rodata        0x0000000000023018       0x1e idt/idt.o
+ *fill*         0x0000000000023036        0x2 
+ .rodata        0x0000000000023038       0x4f fat12/fat12.o
+                0x0000000000023038                NumberOfFATs
+                0x000000000002303c                SectorsPerFAT
+                0x0000000000023040                SectorsPerCluster
+                0x0000000000023044                ReservedSectors
+                0x0000000000023048                RootEntries
+                0x000000000002304c                BytesPerSector
+                0x0000000000023050                ROOT_DIRECTORY_BUFFER
+                0x0000000000023054                FAT_BUFFER
+                0x0000000000023058                KERNEL_BUFFER
+                0x000000000002305c                EOF
+
+.data           0x00000000000230a0      0x2cc
+ *(.data .data.*)
+ .data          0x00000000000230a0       0x10 drivers/common.o
+                0x00000000000230a0                bchars
+ .data          0x00000000000230b0        0x0 drivers/floppy.o
+ *fill*         0x00000000000230b0       0x10 
+ .data          0x00000000000230c0      0x14c drivers/keyboard.o
+ .data          0x000000000002320c        0x0 drivers/screen.o
+ *fill*         0x000000000002320c       0x14 
+ .data          0x0000000000023220      0x14c kaosldr.o
+ .data          0x000000000002336c        0x0 pic/pic.o
+ .data          0x000000000002336c        0x0 idt/idt.o
+ .data          0x000000000002336c        0x0 irq/irq.o
+ .data          0x000000000002336c        0x0 fat12/fat12.o
+
+.bss            0x0000000000023380      0xc60
+ *(.bss .bss.*)
+ .bss           0x0000000000023380       0x20 drivers/common.o
+                0x0000000000023380                tbuf
+ .bss           0x00000000000233a0        0x2 drivers/floppy.o
+ *fill*         0x00000000000233a2        0x2 
+ .bss           0x00000000000233a4        0x9 drivers/keyboard.o
+                0x00000000000233a4                _shiftKey
+                0x00000000000233a8                _capsLock
+ *fill*         0x00000000000233ad        0x3 
+ .bss           0x00000000000233b0        0xc drivers/screen.o
+                0x00000000000233b0                screenLocation
+ .bss           0x00000000000233bc        0x0 kaosldr.o
+ .bss           0x00000000000233bc        0x0 pic/pic.o
+ *fill*         0x00000000000233bc        0x4 
+ .bss           0x00000000000233c0      0x806 idt/idt.o
+                0x00000000000233c0                _idtEntries
+                0x0000000000023bc0                _idtPointer
+ *fill*         0x0000000000023bc6       0x1a 
+ .bss           0x0000000000023be0      0x400 irq/irq.o
+                0x0000000000023be0                InterruptHandlers
+ .bss           0x0000000000023fe0        0x0 fat12/fat12.o
+LOAD kaosldr_entry.o
+LOAD idt/idt_asm.o
+LOAD irq/irq_asm.o
+LOAD EnterLongMode.o
+LOAD drivers/common.o
+LOAD drivers/floppy.o
+LOAD drivers/keyboard.o
+LOAD drivers/screen.o
+LOAD kaosldr.o
+LOAD pic/pic.o
+LOAD idt/idt.o
+LOAD irq/irq.o
+LOAD fat12/fat12.o
+OUTPUT(kaosldr.bin binary)
+
+.comment        0x0000000000000000       0xab
+ .comment       0x0000000000000000       0x13 drivers/common.o
+ .comment       0x0000000000000013       0x13 drivers/floppy.o
+ .comment       0x0000000000000026       0x13 drivers/keyboard.o
+ .comment       0x0000000000000039       0x13 drivers/screen.o
+ .comment       0x000000000000004c       0x13 kaosldr.o
+ .comment       0x000000000000005f       0x13 pic/pic.o
+ .comment       0x0000000000000072       0x13 idt/idt.o
+ .comment       0x0000000000000085       0x13 irq/irq.o
+ .comment       0x0000000000000098       0x13 fat12/fat12.o

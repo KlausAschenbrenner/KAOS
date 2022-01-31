@@ -44,9 +44,6 @@ typedef struct ScreenLocation
 	int Attributes;
 } ScreenLocation;
 
-// Define a variable for the screen location information
-ScreenLocation screenLocation;
-
 // Prints a single character
 void print_char(char character);
 

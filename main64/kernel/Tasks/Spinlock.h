@@ -22,10 +22,4 @@
 	__sync_synchronize(); \
 	name ## Locked = 0;
 
-// A Spinlock for accessing the Floppy Drive single threaded
-DECLARE_SPINLOCK(SPINLOCK_FLOPPYDRIVE);
-
-// A Spinlock for making heap allocations single threaded
-DECLARE_SPINLOCK(SPINLOCK_MALLOC);
-
 #endif

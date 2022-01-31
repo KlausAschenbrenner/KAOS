@@ -35,7 +35,7 @@ extern int LeftMouseButtonDown;
 extern int LeftMouseButtonUp;
 
 // Indicates if KAOS is executed with a GUI or in Text Mode
-int UIMode = 1;
+int UIMode = 0;
 
 void k_main()
 {
